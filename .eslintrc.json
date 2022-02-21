@@ -4,6 +4,7 @@
     "react-hooks"
   ],
   "rules": {
+    "indent": ["error", 2],
     "semi": ["error", "always"],
     "comma-dangle": ["error", "always-multiline"],
     "react-hooks/rules-of-hooks": "error",

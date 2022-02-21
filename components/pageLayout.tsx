@@ -1,58 +1,91 @@
-import { AppBar, BottomNavigation, BottomNavigationAction, Container, IconButton, Toolbar, Typography } from "@mui/material";
+import { AppBar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from "@mui/material";
 import { Groups, SportsBar, AdminPanelSettings, ArrowBack, Brightness6, Logout } from "@mui/icons-material";
 import { ReactElement } from "react";
 import { invertTheme, useAppTheme } from "../lib/theme";
+import { useRouter } from "next/router";
 
-interface PageLayoutProps {
+type PageLayoutProps = {
     children: ReactElement,
-}
+    title: string,
+    showBackButton: boolean,
+    hideBottomNavigation: boolean,
+};
+
+const defaultProps: Partial<PageLayoutProps> = {
+  showBackButton: false,
+  hideBottomNavigation: false,
+};
 
 const ToggleThemeButton = () => {
-    const [theme, setTheme] = useAppTheme();
+  const [theme, setTheme] = useAppTheme();
 
-    return (
-        <IconButton
-            size="large"
-            color="inherit"
-            onClick={() => setTheme(invertTheme(theme!))}>
-            <Brightness6 />
-        </IconButton>
-    );
+  return (
+    <IconButton
+      size="large"
+      color="inherit"
+      onClick={() => setTheme(invertTheme(theme!))}>
+      <Brightness6 />
+    </IconButton>
+  );
 };
 
-const PageLayout = ({ children }: PageLayoutProps) => {
-    return (
-        <Container maxWidth="md" disableGutters>
-            <AppBar position="sticky">
-                <Toolbar>
-                    <IconButton
-                        size="large"
-                        edge="start"
-                        color="inherit">
-                        <ArrowBack />
-                    </IconButton>
+const PageLayout = ({ children, title, showBackButton, hideBottomNavigation }: PageLayoutProps) => {
+  const router = useRouter();
 
-                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                        Oui
-                    </Typography>
+  return (
+    <Container maxWidth="md" disableGutters>
+      <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+      }}>
+        <AppBar position="sticky">
+          <Toolbar>
+            {showBackButton &&
+                            <IconButton
+                              size="large"
+                              edge="start"
+                              color="inherit"
+                              onClick={() => router.back()}
+                            >
+                              <ArrowBack />
+                            </IconButton>
+            }
 
-                    <ToggleThemeButton />
-                    <IconButton
-                        size="large"
-                        edge="end"
-                        color="inherit">
-                        <Logout />
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
-            {children}
-            <BottomNavigation showLabels color="inherit">
-                <BottomNavigationAction label="Comptes" icon={<Groups />} color="inherit" />
-                <BottomNavigationAction label="Bières" icon={<SportsBar />} color="inherit" />
-                <BottomNavigationAction label="Staff" icon={<AdminPanelSettings />} color="inherit" />
-            </BottomNavigation>
-        </Container>
-    );
+            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+              {title}
+            </Typography>
+
+            <ToggleThemeButton />
+            <IconButton
+              size="large"
+              edge="end"
+              color="inherit">
+              <Logout />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+
+        <>
+          {children}
+        </>
+
+        {!hideBottomNavigation &&
+                    <BottomNavigation
+                      value={router.pathname}
+                      onChange={(e, route) => router.push(route)}
+                      showLabels
+                      color="inherit"
+                    >
+                      <BottomNavigationAction value={"/"} label="Comptes" icon={<Groups />} color="inherit" />
+                      <BottomNavigationAction value={"/beers"} label="Bières" icon={<SportsBar />} color="inherit" />
+                      <BottomNavigationAction value={"/staffs"} label="Staff" icon={<AdminPanelSettings />} color="inherit" />
+                    </BottomNavigation>
+        }
+      </Box>
+    </Container>
+  );
 };
+PageLayout.defaultProps = defaultProps;
 
 export default PageLayout;

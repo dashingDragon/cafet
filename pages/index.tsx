@@ -1,26 +1,23 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Button from '@mui/material/Button';
-import { Box } from '@mui/material';
 import PageLayout from '../components/pageLayout';
+import AccountList from '../components/accountList';
 
-const Home: NextPage = () => {
+const AccountPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>S&apos;Beer Eck</title>
+        <title>{"S'Beer Eck"}</title>
         <meta name="description" content="S'Beer Eck App" />
       </Head>
 
       <main>
-        <PageLayout>
-          <Box sx={{bgcolor: "red"}}>
-            <Button variant="contained">Coucou</Button>
-          </Box>
+        <PageLayout title={"S'Beer Eck"}>
+          <AccountList />
         </PageLayout>
       </main>
     </>
   );
 };
 
-export default Home;
+export default AccountPage;
