@@ -1,4 +1,4 @@
-import type {} from '@mui/x-data-grid/themeAugmentation';
+import type {} from '@mui/x-data-grid-pro/themeAugmentation';
 import { createTheme, PaletteMode } from "@mui/material";
 import useLocalStorage from "@rehooks/local-storage";
 
