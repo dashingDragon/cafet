@@ -5,6 +5,7 @@
   ],
   "rules": {
     "indent": ["error", 2],
+    "quotes": ["error", "double", { "allowTemplateLiterals": true }],
     "semi": ["error", "always"],
     "comma-dangle": ["error", "always-multiline"],
     "react-hooks/rules-of-hooks": "error",

@@ -1,5 +1,5 @@
-import { Dialog, DialogContent, DialogTitle, DialogActions, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField, Button, InputLabel, Select, MenuItem } from "@mui/material";
-import { Account, School } from "../pages/accounts/[id]";
+import { Dialog, DialogContent, DialogTitle, DialogActions, FormControl, TextField, Button, Select, MenuItem } from "@mui/material";
+import { Account, School } from "../lib/accounts";
 
 type AccountEditDialogProps = {
   account: Account,

@@ -1,7 +1,8 @@
 import { AccountBalanceWallet, Error, Close, SportsBar, Edit, DeleteForever, LocalBar, LocalBarOutlined, Savings, SavingsOutlined } from "@mui/icons-material";
 import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, Typography } from "@mui/material";
-import { useState } from "react";
-import { Account, School } from "../pages/accounts/[id]";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { Account, School } from "../lib/accounts";
 import AccountEditDialog from "./accountEditDialog";
 
 type AccountDetailsProps = {
@@ -89,27 +90,33 @@ const AccountBalanceAndRecharge = ({ account }: AccountDetailsProps) => {
 };
 
 const AccountActions = ({ account }: AccountDetailsProps) => {
+  // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteConfirm1Open, setDeleteConfirm1Open] = useState(false);
   const [deleteConfirm2Open, setDeleteConfirm2Open] = useState(false);
+
+  const router = useRouter();
 
   const buttons = [
     {
       icon: <SportsBar fontSize="large" />,
       color: undefined,
       text: "Encaisser",
-      onClick: () => setEditDialogOpen(true),
+      enabled: () => account.balance > 0,
+      onClick: () => router.push(`/accounts/${account.id}/pay`),
     },
     {
       icon: <Edit fontSize="large" />,
       color: "secondary",
       text: "Editer",
+      enabled: () => true,
       onClick: () => setEditDialogOpen(true),
     },
     {
       icon: <DeleteForever fontSize="large" />,
       color: "error",
       text: "Supprimer",
+      enabled: () => true,
       onClick: () => setDeleteConfirm1Open(true),
     },
   ] as const;
@@ -119,10 +126,11 @@ const AccountActions = ({ account }: AccountDetailsProps) => {
       <Box width="100%">
         <ButtonGroup variant="contained" fullWidth>
 
-          {buttons.map(({ icon, color, text, onClick }, i) =>
+          {buttons.map(({ icon, color, text, enabled, onClick }, i) =>
             <Button
               key={i}
               onClick={onClick}
+              disabled={!enabled()}
               color={color}
               sx={{ textTransform: "none" }}
             >
@@ -245,10 +253,10 @@ const AccountStats = ({ account }: AccountDetailsProps) => {
       <CardContent>
         <Typography variant="h6" sx={{ pb: 2 }}>Statistiques</Typography>
         {/* For each row */}
-        {rows.map((row) =>
+        {rows.map((row, i) =>
           <>
-            <Divider />
-            <Box display="flex" justifyContent="space-around" py="0.5em">
+            <Divider key={i} />
+            <Box key={i} display="flex" justifyContent="space-around" py="0.5em">
               {/* For each stat in the row */}
               {row.map(({ icon, value, text }, i) =>
                 <Box key={i} display="flex" flexDirection="column" alignItems="center">
@@ -270,6 +278,13 @@ const AccountStats = ({ account }: AccountDetailsProps) => {
 const AccountDetails = (props: AccountDetailsProps) => {
   const { account } = props;
   const linesParams = { m: 2, mb: 0 };
+
+  const router = useRouter();
+
+  useEffect(() => {
+    // If we are here we are proably going to be heading there
+    router.prefetch(`/accounts/${account.id}/pay`);
+  });
 
   return (
     <>

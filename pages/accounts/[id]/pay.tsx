@@ -1,11 +1,10 @@
-import { Typography } from "@mui/material";
+import { Box, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import PageLayout from '../../../components/pageLayout';
-import { Account, School } from "../[id]";
-
-// TODO: all
+import PageLayout from "../../../components/pageLayout";
+import PayForm from "../../../components/payForm";
+import { Account, School } from "../../../lib/accounts";
 
 const AccountPayPage: NextPage = () => {
   const router = useRouter();
@@ -33,8 +32,8 @@ const AccountPayPage: NextPage = () => {
       </Head>
 
       <main>
-        <PageLayout title={`Encaisser ${account.firstName} ${account.lastName}`}>
-          <Typography>Hi</Typography>
+        <PageLayout title={`Encaisser ${account.firstName} ${account.lastName}`} hideBottomNavigation backTo={`/accounts/${id}`}>
+          <PayForm account={account} />
         </PageLayout>
       </main>
     </>

@@ -1,8 +1,8 @@
-import type { NextPage } from 'next';
-import Head from 'next/head';
-import { Box, Typography } from '@mui/material';
-import PageLayout from '../components/pageLayout';
-import FullHeightScrollableContainer from '../components/scrollableContainer';
+import type { NextPage } from "next";
+import Head from "next/head";
+import { Box, Typography } from "@mui/material";
+import PageLayout from "../components/pageLayout";
+import FullHeightScrollableContainer from "../components/scrollableContainer";
 
 const StaffPage: NextPage = () => {
   return (

@@ -52,6 +52,7 @@ const AccountList = () => {
         getRowClassName={(a) => a.row.balance <= 0 ? "sbeereck-poor" : ""}
         sx={{
           border: 0,
+          // Yes I'm cheating
           "& .MuiDataGrid-main > div:nth-child(3)": {
             display: "none",
           },

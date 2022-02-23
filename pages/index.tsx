@@ -1,7 +1,7 @@
-import type { NextPage } from 'next';
-import Head from 'next/head';
-import PageLayout from '../components/pageLayout';
-import AccountList from '../components/accountList';
+import type { NextPage } from "next";
+import Head from "next/head";
+import PageLayout from "../components/pageLayout";
+import AccountList from "../components/accountList";
 
 const AccountPage: NextPage = () => {
   return (

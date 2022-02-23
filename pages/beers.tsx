@@ -1,8 +1,8 @@
-import { Typography } from '@mui/material';
-import type { NextPage } from 'next';
-import Head from 'next/head';
-import PageLayout from '../components/pageLayout';
-import FullHeightScrollableContainer from '../components/scrollableContainer';
+import { Typography } from "@mui/material";
+import type { NextPage } from "next";
+import Head from "next/head";
+import PageLayout from "../components/pageLayout";
+import FullHeightScrollableContainer from "../components/scrollableContainer";
 
 const BeerPage: NextPage = () => {
   return (

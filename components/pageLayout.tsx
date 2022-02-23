@@ -7,12 +7,12 @@ import { useRouter } from "next/router";
 type PageLayoutProps = {
     children: ReactElement,
     title: string,
-    showBackButton: boolean,
+    backTo: string | undefined,
     hideBottomNavigation: boolean,
 };
 
 const defaultProps: Partial<PageLayoutProps> = {
-  showBackButton: false,
+  backTo: undefined,
   hideBottomNavigation: false,
 };
 
@@ -29,7 +29,7 @@ const ToggleThemeButton = () => {
   );
 };
 
-const PageLayout = ({ children, title, showBackButton, hideBottomNavigation }: PageLayoutProps) => {
+const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayoutProps) => {
   const router = useRouter();
 
   return (
@@ -41,12 +41,12 @@ const PageLayout = ({ children, title, showBackButton, hideBottomNavigation }: P
       }}>
         <AppBar position="sticky">
           <Toolbar>
-            {showBackButton &&
+            {backTo !== undefined &&
                             <IconButton
                               size="large"
                               edge="start"
                               color="inherit"
-                              onClick={() => router.back()}
+                              onClick={() => router.push(backTo)}
                             >
                               <ArrowBack />
                             </IconButton>
