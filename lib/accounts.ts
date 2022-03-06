@@ -1,15 +1,15 @@
 
 export enum School {
     Ensimag = 0,
-    Phelma,
-    E3,
-    Papet,
-    Gi,
-    Polytech,
-    Esisar,
-    Iae,
-    Uga,
-    Unknown,
+    Phelma = 1,
+    E3 = 2,
+    Papet = 3,
+    Gi = 4,
+    Polytech = 5,
+    Esisar = 6,
+    Iae = 7,
+    Uga = 8,
+    Unknown = 9,
 }
 
 

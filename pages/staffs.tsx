@@ -3,6 +3,7 @@ import Head from "next/head";
 import { Box, Typography } from "@mui/material";
 import PageLayout from "../components/pageLayout";
 import FullHeightScrollableContainer from "../components/scrollableContainer";
+import StaffList from "../components/staffList";
 
 const StaffPage: NextPage = () => {
   return (
@@ -15,7 +16,7 @@ const StaffPage: NextPage = () => {
       <main>
         <PageLayout title={"S'Beer Eck"}>
           <FullHeightScrollableContainer>
-            <Typography variant='body1'>Staffs</Typography>
+            <StaffList />
           </FullHeightScrollableContainer>
         </PageLayout>
       </main>

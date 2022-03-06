@@ -1,6 +1,6 @@
-import { Typography } from "@mui/material";
 import type { NextPage } from "next";
 import Head from "next/head";
+import BeerList from "../components/beerList";
 import PageLayout from "../components/pageLayout";
 import FullHeightScrollableContainer from "../components/scrollableContainer";
 
@@ -15,7 +15,7 @@ const BeerPage: NextPage = () => {
       <main>
         <PageLayout title={"S'Beer Eck"}>
           <FullHeightScrollableContainer>
-            <Typography variant='body1'>Beers</Typography>
+            <BeerList />
           </FullHeightScrollableContainer>
         </PageLayout>
       </main>

@@ -1,13 +1,9 @@
 import { AccountBalanceWallet, Error, Close, SportsBar, Edit, DeleteForever, LocalBar, LocalBarOutlined, Savings, SavingsOutlined } from "@mui/icons-material";
 import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Account, School } from "../lib/accounts";
 import AccountEditDialog from "./accountEditDialog";
-
-type AccountDetailsProps = {
-  account: Account,
-};
 
 const schoolToImage = (school: School) => {
   return `/schools/${School[school].toLowerCase()}.png`;
@@ -16,7 +12,7 @@ const schoolToImage = (school: School) => {
 const formatQuantity = (v: number) => v.toLocaleString() + " L";
 const formatMoney = (v: number) => (v / 100).toLocaleString() + " €";
 
-const AccountHeader = ({ account }: AccountDetailsProps) => {
+const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
   return (
     <Card>
       <CardContent>
@@ -38,7 +34,7 @@ const AccountHeader = ({ account }: AccountDetailsProps) => {
   );
 };
 
-const AccountBalanceAndRecharge = ({ account }: AccountDetailsProps) => {
+const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleDialogClose = () => setDialogOpen(false);
 
@@ -89,7 +85,7 @@ const AccountBalanceAndRecharge = ({ account }: AccountDetailsProps) => {
   );
 };
 
-const AccountActions = ({ account }: AccountDetailsProps) => {
+const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
   // Dialog states
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteConfirm1Open, setDeleteConfirm1Open] = useState(false);
@@ -149,6 +145,7 @@ const AccountActions = ({ account }: AccountDetailsProps) => {
         account={account}
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
+        onSubmit={(a, b, c) => console.log(a, b, c)}
       />
 
       {/* Delete confirm 1 */}
@@ -156,7 +153,7 @@ const AccountActions = ({ account }: AccountDetailsProps) => {
         <DialogTitle>Etes vous vraiment sûr de supprimer ce compte ?</DialogTitle>
         <DialogActions>
           <Button onClick={() => setDeleteConfirm1Open(false)}>Annuler</Button>
-          <Button onClick={() => {setDeleteConfirm1Open(false); setDeleteConfirm2Open(true);}}>Ok</Button>
+          <Button onClick={() => { setDeleteConfirm1Open(false); setDeleteConfirm2Open(true); }}>Ok</Button>
         </DialogActions>
       </Dialog>
 
@@ -172,7 +169,7 @@ const AccountActions = ({ account }: AccountDetailsProps) => {
   );
 };
 
-const AccountNotAMember = ({ account }: AccountDetailsProps) => {
+const AccountNotAMember: React.FC<{ account: Account }> = ({ account }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleDialogClose = () => setDialogOpen(false);
 
@@ -212,7 +209,7 @@ const AccountNotAMember = ({ account }: AccountDetailsProps) => {
   );
 };
 
-const AccountStats = ({ account }: AccountDetailsProps) => {
+const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
   // TODO: replace with real data
   const rows = [
     [
@@ -254,9 +251,9 @@ const AccountStats = ({ account }: AccountDetailsProps) => {
         <Typography variant="h6" sx={{ pb: 2 }}>Statistiques</Typography>
         {/* For each row */}
         {rows.map((row, i) =>
-          <>
-            <Divider key={i} />
-            <Box key={i} display="flex" justifyContent="space-around" py="0.5em">
+          <div key={i}>
+            <Divider />
+            <Box display="flex" justifyContent="space-around" py="0.5em">
               {/* For each stat in the row */}
               {row.map(({ icon, value, text }, i) =>
                 <Box key={i} display="flex" flexDirection="column" alignItems="center">
@@ -268,14 +265,14 @@ const AccountStats = ({ account }: AccountDetailsProps) => {
                 </Box>
               )}
             </Box>
-          </>
+          </div>
         )}
       </CardContent>
     </Card>
   );
 };
 
-const AccountDetails = (props: AccountDetailsProps) => {
+const AccountDetails: React.FC<{ account: Account }> = (props) => {
   const { account } = props;
   const linesParams = { m: 2, mb: 0 };
 

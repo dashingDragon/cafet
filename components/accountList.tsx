@@ -1,6 +1,9 @@
-import { Box, darken, TextField } from "@mui/material";
+import { Add } from "@mui/icons-material";
+import { Box, darken, Fab, TextField } from "@mui/material";
 import { DataGridPro, GridColDef } from "@mui/x-data-grid-pro";
 import { useRouter } from "next/router";
+import { useState } from "react";
+import AccountEditDialog from "./accountEditDialog";
 
 const AccountList = () => {
   const router = useRouter();
@@ -9,11 +12,11 @@ const AccountList = () => {
     { field: "firstName", headerName: "Prénom", resizable: false, sortable: false, flex: 1 },
     { field: "lastName", headerName: "Nom", resizable: false, sortable: false, flex: 1 },
     { field: "isMember", headerName: "Membre?", type: "boolean", resizable: false, sortable: false, flex: 0.5 },
-    { 
-      field: "balance", 
+    {
+      field: "balance",
       headerName: "Solde",
-      resizable: false, 
-      sortable: false, 
+      resizable: false,
+      sortable: false,
       flex: 0.5,
       valueFormatter: (params) => (params.value as number / 100).toLocaleString() + "€",
     },
@@ -25,12 +28,14 @@ const AccountList = () => {
     firstName: "John",
     lastName: "Doe",
     isMember: Math.random() > 0.2,
-    balance: Math.round((Math.random() -0.2) * 2000),
+    balance: Math.round((Math.random() - 0.2) * 2000),
   }));
 
+  const [createAccountDialogOpen, setCreateAccountDialogOpen] = useState(false);
+
   return (
-    <>
-      <Box sx={{ m: "1em" }}>
+    <Box position="relative" flexGrow="1" overflow="hidden">
+      <Box m={1}>
         <TextField placeholder="Chercher" fullWidth variant="standard" />
       </Box>
 
@@ -67,7 +72,26 @@ const AccountList = () => {
           },
         }}
       />
-    </>
+
+      <Fab
+        onClick={() => setCreateAccountDialogOpen(true)}
+        color="primary"
+        sx={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+        }}
+      >
+        <Add />
+      </Fab>
+
+      <AccountEditDialog
+        account={null}
+        open={createAccountDialogOpen}
+        onClose={() => setCreateAccountDialogOpen(false)}
+        onSubmit={(a, b, c) => console.log(a, b, c)}
+      />
+    </Box>
   );
 };
 
