@@ -1,3 +1,4 @@
+import { FirestoreDataConverter } from "firebase/firestore";
 
 export enum School {
     Ensimag = 0,
@@ -24,4 +25,27 @@ export type Account = {
         quantityDrank: number;
         totalMoney: number;
     };
+};
+
+export const accountConverter: FirestoreDataConverter<Account> = {
+  fromFirestore: (snapshot, options) => {
+    const data = snapshot.data(options);
+    const { firstName, lastName, isMember, school, balance, stats: { quantityDrank, totalMoney } } = data;
+    return {
+      id: snapshot.id,
+      firstName,
+      lastName,
+      isMember,
+      school,
+      balance,
+      stats: {
+        quantityDrank,
+        totalMoney,
+      },
+    };
+  },
+  toFirestore: (account) => {
+    const { firstName, lastName, isMember, school, balance, stats } = account;
+    return { firstName, lastName, isMember, school, balance, stats };
+  },
 };

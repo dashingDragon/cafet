@@ -3,12 +3,13 @@ import { Groups, SportsBar, AdminPanelSettings, ArrowBack, Brightness6, Logout }
 import { ReactElement } from "react";
 import { invertTheme, useAppTheme } from "../lib/theme";
 import { useRouter } from "next/router";
+import { getAuth, signOut } from "firebase/auth";
 
 type PageLayoutProps = {
-    children: ReactElement,
-    title: string,
-    backTo: string | undefined,
-    hideBottomNavigation: boolean,
+  children: ReactElement,
+  title: string,
+  backTo: string | undefined,
+  hideBottomNavigation: boolean,
 };
 
 const defaultProps: Partial<PageLayoutProps> = {
@@ -31,6 +32,9 @@ const ToggleThemeButton = () => {
 
 const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayoutProps) => {
   const router = useRouter();
+  const handleLogout = async () => {
+    await signOut(getAuth());
+  };
 
   return (
     <Container maxWidth="md" disableGutters>
@@ -42,14 +46,14 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
         <AppBar position="sticky">
           <Toolbar>
             {backTo !== undefined &&
-                            <IconButton
-                              size="large"
-                              edge="start"
-                              color="inherit"
-                              onClick={() => router.push(backTo)}
-                            >
-                              <ArrowBack />
-                            </IconButton>
+              <IconButton
+                size="large"
+                edge="start"
+                color="inherit"
+                onClick={() => router.push(backTo)}
+              >
+                <ArrowBack />
+              </IconButton>
             }
 
             <Typography variant="h6" sx={{ flexGrow: 1 }}>
@@ -58,6 +62,7 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
 
             <ToggleThemeButton />
             <IconButton
+              onClick={handleLogout}
               size="large"
               edge="end"
               color="inherit">
@@ -71,16 +76,16 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
         </>
 
         {!hideBottomNavigation &&
-                    <BottomNavigation
-                      value={router.pathname}
-                      onChange={(e, route) => router.push(route)}
-                      showLabels
-                      color="inherit"
-                    >
-                      <BottomNavigationAction value={"/"} label="Comptes" icon={<Groups />} color="inherit" />
-                      <BottomNavigationAction value={"/beers"} label="Bières" icon={<SportsBar />} color="inherit" />
-                      <BottomNavigationAction value={"/staffs"} label="Staff" icon={<AdminPanelSettings />} color="inherit" />
-                    </BottomNavigation>
+          <BottomNavigation
+            value={router.pathname}
+            onChange={(e, route) => router.push(route)}
+            showLabels
+            color="inherit"
+          >
+            <BottomNavigationAction value={"/"} label="Comptes" icon={<Groups />} color="inherit" />
+            <BottomNavigationAction value={"/beers"} label="Bières" icon={<SportsBar />} color="inherit" />
+            <BottomNavigationAction value={"/staffs"} label="Staff" icon={<AdminPanelSettings />} color="inherit" />
+          </BottomNavigation>
         }
       </Box>
     </Container>

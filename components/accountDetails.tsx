@@ -3,6 +3,7 @@ import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActi
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Account, School } from "../lib/accounts";
+import { useRechargeTransactionMaker } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
 
 const schoolToImage = (school: School) => {
@@ -10,33 +11,43 @@ const schoolToImage = (school: School) => {
 };
 
 const formatQuantity = (v: number) => v.toLocaleString() + " L";
-const formatMoney = (v: number) => (v / 100).toLocaleString() + " €";
+const formatMoney = (v: number) => (v / 100).toFixed(2) + " €";
 
 const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
   return (
     <Card>
       <CardContent>
-        <Grid container>
-          <Grid item xs={3}>
-            <Avatar
-              alt="School logo"
-              src={schoolToImage(account.school)}
-              sx={{ width: 64, height: 64 }}
-            />
-          </Grid>
-          <Grid container item xs={9} direction="column" justifyContent="center">
+        <Box display="flex">
+          <Avatar
+            alt="School logo"
+            src={schoolToImage(account.school)}
+            sx={{ width: 64, height: 64 }}
+          />
+          <Box display="flex" flexDirection="column" ml={2}>
             <Typography variant="h5">{account.firstName} {account.lastName.toUpperCase()}</Typography>
-            <Typography variant="overline">{account.id}</Typography>
-          </Grid>
-        </Grid>
+            <Typography variant="overline" sx={{ textTransform: "none" }}>{account.id}</Typography>
+          </Box>
+        </Box>
       </CardContent>
     </Card>
   );
 };
 
 const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) => {
+  const recharge = useRechargeTransactionMaker();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const handleDialogClose = () => setDialogOpen(false);
+  const [rechargeAmount, setRechargeAmount] = useState(null as number | null);
+
+  const handleDialogClose = () => {
+    setRechargeAmount(null);
+    setDialogOpen(false)
+  };
+
+  const handleRecharge = async () => {
+    setDialogOpen(false);
+    await recharge(account, (rechargeAmount ?? 0) * 100);
+    setRechargeAmount(null);
+  }
 
   return (
     <>
@@ -70,6 +81,9 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
         <DialogTitle>Recharger le compte</DialogTitle>
         <DialogContent>
           <TextField
+            value={rechargeAmount ?? ""}
+            onChange={(e) => setRechargeAmount(e.target.value.length == 0 ? null : +e.target.value)}
+            type="number"
             autoFocus
             placeholder="Montant (€)"
             variant="standard"
@@ -78,7 +92,7 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Annuler</Button>
-          <Button onClick={handleDialogClose}>Ok</Button>
+          <Button onClick={handleRecharge}>Ok</Button>
         </DialogActions>
       </Dialog>
     </>

@@ -2,11 +2,21 @@ import { Add } from "@mui/icons-material";
 import { Box, darken, Fab, TextField } from "@mui/material";
 import { DataGridPro, GridColDef } from "@mui/x-data-grid-pro";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAccountList, useStaffUser } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
 
 const AccountList = () => {
   const router = useRouter();
+  const staff = useStaffUser();
+  const allRows = useAccountList();
+  const [rows, setRows] = useState(allRows);
+  const [createAccountDialogOpen, setCreateAccountDialogOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    handleSearch(query);
+  }, [allRows]);
 
   const columns: GridColDef[] = [
     { field: "firstName", headerName: "Prénom", resizable: false, sortable: false, flex: 1 },
@@ -18,25 +28,31 @@ const AccountList = () => {
       resizable: false,
       sortable: false,
       flex: 0.5,
-      valueFormatter: (params) => (params.value as number / 100).toLocaleString() + "€",
+      valueFormatter: (params) => (params.value as number / 100).toFixed(2) + "€",
     },
   ];
 
-  // TODO: real data
-  const rows = Array(400).fill(0).map((_, i) => ({
-    id: i,
-    firstName: "John",
-    lastName: "Doe",
-    isMember: Math.random() > 0.2,
-    balance: Math.round((Math.random() - 0.2) * 2000),
-  }));
+  const handleSearch = (q: string) => {
+    setQuery(q);
+    const keywords = q.toLowerCase().split(" ").filter((k) => k.length > 0);
 
-  const [createAccountDialogOpen, setCreateAccountDialogOpen] = useState(false);
+    const filtered = allRows
+      .filter(({ firstName, lastName }) => keywords
+        .every((keyword) => firstName.toLowerCase().includes(keyword) || lastName.toLowerCase().includes(keyword)));
+
+    setRows(filtered);
+  };
 
   return (
     <Box position="relative" flexGrow="1" overflow="hidden">
       <Box m={1}>
-        <TextField placeholder="Chercher" fullWidth variant="standard" />
+        <TextField
+          value={query}
+          onChange={(e) => handleSearch(e.target.value ?? "")}
+          placeholder="Chercher"
+          variant="standard"
+          fullWidth
+        />
       </Box>
 
       <DataGridPro
@@ -45,8 +61,8 @@ const AccountList = () => {
         initialState={{
           sorting: {
             sortModel: [
-              { field: "firstName", sort: "desc" },
-              { field: "lastName", sort: "desc" },
+              { field: "firstName", sort: "asc" },
+              { field: "lastName", sort: "asc" },
             ],
           },
         }}
@@ -73,17 +89,19 @@ const AccountList = () => {
         }}
       />
 
-      <Fab
-        onClick={() => setCreateAccountDialogOpen(true)}
-        color="primary"
-        sx={{
-          position: "absolute",
-          bottom: 16,
-          right: 16,
-        }}
-      >
-        <Add />
-      </Fab>
+      {staff?.isAdmin &&
+        <Fab
+          onClick={() => setCreateAccountDialogOpen(true)}
+          color="primary"
+          sx={{
+            position: "absolute",
+            bottom: 16,
+            right: 16,
+          }}
+        >
+          <Add />
+        </Fab>
+      }
 
       <AccountEditDialog
         account={null}
