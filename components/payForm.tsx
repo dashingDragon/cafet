@@ -4,43 +4,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { Account } from "../lib/accounts";
 import { Beer, BeerType, BeerWithType } from "../lib/beers";
-
-const beers: Beer[] = [
-  {
-    id: "1",
-    name: "BDN",
-    isAvailable: true,
-    image: "/beers/bdn.png",
-    typeId: "1",
-  },
-  {
-    id: "2",
-    name: "Chouffe",
-    isAvailable: true,
-    image: "/beers/chouffe.png",
-    typeId: "2",
-  },
-];
-
-const types: BeerType[] = [
-  {
-    id: "1",
-    name: "Normal",
-    price: 120,
-    addons: [],
-  },
-  {
-    id: "2",
-    name: "Spécial",
-    price: 165,
-    addons: [{ id: "1", name: "Picon", price: 100 }],
-  },
-];
-
-const beerWithTypes: BeerWithType[] = [
-  { beer: beers[0], type: types[0] },
-  { beer: beers[1], type: types[1] },
-];
+import { useBeers } from "../lib/firestoreHooks";
 
 const formatMoney = (money: number) => (money / 100).toFixed(2) + "€";
 
@@ -156,6 +120,7 @@ type PayFormProps = {
 
 const PayForm = ({ account }: PayFormProps) => {
   const router = useRouter();
+  const beerWithTypes = useBeers();
 
   // State
   const [selectedBeer, setSelectedBeer] = useState(null as string | null);

@@ -3,7 +3,7 @@ import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActi
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Account, School } from "../lib/accounts";
-import { useRechargeTransactionMaker } from "../lib/firestoreHooks";
+import { useAccountMaker, useAccountDeleter, useMakeMember, useRechargeTransactionMaker, useStaffUser, useAccountEditor } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
 
 const schoolToImage = (school: School) => {
@@ -106,6 +106,29 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
   const [deleteConfirm2Open, setDeleteConfirm2Open] = useState(false);
 
   const router = useRouter();
+  const staff = useStaffUser();
+  const accountEditor = useAccountEditor();
+  const accountDeleter = useAccountDeleter();
+
+  const handleAccountEdit = async (firstName: string, lastName: string, school: School) => {
+    try {
+      setEditDialogOpen(false);
+      await accountEditor(account,firstName, lastName, school);
+    } catch (e: any) {
+      alert(`Failed to edit account: ${e}`);
+    }
+  };
+
+  const handleAccountDelete = async () => {
+    try {
+      setDeleteConfirm1Open(false);
+      setDeleteConfirm2Open(false);
+      await accountDeleter(account);
+      router.replace("/");
+    } catch (e: any) {
+      alert(`Failed to delete account: ${e}`);
+    }
+  };
 
   const buttons = [
     {
@@ -126,7 +149,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
       icon: <DeleteForever fontSize="large" />,
       color: "error",
       text: "Supprimer",
-      enabled: () => true,
+      enabled: () => staff?.isAdmin ?? false,
       onClick: () => setDeleteConfirm1Open(true),
     },
   ] as const;
@@ -159,7 +182,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
         account={account}
         open={editDialogOpen}
         onClose={() => setEditDialogOpen(false)}
-        onSubmit={(a, b, c) => console.log(a, b, c)}
+        onSubmit={handleAccountEdit}
       />
 
       {/* Delete confirm 1 */}
@@ -176,7 +199,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
         <DialogTitle>Vraiment ????</DialogTitle>
         <DialogActions>
           <Button onClick={() => setDeleteConfirm2Open(false)}>Annuler</Button>
-          <Button onClick={() => setDeleteConfirm2Open(false)}>Ok</Button>
+          <Button onClick={handleAccountDelete}>Ok</Button>
         </DialogActions>
       </Dialog>
     </>
@@ -184,8 +207,18 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
 };
 
 const AccountNotAMember: React.FC<{ account: Account }> = ({ account }) => {
+  const makeMember = useMakeMember();
   const [dialogOpen, setDialogOpen] = useState(false);
   const handleDialogClose = () => setDialogOpen(false);
+
+  const handleMakeMember = async () => {
+    try {
+      setDialogOpen(false);
+      await makeMember(account);
+    } catch (e: any) {
+      console.log("Failed to make member");
+    }
+  };
 
   return (
     <>
@@ -216,7 +249,7 @@ const AccountNotAMember: React.FC<{ account: Account }> = ({ account }) => {
         <DialogTitle>Faire membre ?</DialogTitle>
         <DialogActions>
           <Button onClick={handleDialogClose}>Annuler</Button>
-          <Button onClick={handleDialogClose}>Ok</Button>
+          <Button onClick={handleMakeMember}>Ok</Button>
         </DialogActions>
       </Dialog>
     </>

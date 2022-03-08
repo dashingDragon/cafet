@@ -1,15 +1,14 @@
 import { Dialog, DialogContent, DialogTitle, DialogActions, FormControl, TextField, Button, Select, MenuItem } from "@mui/material";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Account, School } from "../lib/accounts";
 
-type AccountEditDialogProps = {
+const AccountEditDialog: React.FC<{
   account: Account | null,
   open: boolean,
   onClose: () => void,
-  onSubmit: (firstName: string, lastName: string, school: School) => void,
-}
+  onSubmit: (firstName: string, lastName: string, school: School) => void
+}> = ({ account, open, onClose, onSubmit }) => {
 
-const AccountEditDialog = ({ account, open, onClose, onSubmit }: AccountEditDialogProps) => {
   const allSchools = [
     { value: School.Ensimag, name: School[School.Ensimag] },
     { value: School.Phelma, name: School[School.Phelma] },

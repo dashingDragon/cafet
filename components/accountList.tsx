@@ -3,13 +3,14 @@ import { Box, darken, Fab, TextField } from "@mui/material";
 import { DataGridPro, GridColDef } from "@mui/x-data-grid-pro";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { useAccountList, useStaffUser } from "../lib/firestoreHooks";
+import { School } from "../lib/accounts";
+import { useAccountList, useAccountMaker } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
 
 const AccountList = () => {
   const router = useRouter();
-  const staff = useStaffUser();
   const allRows = useAccountList();
+  const accountMaker = useAccountMaker();
   const [rows, setRows] = useState(allRows);
   const [createAccountDialogOpen, setCreateAccountDialogOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -41,6 +42,16 @@ const AccountList = () => {
         .every((keyword) => firstName.toLowerCase().includes(keyword) || lastName.toLowerCase().includes(keyword)));
 
     setRows(filtered);
+  };
+
+  const handleAddAccount = async (firstName: string, lastName: string, school: School) => {
+    try {
+      setCreateAccountDialogOpen(false);
+      const id = (await accountMaker(firstName, lastName, school)).id;
+      router.push(`accounts/${id}`);
+    } catch (e: any) {
+      alert(`Something wrong happened: ${e}`);
+    }
   };
 
   return (
@@ -89,25 +100,23 @@ const AccountList = () => {
         }}
       />
 
-      {staff?.isAdmin &&
-        <Fab
-          onClick={() => setCreateAccountDialogOpen(true)}
-          color="primary"
-          sx={{
-            position: "absolute",
-            bottom: 16,
-            right: 16,
-          }}
-        >
-          <Add />
-        </Fab>
-      }
+      <Fab
+        onClick={() => setCreateAccountDialogOpen(true)}
+        color="primary"
+        sx={{
+          position: "absolute",
+          bottom: 16,
+          right: 16,
+        }}
+      >
+        <Add />
+      </Fab>
 
       <AccountEditDialog
         account={null}
         open={createAccountDialogOpen}
         onClose={() => setCreateAccountDialogOpen(false)}
-        onSubmit={(a, b, c) => console.log(a, b, c)}
+        onSubmit={handleAddAccount}
       />
     </Box>
   );

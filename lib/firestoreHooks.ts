@@ -1,11 +1,11 @@
-import { getFirestore, collection, getDocs, query, orderBy, onSnapshot, doc, updateDoc, runTransaction, writeBatch, limit } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import { useEffect, useState } from "react";
-import { Account, accountConverter } from "./accounts";
+import { getFirestore, collection, query, orderBy, onSnapshot, doc, writeBatch, limit, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { useEffect, useMemo, useState } from "react";
+import { Account, accountConverter, School } from "./accounts";
 import { useUser } from "./hooks";
 import { Staff, staffConverter } from "./staffs";
-import { transactionConverter, TransactionRecharge, TransactionType } from "./transactions";
+import { transactionConverter, TransactionType } from "./transactions";
 import { eventConverter, SbeereckEvent } from "./event";
+import { Beer, beerConverter, BeerType, beerTypeConverter, BeerWithType } from "./beers";
 
 export const useStaffUser = () => {
   const db = getFirestore();
@@ -74,6 +74,84 @@ export const useAccount = (id: string) => {
 
   return account;
 };
+
+export const useBeers = () => {
+  const db = getFirestore();
+  const user = useUser();
+  const [beers, setBeers] = useState([] as Beer[]);
+  const [types, setTypes] = useState([] as BeerType[]);
+  const [beerWithTypes, setBeerWithTypes] = useState([] as BeerWithType[]);
+
+  useEffect(() => {
+    const q = collection(db, "beers").withConverter(beerConverter);
+    return onSnapshot(q, (snapshot) => {
+      setBeers(snapshot.docs.map((b) => b.data()));
+    });
+  }, [db, user]);
+
+  useEffect(() => {
+    const q = collection(db, "beerTypes").withConverter(beerTypeConverter);
+    return onSnapshot(q, (snapshot) => {
+      setTypes(snapshot.docs.map((t) => t.data()));
+    });
+  }, [db, user]);
+
+  useMemo(() => {
+    setBeerWithTypes(beers.map((b) => ({
+      beer: b,
+      type: types.find((t) => t.id === b.typeId)!,
+    })));
+  }, [beers, types]);
+
+  return beerWithTypes;
+};
+
+export const useAccountMaker = () => {
+  const db = getFirestore();
+
+  return async (firstName: string, lastName: string, school: School) => {
+    console.log(`Create account for ${firstName} ${lastName}, ${school}`);
+    return await addDoc(collection(db, "accounts").withConverter(accountConverter), {
+      id: "0",
+      firstName,
+      lastName,
+      isMember: false,
+      school,
+      balance: 0,
+      stats: {
+        quantityDrank: 0,
+        totalMoney: 0,
+      },
+    });
+  };
+};
+
+export const useAccountEditor = () => {
+  const db = getFirestore();
+
+  return async (account: Account, firstName: string, lastName: string, school: School) => {
+    console.log(`Updating ${firstName} ${lastName}`);
+    await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { firstName, lastName, school });
+  };
+};
+
+export const useMakeMember = () => {
+  const db = getFirestore();
+
+  return async (account: Account) => {
+    console.log(`Making ${account.firstName} ${account.lastName} a member`);
+    await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { isMember: true });
+  };
+};
+
+export const useAccountDeleter = () => {
+  const db = getFirestore();
+
+  return async (account: Account) => {
+    console.log(`Deleting ${account.firstName} ${account.lastName}`);
+    await deleteDoc(doc(db, `accounts/${account.id}`));
+  }
+}
 
 export const useRechargeTransactionMaker = () => {
   const db = getFirestore();
