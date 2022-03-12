@@ -2,15 +2,15 @@ import { AccountBalanceWallet, Error, Close, SportsBar, Edit, DeleteForever, Loc
 import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Account, School } from "../lib/accounts";
-import { useAccountMaker, useAccountDeleter, useMakeMember, useRechargeTransactionMaker, useStaffUser, useAccountEditor } from "../lib/firestoreHooks";
+import { Account, MEMBERSHIP_PRICE, School } from "../lib/accounts";
+import { useAccountMaker, useAccountDeleter, useMakeMember, useRechargeTransactionMaker, useStaffUser, useAccountEditor, useCurrentEventStatsForAccount } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
 
 const schoolToImage = (school: School) => {
   return `/schools/${School[school].toLowerCase()}.png`;
 };
 
-const formatQuantity = (v: number) => v.toLocaleString() + " L";
+const formatQuantity = (v: number) => (v / 2).toFixed(2) + " L";
 const formatMoney = (v: number) => (v / 100).toFixed(2) + " €";
 
 const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
@@ -133,14 +133,14 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
   const buttons = [
     {
       icon: <SportsBar fontSize="large" />,
-      color: undefined,
+      color: "primary",
       text: "Encaisser",
       enabled: () => account.balance > 0,
       onClick: () => router.push(`/accounts/${account.id}/pay`),
     },
     {
       icon: <Edit fontSize="large" />,
-      color: "secondary",
+      color: "primary",
       text: "Editer",
       enabled: () => true,
       onClick: () => setEditDialogOpen(true),
@@ -240,7 +240,7 @@ const AccountNotAMember: React.FC<{ account: Account }> = ({ account }) => {
             <Close fontSize="large" sx={{ mr: 1 }} />
             <Typography variant="h5">Pas un membre</Typography>
           </Box>
-          <Typography variant="body2">Cliquez pour en faire un membre</Typography>
+          <Typography variant="body2">Cliquez pour en faire un membre ({formatMoney(MEMBERSHIP_PRICE)})</Typography>
         </Box>
       </Button>
 
@@ -257,7 +257,8 @@ const AccountNotAMember: React.FC<{ account: Account }> = ({ account }) => {
 };
 
 const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
-  // TODO: replace with real data
+  const [quantityDrank, moneyRecharged, moneyDrank] = useCurrentEventStatsForAccount(account);
+
   const rows = [
     [
       {
@@ -267,7 +268,7 @@ const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
       },
       {
         icon: <LocalBarOutlined />,
-        value: formatQuantity(account.stats.quantityDrank),
+        value: formatQuantity(quantityDrank),
         text: "Bu ce soir",
       },
     ],
@@ -279,14 +280,14 @@ const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
       },
       {
         icon: <SavingsOutlined />,
-        value: formatMoney(account.stats.totalMoney),
+        value: formatMoney(moneyRecharged),
         text: "Rechargé ce soir",
       },
     ],
     [
       {
         icon: <SportsBar />,
-        value: formatMoney(account.stats.totalMoney),
+        value: formatMoney(moneyDrank),
         text: "Bu ce soir",
       },
     ],

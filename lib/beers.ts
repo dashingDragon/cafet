@@ -9,7 +9,6 @@ export type Beer = {
 };
 
 export type BeerTypeAddon = {
-    id: string,
     name: string,
     price: number,
 };

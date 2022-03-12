@@ -1,19 +1,19 @@
 import { ChevronRight, LocalBar, SportsBar } from "@mui/icons-material";
-import { Avatar, Box, Button, ButtonGroup, Chip, FabPropsVariantOverrides, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { Avatar, Box, Button, Chip, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Account } from "../lib/accounts";
-import { Beer, BeerType, BeerWithType } from "../lib/beers";
-import { useBeers } from "../lib/firestoreHooks";
+import { BeerType } from "../lib/beers";
+import { useBeers, useComputeTotal, usePayTransactionMaker } from "../lib/firestoreHooks";
 
 const formatMoney = (money: number) => (money / 100).toFixed(2) + "€";
 
-type BeerButtonProps = {
+const InputBeer: React.FC<{
   selectedBeer: string | null,
   onSelectBeer: (id: string | null) => void,
-};
+}> = ({ selectedBeer, onSelectBeer }) => {
+  const beerWithTypes = useBeers();
 
-const InputBeer = ({ selectedBeer, onSelectBeer }: BeerButtonProps) => {
   return (
     <>
       <Typography variant="body2" sx={{ mb: 1 }}>Choisissez une Bière</Typography>
@@ -45,35 +45,32 @@ const InputBeer = ({ selectedBeer, onSelectBeer }: BeerButtonProps) => {
   );
 };
 
-type InputBeerAddonProps = {
+const InputBeerAddon: React.FC<{
   type: BeerType,
-  selectedAddons: string[],
-  onSelectAddon: (id: string) => void,
-};
+  selectedAddons: number[],
+  onSelectAddon: (id: number) => void,
+}> = ({ type, selectedAddons, onSelectAddon }) => {
+  const isSelected = (id: number) => selectedAddons.includes(id);
 
-const InputBeerAddon = ({ type, selectedAddons, onSelectAddon }: InputBeerAddonProps) => {
-  const isSelected = (id: string) => selectedAddons.includes(id);
   return (
     <>
       <Typography variant="body2" sx={{ mb: 1 }}>Choisissez un supplément (optionnel)</Typography>
-      {type.addons.map(({ id, name, price }) => (
+      {type.addons.map(({ name, price }, i) => (
         <Chip
-          key={id}
-          onClick={() => onSelectAddon(id)}
+          key={i}
+          onClick={() => onSelectAddon(i)}
           label={`${name} +${formatMoney(price)}`}
-          color={isSelected(id) ? "primary" : undefined}
+          color={isSelected(i) ? "primary" : undefined}
         />
       ))}
     </>
   );
 };
 
-type InputQuantityProps = {
+const InputQuantity: React.FC<{
   quantity: number,
   onSelectQuantity: (amount: number | null) => void,
-};
-
-const InputQuantity = ({ quantity, onSelectQuantity }: InputQuantityProps) => {
+}> = ({ quantity, onSelectQuantity }) => {
   const buttons = [
     {
       value: 1,
@@ -114,30 +111,21 @@ const InputQuantity = ({ quantity, onSelectQuantity }: InputQuantityProps) => {
   );
 };
 
-type PayFormProps = {
-  account: Account,
-};
-
-const PayForm = ({ account }: PayFormProps) => {
+const PayForm: React.FC<{ account: Account }> = ({ account }) => {
   const router = useRouter();
   const beerWithTypes = useBeers();
+  const makePayTransaction = usePayTransactionMaker();
 
   // State
   const [selectedBeer, setSelectedBeer] = useState(null as string | null);
-  const [selectedAddons, setSelectedAddons] = useState([] as string[]);
+  const [selectedAddons, setSelectedAddons] = useState([] as number[]);
   const [quantity, setQuantity] = useState(1);
 
   // Getters
   const getSelectedBeer = () => {
-    return beers.find(({ id }) => id === selectedBeer);
+    return beerWithTypes.find(({ beer: {id} }) => id === selectedBeer);
   };
-  const getSelectedType = () => {
-    if (selectedBeer === null) {
-      return null;
-    }
-    const typeId = getSelectedBeer()!.typeId;
-    return types.find(({ id }) => id === typeId);
-  };
+  const total = useComputeTotal(getSelectedBeer(), selectedAddons, quantity);
 
   // Handlers
   const handleSelectBeer = (id: string | null) => {
@@ -150,7 +138,7 @@ const PayForm = ({ account }: PayFormProps) => {
     setSelectedBeer(id);
   };
 
-  const handleSelectAddon = (id: string) => {
+  const handleSelectAddon = (id: number) => {
     if (selectedAddons.includes(id)) {
       setSelectedAddons(selectedAddons.filter((tId) => tId !== id));
     } else {
@@ -167,18 +155,15 @@ const PayForm = ({ account }: PayFormProps) => {
 
   // Compute money stuff
   const canBeCompleted = () => {
-    return (getSelectedBeer()?.isAvailable ?? false) && computeTotal() <= account.balance;
+    return (getSelectedBeer()?.beer.isAvailable ?? false) && total <= account.balance;
   };
-  const computeTotal = () => {
+
+  const handlePay = async () => {
     const beer = getSelectedBeer();
-    const type = getSelectedType();
+    if (!beer) return alert("Wow tu te calme");
 
-    const baseBeer = type?.price ?? 0;
-    const addons = beer === null ? 0 : selectedAddons
-      .map((aId) => type!.addons.find(({ id }) => aId === id)!)
-      .reduce((acc, { price }) => acc + price, 0);
-
-    return baseBeer * quantity + addons;
+    await makePayTransaction(account, beer, selectedAddons, quantity);
+    router.push(`/accounts/${account.id}`);
   };
 
   return (
@@ -186,9 +171,9 @@ const PayForm = ({ account }: PayFormProps) => {
       <Box m={1}>
         <InputBeer selectedBeer={selectedBeer} onSelectBeer={handleSelectBeer} />
       </Box>
-      {selectedBeer !== null && getSelectedType()!.addons.length > 0 &&
+      {selectedBeer !== null && getSelectedBeer()!.type.addons.length > 0 &&
         <Box m={1}>
-          <InputBeerAddon type={getSelectedType()!} selectedAddons={selectedAddons} onSelectAddon={handleSelectAddon} />
+          <InputBeerAddon type={getSelectedBeer()!.type} selectedAddons={selectedAddons} onSelectAddon={handleSelectAddon} />
         </Box>
       }
       <Box m={1}>
@@ -197,14 +182,14 @@ const PayForm = ({ account }: PayFormProps) => {
       <Box m={1}>
         <Button
           disabled={!canBeCompleted()}
-          onClick={() => router.push(`/accounts/${account.id}`)}
+          onClick={handlePay}
           color="info"
           variant="contained"
           fullWidth
           sx={{ textTransform: "none" }}
         >
           <Box width="100%" display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Total: {formatMoney(computeTotal())}</Typography>
+            <Typography variant="h6">Total: {formatMoney(total)}</Typography>
             <ChevronRight fontSize="large" />
           </Box>
         </Button>

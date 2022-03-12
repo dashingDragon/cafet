@@ -1,9 +1,9 @@
-import { getFirestore, collection, query, orderBy, onSnapshot, doc, writeBatch, limit, addDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, query, orderBy, onSnapshot, doc, writeBatch, limit, addDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
-import { Account, accountConverter, School } from "./accounts";
+import { Account, accountConverter, MEMBERSHIP_PRICE, School } from "./accounts";
 import { useUser } from "./hooks";
 import { Staff, staffConverter } from "./staffs";
-import { transactionConverter, TransactionType } from "./transactions";
+import { transactionConverter, TransactionDrink, TransactionRecharge, TransactionType } from "./transactions";
 import { eventConverter, SbeereckEvent } from "./event";
 import { Beer, beerConverter, BeerType, beerTypeConverter, BeerWithType } from "./beers";
 
@@ -27,13 +27,45 @@ export const useStaffUser = () => {
   return staffUser;
 };
 
+export const useStaffs = () => {
+  const db = getFirestore();
+  const user = useStaffUser();
+  const [staffs, setStaffs] = useState([] as Staff[]);
+
+  useEffect(() => {
+    const q = collection(db, "staffs").withConverter(staffConverter);
+    return onSnapshot(q, (snapshot) => {
+      const staffs = snapshot.docs.map((a) => a.data());
+
+      setStaffs(staffs);
+    });
+  }, [db, user]);
+
+  return staffs;
+}
+
+export const useSetStaffAvailability = () => {
+  const db = getFirestore();
+  const user = useStaffUser();
+
+  if (!user) return () => alert("Not connected !");
+
+  if (!user.isAdmin) return () => alert("Vous n'avez pas les permissions !");
+
+  return async (staff: Staff, isAvailable: boolean) => {
+    await updateDoc(doc(db, `staffs/${staff.id}`).withConverter(staffConverter), {
+      isAvailable,
+    });
+  };
+};
+
 export const useCurrentEvent = () => {
   const db = getFirestore();
   const user = useUser();
   const [currentEvent, setCurrentEvent] = useState(undefined as SbeereckEvent | undefined);
 
   useEffect(() => {
-    const q = query(collection(db, "events"), orderBy("created", "asc"), limit(1)).withConverter(eventConverter);
+    const q = query(collection(db, "events"), orderBy("created", "desc"), limit(1)).withConverter(eventConverter);
     return onSnapshot(q, (snapshot) => {
       const events = snapshot.docs.map((a) => a.data());
       if (events.length > 1) throw Error("wat");
@@ -44,6 +76,48 @@ export const useCurrentEvent = () => {
 
   return currentEvent;
 };
+
+export const useCurrentEventStatsForAccount = (account: Account) => {
+  const db = getFirestore();
+  const event = useCurrentEvent();
+
+  const [quantityDrank, setQuantityDrank] = useState(0);
+  const [moneyRecharged, setMoneyRecharged] = useState(0);
+  const [moneyDrank, setMoneyDrank] = useState(0);
+
+  useEffect(() => {
+    if (!event) return;
+
+    const transactionsDrink = query(
+      collection(db, `events/${event.id}/transactions`),
+      where("type", "==", TransactionType.Drink),
+      where("customer", "==", doc(db, `accounts/${account.id}`)),
+    ).withConverter(transactionConverter);
+
+    return onSnapshot(transactionsDrink, (snapshot) => {
+      const transactions = snapshot.docs.map((a) => a.data());
+      setQuantityDrank(transactions.map((t) => (t as TransactionDrink).quantity).reduce((a, b) => a + b, 0))
+      setMoneyDrank(transactions.map((t) => (t as TransactionDrink).price).reduce((a, b) => a + b, 0));
+    });
+  }, [db, account, event]);
+
+  useEffect(() => {
+    if (!event) return;
+
+    const transactionsRecharge = query(
+      collection(db, `events/${event.id}/transactions`),
+      where("type", "==", TransactionType.Recharge),
+      where("customer", "==", doc(db, `accounts/${account.id}`)),
+    ).withConverter(transactionConverter);
+
+    return onSnapshot(transactionsRecharge, (snapshot) => {
+      const transactions = snapshot.docs.map((a) => a.data());
+      setMoneyRecharged(transactions.map((t) => (t as TransactionRecharge).amount).reduce((a, b) => a + b, 0));
+    });
+  }, [db, account, event]);
+
+  return [quantityDrank, moneyRecharged, moneyDrank];
+}
 
 export const useAccountList = () => {
   const db = getFirestore();
@@ -96,11 +170,14 @@ export const useBeers = () => {
     });
   }, [db, user]);
 
-  useMemo(() => {
-    setBeerWithTypes(beers.map((b) => ({
-      beer: b,
-      type: types.find((t) => t.id === b.typeId)!,
-    })));
+  useEffect(() => {
+    // Dont allow beers to show up if there type hasn't been fetched yet
+    setBeerWithTypes(beers
+      .filter((b) => types.find((t) => t.id === b.typeId))
+      .map((b) => ({
+        beer: b,
+        type: types.find((t) => t.id === b.typeId)!,
+      })));
   }, [beers, types]);
 
   return beerWithTypes;
@@ -137,10 +214,31 @@ export const useAccountEditor = () => {
 
 export const useMakeMember = () => {
   const db = getFirestore();
+  const staff = useStaffUser();
+  const event = useCurrentEvent();
+
+  if (!staff) return () => alert("Not connected !");
+
+  const staffRef = doc(db, `staffs/${staff.id}`).withConverter(staffConverter);
 
   return async (account: Account) => {
     console.log(`Making ${account.firstName} ${account.lastName} a member`);
-    await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { isMember: true });
+
+    const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
+    const transactionRef = doc(collection(db, `events/${event!.id}/transactions`)).withConverter(transactionConverter);
+
+    const batch = writeBatch(db);
+    batch.set(transactionRef, {
+      id: "0",
+      type: TransactionType.Membership,
+      price: MEMBERSHIP_PRICE,
+      customer: accountRef,
+      staff: staffRef,
+      createdAt: new Date(),
+    });
+    batch.update(accountRef, { isMember: true });
+
+    await batch.commit();
   };
 };
 
@@ -176,8 +274,79 @@ export const useRechargeTransactionMaker = () => {
       staff: staffRef,
       createdAt: new Date(),
     });
-    batch.update(accountRef, { balance: account.balance + amount });
+    batch.update(accountRef, {
+      balance: account.balance + amount,
+      stats: {
+        quantityDrank: account.stats.quantityDrank,
+        totalMoney: account.stats.totalMoney + amount,
+      }
+    });
 
     await batch.commit();
+  };
+};
+
+export const useComputeTotal = (beer: BeerWithType | undefined, selectedAddons: number[], quantity: number) => {
+  const baseBeer = beer?.type.price ?? 0;
+  const addons = beer === null ? 0 : selectedAddons
+    .map((aId) => beer!.type.addons.find(({ }, i) => aId === i)!)
+    .reduce((acc, { price }) => acc + price, 0);
+
+  return baseBeer * quantity + addons;
+};
+
+export const usePayTransactionMaker = () => {
+  const db = getFirestore();
+  const staff = useStaffUser();
+  const event = useCurrentEvent();
+
+  if (!staff) return () => alert("Not connected !");
+
+  const staffRef = doc(db, `staffs/${staff.id}`).withConverter(staffConverter);
+
+  return async (account: Account, beer: BeerWithType, addons: number[], quantity: number) => {
+    const price = useComputeTotal(beer, addons, quantity);
+
+    const beerRef = doc(db, `beers/${beer.beer.id}`).withConverter(beerConverter);
+    const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
+
+    const transactionRef = doc(collection(db, `events/${event!.id}/transactions`)).withConverter(transactionConverter);
+
+    const batch = writeBatch(db);
+    // Transaction
+    batch.set(transactionRef, {
+      id: "0",
+      type: TransactionType.Drink,
+      beer: beerRef,
+      addons,
+      quantity,
+      price,
+      customer: accountRef,
+      staff: staffRef,
+      createdAt: new Date(),
+    });
+    // Balance & stats
+    batch.update(accountRef, {
+      balance: account.balance - price,
+      stats: {
+        quantityDrank: account.stats.quantityDrank + quantity,
+        totalMoney: account.stats.totalMoney,
+      }
+    });
+
+    await batch.commit();
+  }
+};
+
+export const useSetBeerAvailability = () => {
+  const db = getFirestore();
+  const staff = useStaffUser();
+
+  if (!staff) return () => alert("Not connected !");
+
+  return async (beer: Beer, isAvailable: boolean) => {
+    await updateDoc(doc(db, `beers/${beer.id}`).withConverter(beerConverter), {
+      isAvailable,
+    });
   };
 };

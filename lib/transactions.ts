@@ -6,6 +6,7 @@ import { Staff } from "./staffs";
 export enum TransactionType {
     Recharge = 0,
     Drink = 1,
+    Membership = 2,
 };
 
 type TransactionMetadata = {
@@ -15,6 +16,11 @@ type TransactionMetadata = {
     createdAt: Date,
 }
 
+export type TransactionRecharge = {
+    id: string,
+    amount: number,
+} & TransactionMetadata;
+
 export type TransactionDrink = {
     id: string,
     beer: DocumentReference<Beer>,
@@ -23,12 +29,12 @@ export type TransactionDrink = {
     price: number,
 } & TransactionMetadata;
 
-export type TransactionRecharge = {
+export type TransactionMembership = {
     id: string,
-    amount: number,
+    price: number,
 } & TransactionMetadata;
 
-export type Transaction = TransactionDrink | TransactionRecharge;
+export type Transaction = TransactionRecharge | TransactionDrink | TransactionMembership;
 
 export const transactionConverter: FirestoreDataConverter<Transaction> = {
     fromFirestore: (snapshot, options) => {
@@ -55,6 +61,15 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
                 staff,
                 createdAt,
             } as TransactionDrink;
+        } else if (type === TransactionType.Membership) {
+            const { price } = data;
+            return {
+                id: snapshot.id,
+                price,
+                customer,
+                staff,
+                createdAt,
+            } as TransactionMembership;
         } else {
             throw Error("Unknown transaction type");
         }
@@ -76,6 +91,15 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
                 beer,
                 addons,
                 quantity,
+                price,
+                type,
+                customer,
+                staff,
+                createdAt,
+            };
+        } else if (type === TransactionType.Membership) {
+            const { price } = transaction as TransactionMembership;
+            return {
                 price,
                 type,
                 customer,

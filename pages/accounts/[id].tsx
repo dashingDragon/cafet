@@ -1,30 +1,16 @@
-import { CircularProgress } from "@mui/material";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import AccountDetails from "../../components/accountDetails";
 import LoadingScreen from "../../components/loading";
 import PageLayout from "../../components/pageLayout";
-import { Account, School } from "../../lib/accounts";
 import { useAccount } from "../../lib/firestoreHooks";
+import { useGuardIsConnected } from "../../lib/hooks";
 
 const AccountDetailsPage: NextPage = () => {
+  useGuardIsConnected();
   const router = useRouter();
   const { id } = router.query;
-
-  // TODO: with real data
-  // const account: Account = {
-  //   id: id as string,
-  //   firstName: "John",
-  //   lastName: "Doe",
-  //   isMember: true,
-  //   school: School.Ensimag,
-  //   balance: 1234,
-  //   stats: {
-  //     quantityDrank: 0,
-  //     totalMoney: 0,
-  //   },
-  // };
 
   const account = useAccount(id as string);
 

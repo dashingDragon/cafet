@@ -1,11 +1,16 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import { Box, Typography } from "@mui/material";
+import LoadingScreen from "../components/loading";
 import PageLayout from "../components/pageLayout";
 import FullHeightScrollableContainer from "../components/scrollableContainer";
 import StaffList from "../components/staffList";
+import { useStaffs } from "../lib/firestoreHooks";
+import { useGuardIsConnected } from "../lib/hooks";
 
 const StaffPage: NextPage = () => {
+  useGuardIsConnected();
+  const staffs = useStaffs();
+
   return (
     <>
       <Head>
@@ -15,9 +20,14 @@ const StaffPage: NextPage = () => {
 
       <main>
         <PageLayout title={"S'Beer Eck"}>
-          <FullHeightScrollableContainer>
-            <StaffList />
-          </FullHeightScrollableContainer>
+          {staffs === undefined
+            ? <LoadingScreen />
+            : <>
+              <FullHeightScrollableContainer>
+                <StaffList staffs={staffs} />
+              </FullHeightScrollableContainer>
+            </>
+          }
         </PageLayout>
       </main>
     </>

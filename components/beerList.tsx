@@ -1,51 +1,22 @@
 import { Avatar, Box, Button, Dialog, DialogActions, DialogTitle, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Beer, BeerType, BeerWithType } from "../lib/beers";
-
-const beers: Beer[] = [
-  {
-    id: "1",
-    name: "BDN",
-    isAvailable: true,
-    image: "/beers/bdn.png",
-    typeId: "1",
-  },
-  {
-    id: "2",
-    name: "Chouffe",
-    isAvailable: false,
-    image: "/beers/chouffe.png",
-    typeId: "2",
-  },
-];
-
-const types: BeerType[] = [
-  {
-    id: "1",
-    name: "Normal",
-    price: 120,
-    addons: [],
-  },
-  {
-    id: "2",
-    name: "Spécial",
-    price: 165,
-    addons: [{ id: "1", name: "Picon", price: 100 }],
-  },
-];
-
-const beerWithTypes: BeerWithType[] = [
-  { beer: beers[0], type: types[0] },
-  { beer: beers[1], type: types[1] },
-];
+import { useSetBeerAvailability, useStaffUser } from "../lib/firestoreHooks";
 
 const BeerItem: React.FC<{ beer: Beer, type: BeerType }> = ({ beer, type }) => {
+  const staff = useStaffUser();
+  const setBeerAvailability = useSetBeerAvailability();
   const [availableDialogOpen, setAvailableDialogOpen] = useState(false);
+
+  const handleChangeAvailability = async () => {
+    setAvailableDialogOpen(false);
+    await setBeerAvailability(beer, !beer.isAvailable);
+  };
 
   return (
     <>
       <Button
-        onClick={() => setAvailableDialogOpen(true)}
+        onClick={staff?.isAdmin ? () => setAvailableDialogOpen(true) : () => {}}
         variant="contained"
         color={beer.isAvailable ? "success" : "warning"}
         fullWidth
@@ -76,17 +47,19 @@ const BeerItem: React.FC<{ beer: Beer, type: BeerType }> = ({ beer, type }) => {
         </DialogTitle>
         <DialogActions>
           <Button onClick={() => setAvailableDialogOpen(false)}>Non</Button>
-          <Button onClick={() => setAvailableDialogOpen(false)}>Oui</Button>
+          <Button onClick={handleChangeAvailability}>Oui</Button>
         </DialogActions>
       </Dialog>
     </>
   );
 };
 
-const BeerList = () => {
+const BeerList: React.FC<{
+  beers: BeerWithType[],
+}> = ({ beers }) => {
   return (
     <Box m={1}>
-      {beerWithTypes.map(({ beer, type }) =>
+      {beers.map(({ beer, type }) =>
         <Box key={beer.id} mb={1}>
           <BeerItem beer={beer} type={type} />
         </Box>

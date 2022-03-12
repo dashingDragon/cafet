@@ -1,31 +1,22 @@
 import { Avatar, Box, Button, Dialog, DialogActions, DialogTitle, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { useSetStaffAvailability, useStaffUser } from "../lib/firestoreHooks";
 import { Staff } from "../lib/staffs";
 
-const staffs: Staff[] = [
-  {
-    id: "1",
-    name: "Lucas Malandrino",
-    isAvailable: true,
-    isAdmin: true,
-    tel: "1",
-  },
-  {
-    id: "2",
-    name: "Valentin barbaza",
-    isAvailable: false,
-    isAdmin: true,
-    tel: "1",
-  },
-];
-
 const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
+  const staffMe = useStaffUser();
+  const setStaffAvailability = useSetStaffAvailability();
   const [availableDialogOpen, setAvailableDialogOpen] = useState(false);
+
+  const handleChangeAvailability = async () => {
+    setAvailableDialogOpen(false);
+    await setStaffAvailability(staff, !staff.isAvailable);
+  };
 
   return (
     <>
       <Button
-        onClick={() => setAvailableDialogOpen(true)}
+        onClick={staffMe?.isAdmin ? () => setAvailableDialogOpen(true) : () => {}}
         variant="contained"
         color={staff.isAvailable ? "success" : "warning"}
         fullWidth
@@ -49,14 +40,14 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
         </DialogTitle>
         <DialogActions>
           <Button onClick={() => setAvailableDialogOpen(false)}>Non</Button>
-          <Button onClick={() => setAvailableDialogOpen(false)}>Oui</Button>
+          <Button onClick={handleChangeAvailability}>Oui</Button>
         </DialogActions>
       </Dialog>
     </>
   );
 };
 
-const StaffList = () => {
+const StaffList: React.FC<{ staffs: Staff[] }> = ({ staffs }) => {
   return (
     <Box m={1}>
       {staffs.map((staff) =>

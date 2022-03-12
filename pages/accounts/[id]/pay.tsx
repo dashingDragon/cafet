@@ -1,28 +1,18 @@
-import { Box, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import LoadingScreen from "../../../components/loading";
 import PageLayout from "../../../components/pageLayout";
 import PayForm from "../../../components/payForm";
-import { Account, School } from "../../../lib/accounts";
+import { useAccount } from "../../../lib/firestoreHooks";
+import { useGuardIsConnected } from "../../../lib/hooks";
 
 const AccountPayPage: NextPage = () => {
+  useGuardIsConnected();
   const router = useRouter();
   const { id } = router.query;
 
-  // TODO: with real data
-  const account: Account = {
-    id: id as string,
-    firstName: "John",
-    lastName: "Doe",
-    isMember: true,
-    school: School.Ensimag,
-    balance: 1234,
-    stats: {
-      quantityDrank: 0,
-      totalMoney: 0,
-    },
-  };
+  const account = useAccount(id as string);
 
   return (
     <>
@@ -32,9 +22,19 @@ const AccountPayPage: NextPage = () => {
       </Head>
 
       <main>
-        <PageLayout title={`Encaisser ${account.firstName} ${account.lastName}`} hideBottomNavigation backTo={`/accounts/${id}`}>
-          <PayForm account={account} />
-        </PageLayout>
+        {account === undefined
+          ? <>
+            <PageLayout title="Encaisser ..." hideBottomNavigation backTo={`/accounts/${id}`}>
+              <LoadingScreen />
+            </PageLayout>
+          </>
+          : <>
+            <PageLayout title={`Encaisser ${account.firstName} ${account.lastName}`} hideBottomNavigation backTo={`/accounts/${id}`}>
+              <PayForm account={account} />
+            </PageLayout>
+          </>
+        }
+
       </main>
     </>
   );
