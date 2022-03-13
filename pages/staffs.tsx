@@ -40,7 +40,7 @@ const StaffPage: NextPage = () => {
                       sx={{
                         position: "absolute",
                         bottom: 16,
-                        right: 16
+                        right: 16,
                       }}>
                       <Add />
                     </Fab>

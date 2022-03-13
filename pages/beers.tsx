@@ -23,7 +23,7 @@ const BeerPage: NextPage = () => {
       <main>
         <PageLayout title={"S'Beer Eck"}>
           <FullHeightScrollableContainer>
-              <BeerList beers={beers} />
+            <BeerList beers={beers} />
           </FullHeightScrollableContainer>
         </PageLayout>
       </main>

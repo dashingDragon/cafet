@@ -16,6 +16,7 @@ export const PendingStaffsDialog: React.FC<{
     if (open) {
       refreshPendingStaffs().catch(console.error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleClickUser = async (user: PendingStaff) => {
@@ -33,7 +34,7 @@ export const PendingStaffsDialog: React.FC<{
     setConfirmOpen(false);
     onClose();
     await makeStaff({ uid: staff.uid, name: staff.name });
-  }
+  };
 
   return (
     <>
