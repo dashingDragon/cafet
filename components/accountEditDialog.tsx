@@ -39,6 +39,11 @@ const AccountEditDialog: React.FC<{
 
 
   const handleSubmit = () => {
+    if (firstName.length === 0 || lastName.length === 0) {
+      alert("Pas de noms vides !");
+      return;
+    }
+
     onSubmit(firstName, lastName, school);
     onClose();
   };

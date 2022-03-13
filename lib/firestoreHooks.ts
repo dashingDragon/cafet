@@ -42,7 +42,7 @@ export const useStaffs = () => {
   }, [db, user]);
 
   return staffs;
-}
+};
 
 export const useSetStaffAvailability = () => {
   const db = getFirestore();
@@ -96,7 +96,7 @@ export const useCurrentEventStatsForAccount = (account: Account) => {
 
     return onSnapshot(transactionsDrink, (snapshot) => {
       const transactions = snapshot.docs.map((a) => a.data());
-      setQuantityDrank(transactions.map((t) => (t as TransactionDrink).quantity).reduce((a, b) => a + b, 0))
+      setQuantityDrank(transactions.map((t) => (t as TransactionDrink).quantity).reduce((a, b) => a + b, 0));
       setMoneyDrank(transactions.map((t) => (t as TransactionDrink).price).reduce((a, b) => a + b, 0));
     });
   }, [db, account, event]);
@@ -117,7 +117,7 @@ export const useCurrentEventStatsForAccount = (account: Account) => {
   }, [db, account, event]);
 
   return [quantityDrank, moneyRecharged, moneyDrank];
-}
+};
 
 export const useAccountList = () => {
   const db = getFirestore();
@@ -248,8 +248,8 @@ export const useAccountDeleter = () => {
   return async (account: Account) => {
     console.log(`Deleting ${account.firstName} ${account.lastName}`);
     await deleteDoc(doc(db, `accounts/${account.id}`));
-  }
-}
+  };
+};
 
 export const useRechargeTransactionMaker = () => {
   const db = getFirestore();
@@ -279,14 +279,14 @@ export const useRechargeTransactionMaker = () => {
       stats: {
         quantityDrank: account.stats.quantityDrank,
         totalMoney: account.stats.totalMoney + amount,
-      }
+      },
     });
 
     await batch.commit();
   };
 };
 
-export const useComputeTotal = (beer: BeerWithType | undefined, selectedAddons: number[], quantity: number) => {
+export const computeTotal = (beer: BeerWithType | undefined, selectedAddons: number[], quantity: number) => {
   const baseBeer = beer?.type.price ?? 0;
   const addons = beer === null ? 0 : selectedAddons
     .map((aId) => beer!.type.addons.find(({ }, i) => aId === i)!)
@@ -305,7 +305,7 @@ export const usePayTransactionMaker = () => {
   const staffRef = doc(db, `staffs/${staff.id}`).withConverter(staffConverter);
 
   return async (account: Account, beer: BeerWithType, addons: number[], quantity: number) => {
-    const price = useComputeTotal(beer, addons, quantity);
+    const price = computeTotal(beer, addons, quantity);
 
     const beerRef = doc(db, `beers/${beer.beer.id}`).withConverter(beerConverter);
     const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
@@ -331,11 +331,11 @@ export const usePayTransactionMaker = () => {
       stats: {
         quantityDrank: account.stats.quantityDrank + quantity,
         totalMoney: account.stats.totalMoney,
-      }
+      },
     });
 
     await batch.commit();
-  }
+  };
 };
 
 export const useSetBeerAvailability = () => {

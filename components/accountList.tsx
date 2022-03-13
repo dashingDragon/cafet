@@ -17,6 +17,7 @@ const AccountList = () => {
 
   useEffect(() => {
     handleSearch(query);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allRows]);
 
   const columns: GridColDef[] = [

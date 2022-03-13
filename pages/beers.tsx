@@ -1,14 +1,17 @@
+import { Add } from "@mui/icons-material";
+import { Fab } from "@mui/material";
 import type { NextPage } from "next";
 import Head from "next/head";
 import BeerList from "../components/beerList";
 import PageLayout from "../components/pageLayout";
 import FullHeightScrollableContainer from "../components/scrollableContainer";
-import { useBeers } from "../lib/firestoreHooks";
+import { useBeers, useStaffUser } from "../lib/firestoreHooks";
 import { useGuardIsConnected } from "../lib/hooks";
 
 const BeerPage: NextPage = () => {
   useGuardIsConnected();
   const beers = useBeers();
+  const staff = useStaffUser();
 
   return (
     <>
@@ -20,7 +23,7 @@ const BeerPage: NextPage = () => {
       <main>
         <PageLayout title={"S'Beer Eck"}>
           <FullHeightScrollableContainer>
-            <BeerList beers={beers} />
+              <BeerList beers={beers} />
           </FullHeightScrollableContainer>
         </PageLayout>
       </main>

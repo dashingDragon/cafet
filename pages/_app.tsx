@@ -3,11 +3,20 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { darkTheme, lightTheme, useAppTheme } from "../lib/theme";
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { initializeApp, getApp } from "firebase/app";
+import { useRouter } from "next/router";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
   const [theme] = useAppTheme();
+
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") {
+      router.replace(router.asPath);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Setup firebase
   const _firebase = useMemo(() => {

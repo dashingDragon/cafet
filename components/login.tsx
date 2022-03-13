@@ -33,10 +33,8 @@ const Login = () => {
         justifyContent="center"
         alignItems="center"
       >
-        <img
-          src="logo.png"
-          width="80%"
-        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="S'Beer Eck Logo" width="80%" />
         <Button
           onClick={handleGoogleSignin}
           variant="contained"

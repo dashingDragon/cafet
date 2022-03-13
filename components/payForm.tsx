@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Account } from "../lib/accounts";
 import { BeerType } from "../lib/beers";
-import { useBeers, useComputeTotal, usePayTransactionMaker } from "../lib/firestoreHooks";
+import { useBeers, computeTotal, usePayTransactionMaker } from "../lib/firestoreHooks";
 
 const formatMoney = (money: number) => (money / 100).toFixed(2) + "€";
 
@@ -125,7 +125,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
   const getSelectedBeer = () => {
     return beerWithTypes.find(({ beer: {id} }) => id === selectedBeer);
   };
-  const total = useComputeTotal(getSelectedBeer(), selectedAddons, quantity);
+  const total = computeTotal(getSelectedBeer(), selectedAddons, quantity);
 
   // Handlers
   const handleSelectBeer = (id: string | null) => {

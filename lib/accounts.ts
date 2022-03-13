@@ -1,6 +1,7 @@
 import { FirestoreDataConverter } from "firebase/firestore";
 
 export const MEMBERSHIP_PRICE = 10 * 100;
+export const MAX_MONEY_PER_ACCOUNT = 500 * 100;
 
 export enum School {
     Ensimag = 0,

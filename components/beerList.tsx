@@ -1,4 +1,5 @@
-import { Avatar, Box, Button, Dialog, DialogActions, DialogTitle, Typography } from "@mui/material";
+import { Add } from "@mui/icons-material";
+import { Avatar, Box, Button, Dialog, DialogActions, DialogTitle, Fab, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { Beer, BeerType, BeerWithType } from "../lib/beers";
 import { useSetBeerAvailability, useStaffUser } from "../lib/firestoreHooks";

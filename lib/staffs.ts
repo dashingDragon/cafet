@@ -1,5 +1,10 @@
 import { FirestoreDataConverter } from "firebase/firestore";
 
+export type MakeStaffPayload = {
+  uid: string,
+  name: string,
+};
+
 export type Staff = {
     id: string,
     name: string,

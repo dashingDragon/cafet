@@ -2,7 +2,7 @@ import { AccountBalanceWallet, Error, Close, SportsBar, Edit, DeleteForever, Loc
 import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Account, MEMBERSHIP_PRICE, School } from "../lib/accounts";
+import { Account, MAX_MONEY_PER_ACCOUNT, MEMBERSHIP_PRICE, School } from "../lib/accounts";
 import { useAccountMaker, useAccountDeleter, useMakeMember, useRechargeTransactionMaker, useStaffUser, useAccountEditor, useCurrentEventStatsForAccount } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
 
@@ -10,7 +10,7 @@ const schoolToImage = (school: School) => {
   return `/schools/${School[school].toLowerCase()}.png`;
 };
 
-const formatQuantity = (v: number) => (v / 2).toFixed(2) + " L";
+const formatQuantity = (v: number) => (v / 4).toFixed(2) + " L";
 const formatMoney = (v: number) => (v / 100).toFixed(2) + " €";
 
 const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
@@ -34,25 +34,29 @@ const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
 };
 
 const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) => {
+  const staff = useStaffUser();
   const recharge = useRechargeTransactionMaker();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [rechargeAmount, setRechargeAmount] = useState(null as number | null);
 
+  const maxRecharge = MAX_MONEY_PER_ACCOUNT - account.balance;
+
   const handleDialogClose = () => {
     setRechargeAmount(null);
-    setDialogOpen(false)
+    setDialogOpen(false);
   };
 
   const handleRecharge = async () => {
     setDialogOpen(false);
     await recharge(account, (rechargeAmount ?? 0) * 100);
     setRechargeAmount(null);
-  }
+  };
 
   return (
     <>
       <Button
         onClick={() => setDialogOpen(true)}
+        disabled={!((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false))}
         variant="contained"
         size="large"
         fullWidth
@@ -82,7 +86,7 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
         <DialogContent>
           <TextField
             value={rechargeAmount ?? ""}
-            onChange={(e) => setRechargeAmount(e.target.value.length == 0 ? null : +e.target.value)}
+            onChange={(e) => setRechargeAmount(e.target.value.length == 0 ? null : Math.min(+e.target.value, maxRecharge / 100))}
             type="number"
             autoFocus
             placeholder="Montant (€)"
@@ -135,14 +139,14 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
       icon: <SportsBar fontSize="large" />,
       color: "primary",
       text: "Encaisser",
-      enabled: () => account.balance > 0,
+      enabled: () => ((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false)) && account.balance > 0,
       onClick: () => router.push(`/accounts/${account.id}/pay`),
     },
     {
       icon: <Edit fontSize="large" />,
       color: "primary",
       text: "Editer",
-      enabled: () => true,
+      enabled: () => (staff?.isAvailable ?? false) || (staff?.isAdmin ?? false),
       onClick: () => setEditDialogOpen(true),
     },
     {

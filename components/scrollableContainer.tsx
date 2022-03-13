@@ -1,17 +1,16 @@
-import { Box } from "@mui/material";
+import { Box, SxProps, Theme } from "@mui/material";
 import { ReactElement } from "react";
 
-type ScrollableContainerProps = {
-    children: ReactElement,
-};
-
-export const FullHeightScrollableContainer = ({ children }: ScrollableContainerProps) => {
+export const FullHeightScrollableContainer: React.FC<{
+  children: ReactElement,
+  sx?: SxProps<Theme>,
+}> = ({ sx, children }) => {
   return (
-    <Box sx={{
-      flexGrow: 1,
-      maxHeight: "100%",
-      overflow: "auto",
-    }}>
+    <Box
+      flexGrow={1}
+      maxHeight="100%"
+      overflow="auto"
+      sx={sx}>
       {children}
     </Box>
   );

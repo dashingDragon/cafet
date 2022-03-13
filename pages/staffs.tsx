@@ -1,15 +1,22 @@
+import { Add } from "@mui/icons-material";
+import { Fab } from "@mui/material";
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useEffect, useState } from "react";
 import LoadingScreen from "../components/loading";
 import PageLayout from "../components/pageLayout";
+import PendingStaffsDialog from "../components/pendingStaffsDialog";
 import FullHeightScrollableContainer from "../components/scrollableContainer";
 import StaffList from "../components/staffList";
-import { useStaffs } from "../lib/firestoreHooks";
+import { useListPendingStaffs } from "../lib/firebaseFunctionHooks";
+import { useStaffs, useStaffUser } from "../lib/firestoreHooks";
 import { useGuardIsConnected } from "../lib/hooks";
 
 const StaffPage: NextPage = () => {
   useGuardIsConnected();
+  const staff = useStaffUser();
   const staffs = useStaffs();
+  const [pendingDialogOpen, setPendingDialogOpen] = useState(false);
 
   return (
     <>
@@ -23,9 +30,27 @@ const StaffPage: NextPage = () => {
           {staffs === undefined
             ? <LoadingScreen />
             : <>
-              <FullHeightScrollableContainer>
-                <StaffList staffs={staffs} />
+              <FullHeightScrollableContainer sx={{ position: "relative" }}>
+                <>
+                  <StaffList staffs={staffs} />
+                  {staff?.isAdmin &&
+                    <Fab
+                      onClick={() => setPendingDialogOpen(true)}
+                      color="primary"
+                      sx={{
+                        position: "absolute",
+                        bottom: 16,
+                        right: 16
+                      }}>
+                      <Add />
+                    </Fab>
+                  }
+                </>
               </FullHeightScrollableContainer>
+
+              {staff?.isAdmin &&
+                <PendingStaffsDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
+              }
             </>
           }
         </PageLayout>

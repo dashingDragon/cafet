@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import LoadingScreen from "../../../components/loading";
 import PageLayout from "../../../components/pageLayout";
 import PayForm from "../../../components/payForm";
-import { useAccount } from "../../../lib/firestoreHooks";
+import { useAccount, useStaffUser } from "../../../lib/firestoreHooks";
 import { useGuardIsConnected } from "../../../lib/hooks";
 
 const AccountPayPage: NextPage = () => {
@@ -13,6 +13,11 @@ const AccountPayPage: NextPage = () => {
   const { id } = router.query;
 
   const account = useAccount(id as string);
+  const staff = useStaffUser();
+
+  if (typeof window !== "undefined" && !((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false))) {
+    router.push("/");
+  }
 
   return (
     <>
