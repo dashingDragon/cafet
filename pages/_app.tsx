@@ -11,12 +11,14 @@ function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [theme] = useAppTheme();
 
+  /*
   useEffect(() => {
     if (process.env.NODE_ENV === "production") {
       router.replace(router.asPath);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  */
 
   // Setup firebase
   const _firebase = useMemo(() => {
