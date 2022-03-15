@@ -1,9 +1,9 @@
 import { getFirestore, collection, query, orderBy, onSnapshot, doc, writeBatch, limit, addDoc, updateDoc, deleteDoc, where } from "firebase/firestore";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Account, accountConverter, MEMBERSHIP_PRICE, School } from "./accounts";
 import { useUser } from "./hooks";
 import { Staff, staffConverter } from "./staffs";
-import { transactionConverter, TransactionDrink, TransactionRecharge, TransactionType } from "./transactions";
+import { transactionConverter, TransactionDrink, TransactionMembership, TransactionRecharge, TransactionType } from "./transactions";
 import { eventConverter, SbeereckEvent } from "./event";
 import { Beer, beerConverter, BeerType, beerTypeConverter, BeerWithType } from "./beers";
 
@@ -75,6 +75,70 @@ export const useCurrentEvent = () => {
   }, [db, user]);
 
   return currentEvent;
+};
+
+export const useCurrentEventStats = () => {
+  const db = getFirestore();
+  const event = useCurrentEvent();
+
+  const [memberships, setMemberships] = useState(0);
+  const [recharges, setRecharges] = useState(0);
+  const [drinks, setDrinks] = useState(0);
+  const [quantity, setQuantity] = useState(0);
+
+  useEffect(() => {
+    if (!event) return;
+
+    const transactionsAdhesions = query(
+      collection(db, `events/${event.id}/transactions`),
+      where("type", "==", TransactionType.Membership),
+    ).withConverter(transactionConverter);
+
+    return onSnapshot(transactionsAdhesions, (snapshot) => {
+      setMemberships(snapshot.size);
+    });
+  }, [db, event]);
+
+  useEffect(() => {
+    if (!event) return;
+
+    const transactionRecharges = query(
+      collection(db, `events/${event.id}/transactions`),
+      where("type", "==", TransactionType.Recharge),
+    ).withConverter(transactionConverter);
+
+    return onSnapshot(transactionRecharges, (snapshot) => {
+      const recharges = snapshot
+        .docs
+        .map((a) => a.data() as TransactionRecharge)
+        .map((t) => t.amount)
+        .reduce((a, b) => a + b, 0);
+
+      setRecharges(recharges);
+    });
+  }, [db, event]);
+
+  useEffect(() => {
+    if (!event) return;
+
+    const transactionRecharges = query(
+      collection(db, `events/${event.id}/transactions`),
+      where("type", "==", TransactionType.Drink),
+    ).withConverter(transactionConverter);
+
+    return onSnapshot(transactionRecharges, (snapshot) => {
+      const [drinks, quantity] = snapshot
+        .docs
+        .map((a) => a.data() as TransactionDrink)
+        .map((t) => [t.price, t.quantity])
+        .reduce(([aPrice, aQty], [bPrice, bQty]) => [aPrice + bPrice, aQty + bQty], [0, 0]);
+
+      setDrinks(drinks);
+      setQuantity(quantity);
+    });
+  }, [db, event]);
+
+  return [memberships, recharges, drinks, quantity];
 };
 
 export const useCurrentEventStatsForAccount = (account: Account) => {

@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import LoadingScreen from "../../../components/loading";
 import PageLayout from "../../../components/pageLayout";
 import PayForm from "../../../components/payForm";
@@ -15,9 +16,14 @@ const AccountPayPage: NextPage = () => {
   const account = useAccount(id as string);
   const staff = useStaffUser();
 
-  if (typeof window !== "undefined" && !((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false))) {
-    router.push("/");
-  }
+  useEffect(() => {
+    if (staff) {
+      if (!staff.isAvailable && !staff.isAdmin) {
+        router.push("/");
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staff]);
 
   return (
     <>
