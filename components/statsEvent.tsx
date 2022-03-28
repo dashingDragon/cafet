@@ -11,7 +11,7 @@ const formatQuantity = (q: number) => (q / 4).toFixed(2) + " L";
 const StatsEvent: React.FC<{ event: SbeereckEvent }> = ({ event }) => {
   const [memberships, recharges, drinks, quantity] = useCurrentEventStats();
 
-  const totalMoney = memberships * MEMBERSHIP_PRICE + recharges + drinks;
+  const totalMoney = memberships * MEMBERSHIP_PRICE + drinks;
 
   return (
     <>
