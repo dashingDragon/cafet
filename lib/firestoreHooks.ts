@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { Account, accountConverter, MEMBERSHIP_PRICE, School } from "./accounts";
 import { useUser } from "./hooks";
 import { Staff, staffConverter } from "./staffs";
-import { transactionConverter, TransactionDrink, TransactionMembership, TransactionRecharge, TransactionType } from "./transactions";
+import { transactionConverter, TransactionDrink, TransactionRecharge, TransactionType } from "./transactions";
 import { eventConverter, SbeereckEvent } from "./event";
 import { Beer, beerConverter, BeerType, beerTypeConverter, BeerWithType } from "./beers";
+
+// =================== Staff stuff
 
 export const useStaffUser = () => {
   const db = getFirestore();
@@ -37,7 +39,7 @@ export const useStaffs = () => {
     return onSnapshot(q, (snapshot) => {
       const staffs = snapshot.docs.map((a) => a.data());
 
-      setStaffs(staffs);
+      setStaffs(staffs.sort((a, b) => a.name < b.name ? -1 : 1));
     });
   }, [db, user]);
 
@@ -59,6 +61,8 @@ export const useSetStaffAvailability = () => {
   };
 };
 
+// =================== Events stuff
+
 export const useCurrentEvent = () => {
   const db = getFirestore();
   const user = useUser();
@@ -76,6 +80,8 @@ export const useCurrentEvent = () => {
 
   return currentEvent;
 };
+
+// =================== Events stats stuff
 
 export const useCurrentEventStats = () => {
   const db = getFirestore();
@@ -183,6 +189,59 @@ export const useCurrentEventStatsForAccount = (account: Account) => {
   return [quantityDrank, moneyRecharged, moneyDrank];
 };
 
+export const useCurrentEventStatsForBeers = () => {
+  const db = getFirestore();
+  const event = useCurrentEvent();
+  const beers = useBeers();
+
+  const [beersStats, setBeersStats] = useState(new Map<string, { beer: Beer, quantity: number, money: number }>());
+
+  useEffect(() => {
+    if (!event) return;
+
+    const transactionBeer = query(
+      collection(db, `events/${event.id}/transactions`),
+      where("type", "==", TransactionType.Drink),
+    ).withConverter(transactionConverter);
+
+    return onSnapshot(transactionBeer, (snapshot) => {
+      const transactions = snapshot.docs.map((a) => a.data());
+
+      // Setup map
+      const stats = new Map();
+      beers.forEach((b) => {
+        stats.set(b.beer.id, { beer: b.beer, quantity: 0, money: 0 });
+      });
+
+      // Fill it with the transactions
+      transactions.forEach((transaction) => {
+        const drink = transaction as TransactionDrink;
+
+        const id = drink.beer.id;
+        const { beer, quantity, money } = stats.get(id);
+        stats.set(id, {
+          beer,
+          quantity: quantity + drink.quantity,
+          money: money + drink.price,
+        });
+      });
+
+      // Remove beers with 0 quantity
+      beers.forEach((b) => {
+        if (stats.get(b.beer.id).quantity === 0) {
+          stats.delete(b.beer.id);
+        }
+      });
+
+      setBeersStats(stats);
+    });
+  }, [db, beers, event]);
+
+  return Array.from(beersStats.values());
+};
+
+// =================== Accounts stuff
+
 export const useAccountList = () => {
   const db = getFirestore();
   const user = useUser();
@@ -211,40 +270,6 @@ export const useAccount = (id: string) => {
   }, [db, id, user]);
 
   return account;
-};
-
-export const useBeers = () => {
-  const db = getFirestore();
-  const user = useUser();
-  const [beers, setBeers] = useState([] as Beer[]);
-  const [types, setTypes] = useState([] as BeerType[]);
-  const [beerWithTypes, setBeerWithTypes] = useState([] as BeerWithType[]);
-
-  useEffect(() => {
-    const q = collection(db, "beers").withConverter(beerConverter);
-    return onSnapshot(q, (snapshot) => {
-      setBeers(snapshot.docs.map((b) => b.data()));
-    });
-  }, [db, user]);
-
-  useEffect(() => {
-    const q = collection(db, "beerTypes").withConverter(beerTypeConverter);
-    return onSnapshot(q, (snapshot) => {
-      setTypes(snapshot.docs.map((t) => t.data()));
-    });
-  }, [db, user]);
-
-  useEffect(() => {
-    // Dont allow beers to show up if there type hasn't been fetched yet
-    setBeerWithTypes(beers
-      .filter((b) => types.find((t) => t.id === b.typeId))
-      .map((b) => ({
-        beer: b,
-        type: types.find((t) => t.id === b.typeId)!,
-      })));
-  }, [beers, types]);
-
-  return beerWithTypes;
 };
 
 export const useAccountMaker = () => {
@@ -314,6 +339,58 @@ export const useAccountDeleter = () => {
     await deleteDoc(doc(db, `accounts/${account.id}`));
   };
 };
+
+// =================== Beers stuff
+
+export const useBeers = () => {
+  const db = getFirestore();
+  const user = useUser();
+  const [beers, setBeers] = useState([] as Beer[]);
+  const [types, setTypes] = useState([] as BeerType[]);
+  const [beerWithTypes, setBeerWithTypes] = useState([] as BeerWithType[]);
+
+  useEffect(() => {
+    const q = collection(db, "beers").withConverter(beerConverter);
+    return onSnapshot(q, (snapshot) => {
+      setBeers(snapshot.docs.map((b) => b.data()));
+    });
+  }, [db, user]);
+
+  useEffect(() => {
+    const q = collection(db, "beerTypes").withConverter(beerTypeConverter);
+    return onSnapshot(q, (snapshot) => {
+      setTypes(snapshot.docs.map((t) => t.data()));
+    });
+  }, [db, user]);
+
+  useEffect(() => {
+    // Dont allow beers to show up if there type hasn't been fetched yet
+    setBeerWithTypes(beers
+      .filter((b) => types.find((t) => t.id === b.typeId))
+      .map((b) => ({
+        beer: b,
+        type: types.find((t) => t.id === b.typeId)!,
+      }))
+      .sort((a, b) => a.beer.name < b.beer.name ? -1 : 1));
+  }, [beers, types]);
+
+  return beerWithTypes;
+};
+
+export const useSetBeerAvailability = () => {
+  const db = getFirestore();
+  const staff = useStaffUser();
+
+  if (!staff) return () => alert("Not connected !");
+
+  return async (beer: Beer, isAvailable: boolean) => {
+    await updateDoc(doc(db, `beers/${beer.id}`).withConverter(beerConverter), {
+      isAvailable,
+    });
+  };
+};
+
+// =================== Transactions stuff
 
 export const useRechargeTransactionMaker = () => {
   const db = getFirestore();
@@ -399,18 +476,5 @@ export const usePayTransactionMaker = () => {
     });
 
     await batch.commit();
-  };
-};
-
-export const useSetBeerAvailability = () => {
-  const db = getFirestore();
-  const staff = useStaffUser();
-
-  if (!staff) return () => alert("Not connected !");
-
-  return async (beer: Beer, isAvailable: boolean) => {
-    await updateDoc(doc(db, `beers/${beer.id}`).withConverter(beerConverter), {
-      isAvailable,
-    });
   };
 };

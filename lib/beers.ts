@@ -1,4 +1,4 @@
-import { FirestoreDataConverter, DocumentReference, doc, getFirestore } from "firebase/firestore";
+import { FirestoreDataConverter, doc, getFirestore } from "firebase/firestore";
 
 export type Beer = {
     id: string,

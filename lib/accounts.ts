@@ -1,6 +1,8 @@
 import { FirestoreDataConverter } from "firebase/firestore";
 
-export const MEMBERSHIP_PRICE = 10 * 100;
+// Discounted to 2€ until the end of the school year
+// export const MEMBERSHIP_PRICE = 10 * 100;
+export const MEMBERSHIP_PRICE = 2 * 100;
 export const MAX_MONEY_PER_ACCOUNT = 500 * 100;
 
 export enum School {
