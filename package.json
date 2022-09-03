@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && next export",
+    "deploy-web": "firebase deploy --only hosting",
     "start": "next start",
     "fmt": "next lint --fix"
   },
