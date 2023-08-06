@@ -3,26 +3,20 @@ import Head from "next/head";
 import LoadingScreen from "../components/loading";
 import PageLayout from "../components/pageLayout";
 import FullHeightScrollableContainer from "../components/scrollableContainer";
-import StatsEvent from "../components/statsEvent";
-import { useCurrentEvent } from "../lib/firestoreHooks";
+import Stats from "../components/stats";
 
 const StatsPage: NextPage = () => {
-  const event = useCurrentEvent();
-
   return (
     <>
       <Head>
-        <title>{"S'Beer Eck"}</title>
-        <meta name="description" content="S'Beer Eck App" />
+        <title>{"Kafet"}</title>
+        <meta name="description" content="Kafet App" />
       </Head>
 
       <main>
-        <PageLayout title={`Stats pour l'event ${event?.name ?? "uwu"}`}>
+        <PageLayout title={`Statistiques`}>
           <FullHeightScrollableContainer>
-            {event === undefined
-              ? <LoadingScreen />
-              : <StatsEvent event={event} />
-            }
+            <Stats />
           </FullHeightScrollableContainer>
         </PageLayout>
       </main>

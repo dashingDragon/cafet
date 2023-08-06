@@ -42,7 +42,7 @@ export const PendingStaffsDialog: React.FC<{
         <DialogTitle>
           Liste des comptes non staffs (cliquez pour en faire des staffs)
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ width: 300 }}>
           <List>
             {pendingStaffs.map((user) => (
               <ListItem key={user.uid} disablePadding>

@@ -7,17 +7,17 @@ const Login = () => {
   const router = useRouter();
 
   const handleGoogleSignin = async () => {
-    console.log("uwu");
-
     const auth = getAuth();
     const provider = new GoogleAuthProvider();
 
     try {
-      console.log("sign in");
       const res = await signInWithPopup(auth, provider);
       const credentials = GoogleAuthProvider.credentialFromResult(res);
-      console.log(credentials);
-      router.replace("/");
+      if (credentials) {
+        router.replace("/");
+      } else {
+        alert("Invalid credentials");
+      }
     } catch (error: any) {
       alert(`Error ${error.code}: ${error.message}`);
       console.warn(error);
@@ -34,7 +34,7 @@ const Login = () => {
         alignItems="center"
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo.png" alt="S'Beer Eck Logo" width="80%" />
+        <img src="/logo.jpg" alt="Kfet Logo" width="80%" />
         <Button
           onClick={handleGoogleSignin}
           variant="contained"

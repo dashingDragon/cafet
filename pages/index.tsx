@@ -10,12 +10,12 @@ const AccountPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{"S'Beer Eck"}</title>
-        <meta name="description" content="S'Beer Eck App" />
+        <title>{"Kafet"}</title>
+        <meta name="description" content="Kafet App" />
       </Head>
 
       <main>
-        <PageLayout title={"S'Beer Eck"}>
+        <PageLayout title={"Kafet"}>
           <AccountList />
         </PageLayout>
       </main>

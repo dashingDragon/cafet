@@ -1,9 +1,6 @@
 import { FirestoreDataConverter } from "firebase/firestore";
 
-// Discounted to 2€ until the end of the school year
-export const MEMBERSHIP_PRICE = 10 * 100;
-// export const MEMBERSHIP_PRICE = 2 * 100;
-export const MAX_MONEY_PER_ACCOUNT = 500 * 100;
+export const MAX_MONEY_PER_ACCOUNT = 100 * 100; // max 100€ at a time on one account
 
 export enum School {
     Ensimag = 0,
@@ -18,39 +15,48 @@ export enum School {
     Unknown = 9,
 }
 
-
 export type Account = {
     id: string | undefined;
     firstName: string;
     lastName: string;
-    isMember: boolean;
     school: School;
     balance: number;
     stats: {
-        quantityDrank: number;
-        totalMoney: number;
+      moneyRecharged: number;
+      quantityServingsEaten: number;
+      quantityDrank: number;
+      quantitySnacksEaten: number;
+      moneySpent: number;
     };
 };
 
 export const accountConverter: FirestoreDataConverter<Account> = {
   fromFirestore: (snapshot, options) => {
     const data = snapshot.data(options);
-    const { firstName, lastName, isMember, school, balance, stats: { quantityDrank, totalMoney } } = data;
+    const { firstName, lastName, school, balance, stats: {
+      moneyRecharged,
+      quantityServingsEaten,
+      quantityDrank,
+      quantitySnacksEaten,
+      moneySpent,
+    } } = data;
     return {
       id: snapshot.id,
       firstName,
       lastName,
-      isMember,
       school,
       balance,
       stats: {
+        moneyRecharged,
+        quantityServingsEaten,
         quantityDrank,
-        totalMoney,
+        quantitySnacksEaten,
+        moneySpent,
       },
     };
   },
   toFirestore: (account) => {
-    const { firstName, lastName, isMember, school, balance, stats } = account;
-    return { firstName, lastName, isMember, school, balance, stats };
+    const { firstName, lastName, school, balance, stats } = account;
+    return { firstName, lastName, school, balance, stats };
   },
 };

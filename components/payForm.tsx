@@ -1,183 +1,195 @@
-import { ChevronRight, LocalBar, SportsBar } from "@mui/icons-material";
-import { Avatar, Box, Button, Chip, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import { AddCircle, ChevronRight, RemoveCircle } from "@mui/icons-material";
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, IconButton, Stack, Typography } from "@mui/material";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Account } from "../lib/accounts";
-import { BeerType } from "../lib/beers";
-import { useBeers, computeTotal, usePayTransactionMaker } from "../lib/firestoreHooks";
+import { useProducts, computeTotalPrice, usePayTransactionMaker } from "../lib/firestoreHooks";
+import { Product, ProductWithQty } from "../lib/product";
+import { formatMoney } from "./accountDetails";
+import { typeTranslation } from "./productList";
 
-const formatMoney = (money: number) => (money / 100).toFixed(2) + "€";
+const StyledCard: React.FC<{
+  product: Product,
+  selectedProductsWithQty: Map<string, ProductWithQty>,
+  setSelectedProductsWithQty: (m: Map<string, ProductWithQty>) => void,
+  disabled: boolean,
+}> = ({ product, selectedProductsWithQty, setSelectedProductsWithQty, disabled }) => {
+  const [quantity, setQuantity] = useState(0);
 
-const InputBeer: React.FC<{
-  selectedBeer: string | null,
-  onSelectBeer: (id: string | null) => void,
-}> = ({ selectedBeer, onSelectBeer }) => {
-  const beerWithTypes = useBeers();
+  const addQuantity = () => { // TODO make a function for this, user checks do not suffise
+    setQuantity(quantity + 1);
+    const productWithQty = selectedProductsWithQty.get(product.id);
+    if (productWithQty) {
+      setSelectedProductsWithQty(new Map(selectedProductsWithQty.set(product.id, {
+        product: productWithQty.product,
+        quantity: productWithQty.quantity + 1,
+      } as ProductWithQty)));
+    }
+  };
 
-  return (
-    <>
-      <Typography variant="body2" sx={{ mb: 1 }}>Choisissez une Bière</Typography>
-      <ToggleButtonGroup
-        value={selectedBeer}
-        onChange={(_, id) => onSelectBeer(id)}
-        exclusive
-        orientation="vertical"
-        color="info"
-        size="large"
-        fullWidth
-      >
-        {beerWithTypes.filter(({ beer }) => beer.isAvailable).map(({ beer, type }) => (
-          <ToggleButton key={beer.id} value={beer.id} sx={{ textTransform: "none" }}>
-            <Box width="100%" display="flex" m={1}>
-              {beer.image !== undefined
-                ? <Avatar src={beer.image} />
-                : <Avatar>{beer.name[0]}</Avatar>
-              }
-              <Box ml={2} display="flex" flexDirection="column" justifyContent="center" alignItems="start">
-                <Typography variant="body1" sx={{ mb: 1 }}>{beer.name}</Typography>
-                <Chip label={`${type.name} ${formatMoney(type.price)}`} />
-              </Box>
-            </Box>
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
-    </>
-  );
-};
-
-const InputBeerAddon: React.FC<{
-  type: BeerType,
-  selectedAddons: number[],
-  onSelectAddon: (id: number) => void,
-}> = ({ type, selectedAddons, onSelectAddon }) => {
-  const isSelected = (id: number) => selectedAddons.includes(id);
+  const removeQuantity = () => {
+    if (quantity) {
+      setQuantity(quantity - 1);
+      const productWithQty = selectedProductsWithQty.get(product.id);
+      if (productWithQty) {
+        setSelectedProductsWithQty(new Map(selectedProductsWithQty.set(product.id, {
+          product: productWithQty.product,
+          quantity: productWithQty.quantity - 1,
+        } as ProductWithQty)));
+      }
+    }
+  };
 
   return (
-    <>
-      <Typography variant="body2" sx={{ mb: 1 }}>Choisissez un supplément (optionnel)</Typography>
-      {type.addons.map(({ name, price }, i) => (
-        <Chip
-          key={i}
-          onClick={() => onSelectAddon(i)}
-          label={`${name} +${formatMoney(price)}`}
-          color={isSelected(i) ? "primary" : undefined}
+    <Card key={product.name} sx={{
+      width: 350,
+      position: "relative",
+    }}>
+      <Box sx={{
+        ...(!product.isAvailable && {
+          "&:before": {
+            position: "absolute",
+            content: "''",
+            display: "block",
+            background: "hsla(0, 0%, 0%, 0.5)",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "140px",
+
+          },
+          "&:after": {
+            position: "absolute",
+            content: "'Indisponible'",
+            display: "block",
+            color: "white",
+            top: 20,
+            left: 20,
+          },
+        }),
+      }}>
+        <CardMedia
+          component="img"
+          alt={`Image de ${product.name}`}
+          height="140"
+          image={product.image}
         />
-      ))}
-    </>
+      </Box>
+
+
+      <CardContent>
+        <Stack
+          direction={"row"}
+          justifyContent={"space-between"}
+        >
+          <Typography gutterBottom variant="h5" component="div">
+            {product.name}
+          </Typography>
+          <Chip label={formatMoney(product.price)} />
+        </Stack>
+
+        {product.type !== "serving" && (
+          <Typography variant="body2" color="text.secondary">
+            {`${product.stock} en stock`}
+          </Typography>
+        )}
+
+        <Typography variant="body2" color="text.secondary">
+          {product.description}
+        </Typography>
+      </CardContent>
+
+      <CardActions>
+        <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity}>
+          <RemoveCircle />
+        </IconButton>
+        <span>{quantity}</span>
+        <IconButton onClick={addQuantity} disabled={!product.isAvailable || disabled}>
+          <AddCircle />
+        </IconButton>
+      </CardActions>
+    </Card>
   );
 };
 
-const InputQuantity: React.FC<{
-  quantity: number,
-  onSelectQuantity: (amount: number | null) => void,
-}> = ({ quantity, onSelectQuantity }) => {
-  const buttons = [
-    {
-      value: 1,
-      label: "Demi (25cl)",
-      icon: <LocalBar sx={{ width: 64, height: 64 }} />,
-    },
-    {
-      value: 2,
-      label: "Pinte (1/2 L)",
-      icon: <SportsBar sx={{ width: 64, height: 64 }} />,
-    },
-  ] as const;
+const ProductList: React.FC<{
+  selectedProductsWithQty: Map<string, ProductWithQty>,
+  setSelectedProductsWithQty: (m: Map<string, ProductWithQty>) => void,
+  limit: number
+}> = ({ selectedProductsWithQty, setSelectedProductsWithQty, limit }) => {
+  const products = useProducts();
 
   return (
     <>
-      <Typography variant="body2" sx={{ mb: 1 }}>Choisissez une quantité</Typography>
-      <ToggleButtonGroup
-        value={quantity}
-        onChange={(_, qty) => onSelectQuantity(qty)}
-        exclusive
-        fullWidth
-        color="info"
-      >
-        {buttons.map(({ value, label, icon }, i) => (
-          <ToggleButton
-            key={i}
-            value={value}
-            sx={{ textTransform: "none" }}
+      {["serving", "drink", "snack"].map((type) => (
+        <>
+          <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
+          <Stack
+            direction={"row"}
+            justifyContent={"center"}
+            flexWrap={"wrap"}
+            gap={4}
+            mb={5}
           >
-            <Box display="flex" flexDirection="column" alignItems="center">
-              {icon}
-              <Typography variant="body2">{label}</Typography>
-            </Box>
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
+            {products.filter(p => p.type === type).map((product) => (
+              <StyledCard
+                key={product.name}
+                product={product}
+                selectedProductsWithQty={selectedProductsWithQty}
+                setSelectedProductsWithQty={setSelectedProductsWithQty}
+                disabled={product.price > limit}
+              />
+            ))}
+          </Stack>
+        </>
+      ))}
     </>
   );
 };
 
 const PayForm: React.FC<{ account: Account }> = ({ account }) => {
   const router = useRouter();
-  const beerWithTypes = useBeers();
+  const products = useProducts();
   const makePayTransaction = usePayTransactionMaker();
 
   // State
-  const [selectedBeer, setSelectedBeer] = useState(null as string | null);
-  const [selectedAddons, setSelectedAddons] = useState([] as number[]);
-  const [quantity, setQuantity] = useState(1);
+  const [selectedProductsWithQty, setSelectedProductsWithQty] = useState(new Map<string, ProductWithQty>());
+  const [total, setTotal] = useState(0);
 
-  // Getters
-  const getSelectedBeer = () => {
-    return beerWithTypes.find(({ beer: {id} }) => id === selectedBeer);
-  };
-  const total = computeTotal(getSelectedBeer(), selectedAddons, quantity);
+  useEffect(() => {
+    const _selectedProductsWithQty = new Map();
+    products.forEach((s) => {
+      _selectedProductsWithQty.set(s.id, { product: s, quantity: 0 });
+    });
+    setSelectedProductsWithQty(_selectedProductsWithQty);
+  }, [products]);
 
-  // Handlers
-  const handleSelectBeer = (id: string | null) => {
-    // Something need to always be selected
-    if (id === null) {
-      return;
+  useEffect(() => {
+    let priceProducts = 0;
+
+    for (const productWithQty of selectedProductsWithQty.values()) {
+      priceProducts += computeTotalPrice(productWithQty.product, productWithQty.quantity);
     }
 
-    setSelectedAddons([]);
-    setSelectedBeer(id);
-  };
-
-  const handleSelectAddon = (id: number) => {
-    if (selectedAddons.includes(id)) {
-      setSelectedAddons(selectedAddons.filter((tId) => tId !== id));
-    } else {
-      setSelectedAddons([...selectedAddons, id]);
-    }
-  };
-
-  const handleSetQuantity = (qty: number | null) => {
-    if (qty === null) {
-      return;
-    }
-    setQuantity(qty);
-  };
+    setTotal(priceProducts);
+  }, [selectedProductsWithQty]);
 
   // Compute money stuff
   const canBeCompleted = () => {
-    return (getSelectedBeer()?.beer.isAvailable ?? false) && total <= account.balance;
+    return total <= account.balance;
   };
 
   const handlePay = async () => {
-    const beer = getSelectedBeer();
-    if (!beer) return alert("Wow tu te calme");
-
-    await makePayTransaction(account, beer, selectedAddons, quantity);
-    router.push(`/accounts/${account.id}`);
+    if (selectedProductsWithQty.values().next()) {
+      await makePayTransaction(account, Array.from(selectedProductsWithQty.values()).filter((s) => s.quantity));
+      router.push(`/accounts/${account.id}`);
+    }
   };
 
   return (
     <>
       <Box m={1}>
-        <InputBeer selectedBeer={selectedBeer} onSelectBeer={handleSelectBeer} />
-      </Box>
-      {selectedBeer !== null && getSelectedBeer()!.type.addons.length > 0 &&
-        <Box m={1}>
-          <InputBeerAddon type={getSelectedBeer()!.type} selectedAddons={selectedAddons} onSelectAddon={handleSelectAddon} />
-        </Box>
-      }
-      <Box m={1}>
-        <InputQuantity quantity={quantity} onSelectQuantity={handleSetQuantity} />
+        <ProductList selectedProductsWithQty={selectedProductsWithQty} setSelectedProductsWithQty={setSelectedProductsWithQty} limit={account.balance - total} />
       </Box>
       <Box m={1}>
         <Button

@@ -1,9 +1,9 @@
-import { AccountBalanceWallet, Error, Close, SportsBar, Edit, DeleteForever, LocalBar, LocalBarOutlined, Savings, SavingsOutlined } from "@mui/icons-material";
+import { AccountBalanceWallet, Error, Close, SportsBar, Edit, DeleteForever, LocalBar, LocalBarOutlined, Savings, SavingsOutlined, PointOfSale, Euro, LunchDining, Coffee, Cookie } from "@mui/icons-material";
 import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { Account, MAX_MONEY_PER_ACCOUNT, MEMBERSHIP_PRICE, School } from "../lib/accounts";
-import { useAccountMaker, useAccountDeleter, useMakeMember, useRechargeTransactionMaker, useStaffUser, useAccountEditor, useCurrentEventStatsForAccount } from "../lib/firestoreHooks";
+import { Account, MAX_MONEY_PER_ACCOUNT, School } from "../lib/accounts";
+import { useAccountMaker, useAccountDeleter, useRechargeTransactionMaker, useStaffUser, useAccountEditor, useCurrentStatsForAccount } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
 
 const schoolToImage = (school: School) => {
@@ -11,7 +11,7 @@ const schoolToImage = (school: School) => {
 };
 
 const formatQuantity = (v: number) => (v / 4).toFixed(2) + " L";
-const formatMoney = (v: number) => (v / 100).toFixed(2) + " €";
+export const formatMoney = (v: number) => (v / 100).toFixed(2) + " €";
 
 const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
   return (
@@ -136,7 +136,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
 
   const buttons = [
     {
-      icon: <SportsBar fontSize="large" />,
+      icon: <PointOfSale fontSize="large" />,
       color: "primary",
       text: "Encaisser",
       enabled: () => ((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false)) && account.balance > 0,
@@ -210,89 +210,32 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
   );
 };
 
-const AccountNotAMember: React.FC<{ account: Account }> = ({ account }) => {
-  const makeMember = useMakeMember();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const handleDialogClose = () => setDialogOpen(false);
-
-  const handleMakeMember = async () => {
-    try {
-      setDialogOpen(false);
-      await makeMember(account);
-    } catch (e: any) {
-      console.log("Failed to make member");
-    }
-  };
-
-  return (
-    <>
-      <Button
-        onClick={() => setDialogOpen(true)}
-        variant="contained"
-        size="large"
-        fullWidth
-        sx={{ textTransform: "none" }}
-        color="error"
-      >
-        <Box
-          width="100%"
-          display="flex"
-          flexDirection="column"
-          alignItems="flex-start"
-        >
-          <Box display="flex" alignItems="center" >
-            <Close fontSize="large" sx={{ mr: 1 }} />
-            <Typography variant="h5">Pas un membre</Typography>
-          </Box>
-          <Typography variant="body2">Cliquez pour en faire un membre ({formatMoney(MEMBERSHIP_PRICE)})</Typography>
-        </Box>
-      </Button>
-
-      {/* Dialog make member */}
-      <Dialog open={dialogOpen} onClose={handleDialogClose}>
-        <DialogTitle>Faire membre ?</DialogTitle>
-        <DialogActions>
-          <Button onClick={handleDialogClose}>Annuler</Button>
-          <Button onClick={handleMakeMember}>Ok</Button>
-        </DialogActions>
-      </Dialog>
-    </>
-  );
-};
-
 const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
-  const [quantityDrank, moneyRecharged, moneyDrank] = useCurrentEventStatsForAccount(account);
+  const [totalExpense, servingsExpense, drinksExpense, snacksExpense] = useCurrentStatsForAccount(account);
 
-  const rows = [
+  const rows = [[],
     [
       {
-        icon: <LocalBar />,
-        value: formatQuantity(account.stats.quantityDrank),
-        text: "Bu au total",
-      },
-      {
-        icon: <LocalBarOutlined />,
-        value: formatQuantity(quantityDrank),
-        text: "Bu ce soir",
+        icon: <Euro />,
+        value: formatMoney(totalExpense),
+        text: "Total dépensé",
       },
     ],
     [
       {
-        icon: <Savings />,
-        value: formatMoney(account.stats.totalMoney),
-        text: "Rechargé au total",
+        icon: <LunchDining />,
+        value: formatMoney(servingsExpense),
+        text: "Sous-total des plats",
       },
       {
-        icon: <SavingsOutlined />,
-        value: formatMoney(moneyRecharged),
-        text: "Rechargé ce soir",
+        icon: <Coffee />,
+        value: formatMoney(drinksExpense),
+        text: "Sous-total des boissons",
       },
-    ],
-    [
       {
-        icon: <SportsBar />,
-        value: formatMoney(moneyDrank),
-        text: "Bu ce soir",
+        icon: <Cookie />,
+        value: formatMoney(snacksExpense),
+        text: "Sous-total des snacks",
       },
     ],
   ] as const;
@@ -344,10 +287,7 @@ const AccountDetails: React.FC<{ account: Account }> = (props) => {
         <AccountBalanceAndRecharge {...props} />
       </Box>
       <Box {...linesParams}>
-        {account.isMember
-          ? <AccountActions {...props} />
-          : <AccountNotAMember {...props} />
-        }
+        <AccountActions {...props} />
       </Box>
       <Box {...linesParams}>
         <AccountStats {...props} />

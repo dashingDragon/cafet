@@ -36,7 +36,7 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
       {/* Change availability dialog */}
       <Dialog open={availableDialogOpen} onClose={() => setAvailableDialogOpen(false)}>
         <DialogTitle>
-          {staff.isAvailable ? "Rendre non disponible ?" : "Render disponible ?"}
+          {staff.isAvailable ? "Rendre non disponible ?" : "Rendre disponible ?"}
         </DialogTitle>
         <DialogActions>
           <Button onClick={() => setAvailableDialogOpen(false)}>Non</Button>

@@ -10,23 +10,23 @@ export type Staff = {
     name: string,
     isAvailable: boolean,
     isAdmin: boolean,
-    tel: string | undefined,
+    phone: string | undefined,
 };
 
 export const staffConverter: FirestoreDataConverter<Staff> = {
   fromFirestore: (snapshot, options) => {
     const data = snapshot.data(options);
-    const { name, isAvailable, isAdmin, tel } = data;
+    const { name, isAvailable, isAdmin, phone } = data;
     return {
       id: snapshot.id,
       name,
       isAvailable,
       isAdmin,
-      tel,
+      phone,
     };
   },
   toFirestore: (staff) => {
-    const { name, isAvailable, isAdmin, tel } = staff;
-    return { name, isAvailable, isAdmin, tel };
+    const { name, isAvailable, isAdmin, phone } = staff;
+    return { name, isAvailable, isAdmin, phone };
   },
 };

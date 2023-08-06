@@ -1,5 +1,5 @@
 import { AppBar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from "@mui/material";
-import { Groups, SportsBar, AdminPanelSettings, ArrowBack, Brightness6, Logout, QueryStats } from "@mui/icons-material";
+import { Groups, AdminPanelSettings, ArrowBack, Brightness6, Logout, QueryStats, FoodBank } from "@mui/icons-material";
 import { ReactElement } from "react";
 import { invertTheme, useAppTheme } from "../lib/theme";
 import { useRouter } from "next/router";
@@ -83,7 +83,7 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
             color="inherit"
           >
             <BottomNavigationAction value={"/"} label="Comptes" icon={<Groups />} color="inherit" />
-            <BottomNavigationAction value={"/beers"} label="Bières" icon={<SportsBar />} color="inherit" />
+            <BottomNavigationAction value={"/products"} label="Nourriture" icon={<FoodBank />} color="inherit" />
             <BottomNavigationAction value={"/staffs"} label="Staff" icon={<AdminPanelSettings />} color="inherit" />
             <BottomNavigationAction value={"/stats"} label="Stats" icon={<QueryStats/>} color="inherit" />
           </BottomNavigation>

@@ -1,12 +1,11 @@
 import type { DocumentReference, FirestoreDataConverter } from "firebase/firestore";
 import { Account } from "./accounts";
-import { Beer } from "./beers";
+import { Product, ProductRefWithQty, ProductWithQty } from "./product";
 import { Staff } from "./staffs";
 
 export enum TransactionType {
     Recharge = 0,
-    Drink = 1,
-    Membership = 2,
+    Order = 1,
 };
 
 type TransactionMetadata = {
@@ -21,20 +20,13 @@ export type TransactionRecharge = {
     amount: number,
 } & TransactionMetadata;
 
-export type TransactionDrink = {
-    id: string,
-    beer: DocumentReference<Beer>,
-    addons: number[],
-    quantity: number,
+export type TransactionOrder = {
+    id: string;
+    productsWithQty: ProductRefWithQty[],
     price: number,
 } & TransactionMetadata;
 
-export type TransactionMembership = {
-    id: string,
-    price: number,
-} & TransactionMetadata;
-
-export type Transaction = TransactionRecharge | TransactionDrink | TransactionMembership;
+export type Transaction = TransactionRecharge | TransactionOrder;
 
 export const transactionConverter: FirestoreDataConverter<Transaction> = {
   fromFirestore: (snapshot, options) => {
@@ -49,27 +41,19 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
         staff,
         createdAt,
       } as TransactionRecharge;
-    } else if (type === TransactionType.Drink) {
-      const { beer, addons, quantity, price } = data;
+    } else if (type === TransactionType.Order) {
+      const {
+        productsWithQty,
+        price,
+      } = data;
       return {
         id: snapshot.id,
-        beer,
-        addons,
-        quantity,
+        productsWithQty,
         price,
         customer,
         staff,
         createdAt,
-      } as TransactionDrink;
-    } else if (type === TransactionType.Membership) {
-      const { price } = data;
-      return {
-        id: snapshot.id,
-        price,
-        customer,
-        staff,
-        createdAt,
-      } as TransactionMembership;
+      } as TransactionOrder;
     } else {
       throw Error("Unknown transaction type");
     }
@@ -85,21 +69,13 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
         staff,
         createdAt,
       };
-    } else if (type === TransactionType.Drink) {
-      const { beer, addons, quantity, price } = transaction as TransactionDrink;
-      return {
-        beer,
-        addons,
-        quantity,
+    } else if (type === TransactionType.Order) {
+      const {
+        productsWithQty,
         price,
-        type,
-        customer,
-        staff,
-        createdAt,
-      };
-    } else if (type === TransactionType.Membership) {
-      const { price } = transaction as TransactionMembership;
+      } = transaction as TransactionOrder;
       return {
+        productsWithQty,
         price,
         type,
         customer,

@@ -25,13 +25,16 @@ function MyApp({ Component, pageProps }: AppProps) {
     } catch (e) {
       // Doesn't really matter that it is on git
       const firebaseConfig = {
-        apiKey: "AIzaSyAzxBzN7JlhNeue5LSMc1EspCN5NUczCHY",
-        authDomain: "fir-beer-eck.firebaseapp.com",
-        projectId: "fir-beer-eck",
-        storageBucket: "fir-beer-eck.appspot.com",
-        messagingSenderId: "1090030112161",
-        appId: "1:1090030112161:web:09c9aea9e7467eeb8b4fe0",
+        apiKey: "AIzaSyAXPX2zOln1JRzT_jZuBbhoz6RufOXxWgM",
+        authDomain: "kafet-394406.firebaseapp.com",
+        projectId: "kafet-394406",
+        storageBucket: "kafet-394406.appspot.com",
+        messagingSenderId: "752961124318",
+        appId: "1:752961124318:web:2980fec92a1b91c1154f4f",
+
       };
+
+
       return initializeApp(firebaseConfig);
     }
   }, []);

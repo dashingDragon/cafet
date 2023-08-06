@@ -1,5 +1,5 @@
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MakeStaffPayload } from "./staffs";
 
 export type PendingStaff = {

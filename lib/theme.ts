@@ -1,18 +1,28 @@
 import type {} from "@mui/x-data-grid-pro/themeAugmentation";
-import { createTheme, PaletteMode } from "@mui/material";
+import { createTheme, PaletteMode, responsiveFontSizes } from "@mui/material";
 import useLocalStorage from "@rehooks/local-storage";
+import { ResponsiveFontSizesOptions } from "@mui/material/styles/responsiveFontSizes";
+import { Typography } from "@mui/material/styles/createTypography";
 
-export const lightTheme = createTheme({
-  palette: {
-    mode: "light",
-  },
-});
+const createThemeMode = (mode: PaletteMode) => {
+  const theme = createTheme({
+    palette: {
+      mode: mode,
+    },
+  });
 
-export const darkTheme = createTheme({
-  palette: {
-    mode: "dark",
-  },
-});
+  theme.typography.body1 = {
+    fontSize: "14px",
+    [theme.breakpoints.up("sm")]: {
+      fontSize: "12px",
+    },
+  };
+
+  return theme;
+};
+
+export const lightTheme = createThemeMode("light");
+export const darkTheme = createThemeMode("dark");
 
 export const invertTheme = (theme: PaletteMode) => {
   if (theme === "light") {

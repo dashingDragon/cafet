@@ -21,12 +21,12 @@ const StaffPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>S&apos;Beer Eck</title>
-        <meta name="description" content="S'Beer Eck App" />
+        <title>Kafet</title>
+        <meta name="description" content="Kafet App" />
       </Head>
 
       <main>
-        <PageLayout title={"S'Beer Eck"}>
+        <PageLayout title={"Kafet"}>
           {staffs === undefined
             ? <LoadingScreen />
             : <>
@@ -34,16 +34,16 @@ const StaffPage: NextPage = () => {
                 <>
                   <StaffList staffs={staffs} />
                   {staff?.isAdmin &&
-                    <Fab
-                      onClick={() => setPendingDialogOpen(true)}
-                      color="primary"
-                      sx={{
-                        position: "absolute",
-                        bottom: 16,
-                        right: 16,
-                      }}>
-                      <Add />
-                    </Fab>
+                  <Fab
+                    onClick={() => setPendingDialogOpen(true)}
+                    color="primary"
+                    sx={{
+                      position: "absolute",
+                      bottom: 16,
+                      right: 16,
+                    }}>
+                    <Add />
+                  </Fab>
                   }
                 </>
               </FullHeightScrollableContainer>

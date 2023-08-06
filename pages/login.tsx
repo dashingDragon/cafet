@@ -6,8 +6,8 @@ const LoginPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{"S'Beer Eck"}</title>
-        <meta name="description" content="S'Beer Eck App" />
+        <title>{"Kafet"}</title>
+        <meta name="description" content="Kafet App" />
       </Head>
 
       <main>

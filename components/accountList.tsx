@@ -3,9 +3,9 @@ import { Box, darken, Fab, TextField } from "@mui/material";
 import { DataGridPro, GridColDef } from "@mui/x-data-grid-pro";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { School } from "../lib/accounts";
 import { useAccountList, useAccountMaker } from "../lib/firestoreHooks";
 import AccountEditDialog from "./accountEditDialog";
+import { School } from "../lib/accounts";
 
 const AccountList = () => {
   const router = useRouter();
@@ -21,9 +21,9 @@ const AccountList = () => {
   }, [allRows]);
 
   const columns: GridColDef[] = [
-    { field: "firstName", headerName: "Prénom", resizable: false, sortable: false, flex: 1 },
+    {  field: "firstName", headerName: "Prénom", resizable: false, sortable: false, flex: 1 },
     { field: "lastName", headerName: "Nom", resizable: false, sortable: false, flex: 1 },
-    { field: "isMember", headerName: "Membre?", type: "boolean", resizable: false, sortable: false, flex: 0.5 },
+    { field: "isStaff", headerName: "Staff?", type: "boolean", resizable: false, sortable: false, flex: 0.5 },
     {
       field: "balance",
       headerName: "Solde",
@@ -82,17 +82,24 @@ const AccountList = () => {
         hideFooter
         disableColumnMenu
         rowHeight={40}
-        getRowClassName={(a) => a.row.balance <= 0 ? "sbeereck-poor" : ""}
+        getRowClassName={(a) => a.row.balance <= 0 ? "bankrupt" : ""}
         sx={{
           border: 0,
           // Yes I'm cheating
-          "& .MuiDataGrid-main > div:nth-child(3)": {
-            display: "none",
-          },
+          ...(!!rows.length ? {
+            "& .MuiDataGrid-main > div:nth-child(3)": {
+              display: "none",
+            },
+          } : {
+            "& .MuiDataGrid-main > div:nth-child(4)": {
+              display: "none",
+            },
+          }),
+
           "& .MuiDataGrid-columnSeparator": {
             display: "none",
           },
-          "& .sbeereck-poor": {
+          "& .bankrupt": {
             bgcolor: (theme) => darken(theme.palette.error.main, 0.4),
             "&:hover": {
               bgcolor: (theme) => darken(theme.palette.error.dark, 0.4),

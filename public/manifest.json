@@ -4,8 +4,8 @@
     "display": "fullscreen",
     "scope": "/",
     "start_url": "/",
-    "name": "S'Beer Eck",
-    "short_name": "S'Beer Eck",
+    "name": "Kafet",
+    "short_name": "Kafet",
     "description": "Oui",
     "prefer_related_applications": false,
     "icons": [
