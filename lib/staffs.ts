@@ -1,4 +1,4 @@
-import { FirestoreDataConverter } from "firebase/firestore";
+import { FirestoreDataConverter } from 'firebase/firestore';
 
 export type MakeStaffPayload = {
   uid: string,
@@ -14,19 +14,19 @@ export type Staff = {
 };
 
 export const staffConverter: FirestoreDataConverter<Staff> = {
-  fromFirestore: (snapshot, options) => {
-    const data = snapshot.data(options);
-    const { name, isAvailable, isAdmin, phone } = data;
-    return {
-      id: snapshot.id,
-      name,
-      isAvailable,
-      isAdmin,
-      phone,
-    };
-  },
-  toFirestore: (staff) => {
-    const { name, isAvailable, isAdmin, phone } = staff;
-    return { name, isAvailable, isAdmin, phone };
-  },
+    fromFirestore: (snapshot, options) => {
+        const data = snapshot.data(options);
+        const { name, isAvailable, isAdmin, phone } = data;
+        return {
+            id: snapshot.id,
+            name,
+            isAvailable,
+            isAdmin,
+            phone,
+        };
+    },
+    toFirestore: (staff) => {
+        const { name, isAvailable, isAdmin, phone } = staff;
+        return { name, isAvailable, isAdmin, phone };
+    },
 };

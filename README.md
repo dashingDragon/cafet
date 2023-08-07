@@ -28,7 +28,8 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add product editor
 - [ ] add history of transactions for users
 - [ ] make a statistical graph for products
-- [ ] make a better theme
+- [ ] make a better theme and a custom font
+- [ ] add custom sandwiches
 
 For the customer-side app :
 - [ ] add the order page

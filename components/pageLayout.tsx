@@ -1,9 +1,9 @@
-import { AppBar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from "@mui/material";
-import { Groups, AdminPanelSettings, ArrowBack, Brightness6, Logout, QueryStats, FoodBank } from "@mui/icons-material";
-import { ReactElement } from "react";
-import { invertTheme, useAppTheme } from "../lib/theme";
-import { useRouter } from "next/router";
-import { getAuth, signOut } from "firebase/auth";
+import { AppBar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from '@mui/material';
+import { Groups, AdminPanelSettings, ArrowBack, Brightness6, Logout, QueryStats, FoodBank } from '@mui/icons-material';
+import { ReactElement } from 'react';
+import { invertTheme, useAppTheme } from '../lib/theme';
+import { useRouter } from 'next/router';
+import { getAuth, signOut } from 'firebase/auth';
 
 type PageLayoutProps = {
   children: ReactElement,
@@ -13,84 +13,84 @@ type PageLayoutProps = {
 };
 
 const defaultProps: Partial<PageLayoutProps> = {
-  backTo: undefined,
-  hideBottomNavigation: false,
+    backTo: undefined,
+    hideBottomNavigation: false,
 };
 
 const ToggleThemeButton = () => {
-  const [theme, setTheme] = useAppTheme();
+    const [theme, setTheme] = useAppTheme();
 
-  return (
-    <IconButton
-      size="large"
-      color="inherit"
-      onClick={() => setTheme(invertTheme(theme!))}>
-      <Brightness6 />
-    </IconButton>
-  );
+    return (
+        <IconButton
+            size="large"
+            color="inherit"
+            onClick={() => setTheme(invertTheme(theme!))}>
+            <Brightness6 />
+        </IconButton>
+    );
 };
 
 const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayoutProps) => {
-  const router = useRouter();
-  const handleLogout = async () => {
-    await signOut(getAuth());
-  };
+    const router = useRouter();
+    const handleLogout = async () => {
+        await signOut(getAuth());
+    };
 
-  return (
-    <Container maxWidth="md" disableGutters>
-      <Box sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-      }}>
-        <AppBar position="sticky">
-          <Toolbar>
-            {backTo !== undefined &&
+    return (
+        <Container maxWidth="md" disableGutters>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100vh',
+            }}>
+                <AppBar position="sticky">
+                    <Toolbar>
+                        {backTo !== undefined &&
               <IconButton
-                size="large"
-                edge="start"
-                color="inherit"
-                onClick={() => router.push(backTo)}
+                  size="large"
+                  edge="start"
+                  color="inherit"
+                  onClick={() => router.push(backTo)}
               >
-                <ArrowBack />
+                  <ArrowBack />
               </IconButton>
-            }
+                        }
 
-            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-              {title}
-            </Typography>
+                        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                            {title}
+                        </Typography>
 
-            <ToggleThemeButton />
-            <IconButton
-              onClick={handleLogout}
-              size="large"
-              edge="end"
-              color="inherit">
-              <Logout />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
+                        <ToggleThemeButton />
+                        <IconButton
+                            onClick={handleLogout}
+                            size="large"
+                            edge="end"
+                            color="inherit">
+                            <Logout />
+                        </IconButton>
+                    </Toolbar>
+                </AppBar>
 
-        <>
-          {children}
-        </>
+                <>
+                    {children}
+                </>
 
-        {!hideBottomNavigation &&
+                {!hideBottomNavigation &&
           <BottomNavigation
-            value={router.pathname}
-            onChange={(e, route) => router.push(route)}
-            showLabels
-            color="inherit"
+              value={router.pathname}
+              onChange={(e, route) => router.push(route)}
+              showLabels
+              color="inherit"
           >
-            <BottomNavigationAction value={"/"} label="Comptes" icon={<Groups />} color="inherit" />
-            <BottomNavigationAction value={"/products"} label="Nourriture" icon={<FoodBank />} color="inherit" />
-            <BottomNavigationAction value={"/staffs"} label="Staff" icon={<AdminPanelSettings />} color="inherit" />
-            <BottomNavigationAction value={"/stats"} label="Stats" icon={<QueryStats/>} color="inherit" />
+              <BottomNavigationAction value={'/'} label="Comptes" icon={<Groups />} color="inherit" />
+              <BottomNavigationAction value={'/products'} label="Nourriture" icon={<FoodBank />} color="inherit" />
+              <BottomNavigationAction value={'/staffs'} label="Staff" icon={<AdminPanelSettings />} color="inherit" />
+              <BottomNavigationAction value={'/stats'} label="Stats" icon={<QueryStats/>} color="inherit" />
           </BottomNavigation>
-        }
-      </Box>
-    </Container>
-  );
+                }
+            </Box>
+        </Container>
+    );
 };
 PageLayout.defaultProps = defaultProps;
 

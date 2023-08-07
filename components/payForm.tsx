@@ -1,12 +1,12 @@
-import { AddCircle, ChevronRight, RemoveCircle } from "@mui/icons-material";
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, IconButton, Stack, Typography } from "@mui/material";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { Account } from "../lib/accounts";
-import { useProducts, computeTotalPrice, usePayTransactionMaker } from "../lib/firestoreHooks";
-import { Product, ProductWithQty } from "../lib/product";
-import { formatMoney } from "./accountDetails";
-import { typeTranslation } from "./productList";
+import { AddCircle, ChevronRight, RemoveCircle } from '@mui/icons-material';
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, IconButton, Stack, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { Account } from '../lib/accounts';
+import { useProducts, computeTotalPrice, usePayTransactionMaker } from '../lib/firestoreHooks';
+import { Product, ProductWithQty } from '../lib/product';
+import { formatMoney } from './accountDetails';
+import { typeTranslation } from './productList';
 
 const StyledCard: React.FC<{
   product: Product,
@@ -14,102 +14,102 @@ const StyledCard: React.FC<{
   setSelectedProductsWithQty: (m: Map<string, ProductWithQty>) => void,
   disabled: boolean,
 }> = ({ product, selectedProductsWithQty, setSelectedProductsWithQty, disabled }) => {
-  const [quantity, setQuantity] = useState(0);
+    const [quantity, setQuantity] = useState(0);
 
-  const addQuantity = () => { // TODO make a function for this, user checks do not suffise
-    setQuantity(quantity + 1);
-    const productWithQty = selectedProductsWithQty.get(product.id);
-    if (productWithQty) {
-      setSelectedProductsWithQty(new Map(selectedProductsWithQty.set(product.id, {
-        product: productWithQty.product,
-        quantity: productWithQty.quantity + 1,
-      } as ProductWithQty)));
-    }
-  };
+    const addQuantity = () => { // TODO make a function for this, user checks do not suffise
+        setQuantity(quantity + 1);
+        const productWithQty = selectedProductsWithQty.get(product.id);
+        if (productWithQty) {
+            setSelectedProductsWithQty(new Map(selectedProductsWithQty.set(product.id, {
+                product: productWithQty.product,
+                quantity: productWithQty.quantity + 1,
+            } as ProductWithQty)));
+        }
+    };
 
-  const removeQuantity = () => {
-    if (quantity) {
-      setQuantity(quantity - 1);
-      const productWithQty = selectedProductsWithQty.get(product.id);
-      if (productWithQty) {
-        setSelectedProductsWithQty(new Map(selectedProductsWithQty.set(product.id, {
-          product: productWithQty.product,
-          quantity: productWithQty.quantity - 1,
-        } as ProductWithQty)));
-      }
-    }
-  };
+    const removeQuantity = () => {
+        if (quantity) {
+            setQuantity(quantity - 1);
+            const productWithQty = selectedProductsWithQty.get(product.id);
+            if (productWithQty) {
+                setSelectedProductsWithQty(new Map(selectedProductsWithQty.set(product.id, {
+                    product: productWithQty.product,
+                    quantity: productWithQty.quantity - 1,
+                } as ProductWithQty)));
+            }
+        }
+    };
 
-  return (
-    <Card key={product.name} sx={{
-      width: 350,
-      position: "relative",
-    }}>
-      <Box sx={{
-        ...(!product.isAvailable && {
-          "&:before": {
-            position: "absolute",
-            content: "''",
-            display: "block",
-            background: "hsla(0, 0%, 0%, 0.5)",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "140px",
+    return (
+        <Card key={product.name} sx={{
+            width: 350,
+            position: 'relative',
+        }}>
+            <Box sx={{
+                ...(!product.isAvailable && {
+                    '&:before': {
+                        position: 'absolute',
+                        content: '\'\'',
+                        display: 'block',
+                        background: 'hsla(0, 0%, 0%, 0.5)',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '140px',
 
-          },
-          "&:after": {
-            position: "absolute",
-            content: "'Indisponible'",
-            display: "block",
-            color: "white",
-            top: 20,
-            left: 20,
-          },
-        }),
-      }}>
-        <CardMedia
-          component="img"
-          alt={`Image de ${product.name}`}
-          height="140"
-          image={product.image}
-        />
-      </Box>
+                    },
+                    '&:after': {
+                        position: 'absolute',
+                        content: '\'Indisponible\'',
+                        display: 'block',
+                        color: 'white',
+                        top: 20,
+                        left: 20,
+                    },
+                }),
+            }}>
+                <CardMedia
+                    component="img"
+                    alt={`Image de ${product.name}`}
+                    height="140"
+                    image={product.image}
+                />
+            </Box>
 
 
-      <CardContent>
-        <Stack
-          direction={"row"}
-          justifyContent={"space-between"}
-        >
-          <Typography gutterBottom variant="h5" component="div">
-            {product.name}
-          </Typography>
-          <Chip label={formatMoney(product.price)} />
-        </Stack>
+            <CardContent>
+                <Stack
+                    direction={'row'}
+                    justifyContent={'space-between'}
+                >
+                    <Typography gutterBottom variant="h5" component="div">
+                        {product.name}
+                    </Typography>
+                    <Chip label={formatMoney(product.price)} />
+                </Stack>
 
-        {product.type !== "serving" && (
-          <Typography variant="body2" color="text.secondary">
-            {`${product.stock} en stock`}
-          </Typography>
-        )}
+                {product.type !== 'serving' && (
+                    <Typography variant="body2" color="text.secondary">
+                        {`${product.stock} en stock`}
+                    </Typography>
+                )}
 
-        <Typography variant="body2" color="text.secondary">
-          {product.description}
-        </Typography>
-      </CardContent>
+                <Typography variant="body2" color="text.secondary">
+                    {product.description}
+                </Typography>
+            </CardContent>
 
-      <CardActions>
-        <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity}>
-          <RemoveCircle />
-        </IconButton>
-        <span>{quantity}</span>
-        <IconButton onClick={addQuantity} disabled={!product.isAvailable || disabled}>
-          <AddCircle />
-        </IconButton>
-      </CardActions>
-    </Card>
-  );
+            <CardActions>
+                <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity}>
+                    <RemoveCircle />
+                </IconButton>
+                <span>{quantity}</span>
+                <IconButton onClick={addQuantity} disabled={!product.isAvailable || disabled}>
+                    <AddCircle />
+                </IconButton>
+            </CardActions>
+        </Card>
+    );
 };
 
 const ProductList: React.FC<{
@@ -117,97 +117,97 @@ const ProductList: React.FC<{
   setSelectedProductsWithQty: (m: Map<string, ProductWithQty>) => void,
   limit: number
 }> = ({ selectedProductsWithQty, setSelectedProductsWithQty, limit }) => {
-  const products = useProducts();
+    const products = useProducts();
 
-  return (
-    <>
-      {["serving", "drink", "snack"].map((type) => (
+    return (
         <>
-          <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
-          <Stack
-            direction={"row"}
-            justifyContent={"center"}
-            flexWrap={"wrap"}
-            gap={4}
-            mb={5}
-          >
-            {products.filter(p => p.type === type).map((product) => (
-              <StyledCard
-                key={product.name}
-                product={product}
-                selectedProductsWithQty={selectedProductsWithQty}
-                setSelectedProductsWithQty={setSelectedProductsWithQty}
-                disabled={product.price > limit}
-              />
+            {['serving', 'drink', 'snack'].map((type) => (
+                <>
+                    <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
+                    <Stack
+                        direction={'row'}
+                        justifyContent={'center'}
+                        flexWrap={'wrap'}
+                        gap={4}
+                        mb={5}
+                    >
+                        {products.filter(p => p.type === type).map((product) => (
+                            <StyledCard
+                                key={product.name}
+                                product={product}
+                                selectedProductsWithQty={selectedProductsWithQty}
+                                setSelectedProductsWithQty={setSelectedProductsWithQty}
+                                disabled={product.price > limit}
+                            />
+                        ))}
+                    </Stack>
+                </>
             ))}
-          </Stack>
         </>
-      ))}
-    </>
-  );
+    );
 };
 
 const PayForm: React.FC<{ account: Account }> = ({ account }) => {
-  const router = useRouter();
-  const products = useProducts();
-  const makePayTransaction = usePayTransactionMaker();
+    const router = useRouter();
+    const products = useProducts();
+    const makePayTransaction = usePayTransactionMaker();
 
-  // State
-  const [selectedProductsWithQty, setSelectedProductsWithQty] = useState(new Map<string, ProductWithQty>());
-  const [total, setTotal] = useState(0);
+    // State
+    const [selectedProductsWithQty, setSelectedProductsWithQty] = useState(new Map<string, ProductWithQty>());
+    const [total, setTotal] = useState(0);
 
-  useEffect(() => {
-    const _selectedProductsWithQty = new Map();
-    products.forEach((s) => {
-      _selectedProductsWithQty.set(s.id, { product: s, quantity: 0 });
-    });
-    setSelectedProductsWithQty(_selectedProductsWithQty);
-  }, [products]);
+    useEffect(() => {
+        const _selectedProductsWithQty = new Map();
+        products.forEach((s) => {
+            _selectedProductsWithQty.set(s.id, { product: s, quantity: 0 });
+        });
+        setSelectedProductsWithQty(_selectedProductsWithQty);
+    }, [products]);
 
-  useEffect(() => {
-    let priceProducts = 0;
+    useEffect(() => {
+        let priceProducts = 0;
 
-    for (const productWithQty of selectedProductsWithQty.values()) {
-      priceProducts += computeTotalPrice(productWithQty.product, productWithQty.quantity);
-    }
+        for (const productWithQty of selectedProductsWithQty.values()) {
+            priceProducts += computeTotalPrice(productWithQty.product, productWithQty.quantity);
+        }
 
-    setTotal(priceProducts);
-  }, [selectedProductsWithQty]);
+        setTotal(priceProducts);
+    }, [selectedProductsWithQty]);
 
-  // Compute money stuff
-  const canBeCompleted = () => {
-    return total <= account.balance;
-  };
+    // Compute money stuff
+    const canBeCompleted = () => {
+        return total <= account.balance;
+    };
 
-  const handlePay = async () => {
-    if (selectedProductsWithQty.values().next()) {
-      await makePayTransaction(account, Array.from(selectedProductsWithQty.values()).filter((s) => s.quantity));
-      router.push(`/accounts/${account.id}`);
-    }
-  };
+    const handlePay = async () => {
+        if (selectedProductsWithQty.values().next()) {
+            await makePayTransaction(account, Array.from(selectedProductsWithQty.values()).filter((s) => s.quantity));
+            router.push(`/accounts/${account.id}`);
+        }
+    };
 
-  return (
-    <>
-      <Box m={1}>
-        <ProductList selectedProductsWithQty={selectedProductsWithQty} setSelectedProductsWithQty={setSelectedProductsWithQty} limit={account.balance - total} />
-      </Box>
-      <Box m={1}>
-        <Button
-          disabled={!canBeCompleted()}
-          onClick={handlePay}
-          color="info"
-          variant="contained"
-          fullWidth
-          sx={{ textTransform: "none" }}
-        >
-          <Box width="100%" display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Total: {formatMoney(total)}</Typography>
-            <ChevronRight fontSize="large" />
-          </Box>
-        </Button>
-      </Box>
-    </>
-  );
+    return (
+        <>
+            <Box m={1}>
+                <ProductList selectedProductsWithQty={selectedProductsWithQty} setSelectedProductsWithQty={setSelectedProductsWithQty} limit={account.balance - total} />
+            </Box>
+            <Box m={1}>
+                <Button
+                    disabled={!canBeCompleted()}
+                    onClick={handlePay}
+                    color="info"
+                    variant="contained"
+                    fullWidth
+                    sx={{ textTransform: 'none' }}
+                >
+                    <Box width="100%" display="flex" justifyContent="space-between" alignItems="center">
+                        <Typography variant="h6">Total: {formatMoney(total)}</Typography>
+                        <ChevronRight fontSize="large" />
+                    </Box>
+                </Button>
+            </Box>
+        </>
+    );
 };
 
 export default PayForm;

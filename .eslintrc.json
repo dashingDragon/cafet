@@ -4,8 +4,8 @@
     "react-hooks"
   ],
   "rules": {
-    "indent": ["error", 2],
-    "quotes": ["error", "double", { "allowTemplateLiterals": true }],
+    "indent": ["error", 4],
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
     "semi": ["error", "always"],
     "comma-dangle": ["error", "always-multiline"],
     "react-hooks/rules-of-hooks": "error",
