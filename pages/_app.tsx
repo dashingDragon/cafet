@@ -34,7 +34,6 @@ function MyApp({ Component, pageProps }: AppProps) {
 
             };
 
-
             return initializeApp(firebaseConfig);
         }
     }, []);

@@ -1,6 +1,7 @@
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
 import { MakeStaffPayload } from './staffs';
+import { MakeTransactionPayload } from './transactions';
 
 export type PendingStaff = {
   uid: string,
@@ -39,6 +40,22 @@ export const useMakeStaff = () => {
 
     return async (payload: MakeStaffPayload) => {
         console.log('Called function makeStaff');
+        await fun(payload);
+    };
+};
+
+/**
+ * Write a transaction for the exchange and update
+ * the account's balance and stats.
+ *
+ * @returns a function to make the transation
+ */
+export const useMakeTransaction = () => {
+    const functions = getFunctions();
+    const fun = httpsCallable(functions, 'makeTransaction');
+
+    return async (payload: MakeTransactionPayload) => {
+        console.log('Called function makeTransaction');
         await fun(payload);
     };
 };

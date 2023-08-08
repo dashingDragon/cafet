@@ -29,6 +29,11 @@ export type TransactionOrder = {
 
 export type Transaction = TransactionRecharge | TransactionOrder;
 
+export type MakeTransactionPayload = {
+    account: Account,
+    productsWithQty: ProductWithQty[],
+}
+
 export const transactionConverter: FirestoreDataConverter<Transaction> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);

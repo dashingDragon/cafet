@@ -130,7 +130,7 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
                         </Grid>
 
                         {product.type !== 'serving' && (
-                        // Stock
+                            // Stock
                             <Typography
                                 variant="body1"
                                 fontWeight="bold"
@@ -140,16 +140,16 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
                                         : theme.palette.mode === 'light' ? 'hsla(357, 100%, 50%, 1)' : 'hsla(350, 67%, 56%, 1)',
                                 })}
                             >
-                                {`${product.stock} left in stock`}
+                                {product.stock ? `${product.stock} restant${product.stock > 1 && 's'} en stock` : 'Stock épuisé'}
                             </Typography>
                         )}
 
                         {!product.isAvailable && (
-                        // Availability
+                            // Availability
                             <Typography variant="body1" sx={(theme) => ({
                                 color: theme.palette.mode === 'light' ? 'hsla(357, 100%, 50%, 1)' : 'hsla(350, 67%, 56%, 1)',
                             })}>
-                Indisponible
+                                Indisponible
                             </Typography>
                         )}
 

@@ -7,6 +7,7 @@ import { useProducts, computeTotalPrice, usePayTransactionMaker } from '../lib/f
 import { Product, ProductWithQty } from '../lib/product';
 import { formatMoney } from './accountDetails';
 import { typeTranslation } from './productList';
+import { grey } from '@mui/material/colors';
 
 const StyledCard: React.FC<{
   product: Product,
@@ -15,6 +16,8 @@ const StyledCard: React.FC<{
   disabled: boolean,
 }> = ({ product, selectedProductsWithQty, setSelectedProductsWithQty, disabled }) => {
     const [quantity, setQuantity] = useState(0);
+
+    const canAdd = (!product.isAvailable || (product.stock ? product.stock - quantity <= 0 : false));
 
     const addQuantity = () => { // TODO make a function for this, user checks do not suffise
         setQuantity(quantity + 1);
@@ -46,7 +49,7 @@ const StyledCard: React.FC<{
             position: 'relative',
         }}>
             <Box sx={{
-                ...(!product.isAvailable && {
+                ...((!product.isAvailable || !product.stock) && {
                     '&:before': {
                         position: 'absolute',
                         content: '\'\'',
@@ -60,7 +63,7 @@ const StyledCard: React.FC<{
                     },
                     '&:after': {
                         position: 'absolute',
-                        content: '\'Indisponible\'',
+                        content: !product.stock ? '"Stock épuisé"' : '"Indisponible"',
                         display: 'block',
                         color: 'white',
                         top: 20,
@@ -82,29 +85,43 @@ const StyledCard: React.FC<{
                     direction={'row'}
                     justifyContent={'space-between'}
                 >
+                    {/* Name */}
                     <Typography gutterBottom variant="h5" component="div">
                         {product.name}
                     </Typography>
+
+                    {/* Price */}
                     <Chip label={formatMoney(product.price)} />
                 </Stack>
 
                 {product.type !== 'serving' && (
-                    <Typography variant="body2" color="text.secondary">
-                        {`${product.stock} en stock`}
+                    // Stock
+                    <Typography
+                        variant="body1"
+                        fontWeight="bold"
+                        sx={(theme) => ({
+                            color: product.stock
+                                ? theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300]
+                                : theme.palette.mode === 'light' ? 'hsla(357, 100%, 50%, 1)' : 'hsla(350, 67%, 56%, 1)',
+                        })}
+                    >
+                        {product.stock ? `${product.stock} restant${product.stock > 1 && 's'} en stock` : 'Stock épuisé'}
                     </Typography>
                 )}
 
+                {/* Description */}
                 <Typography variant="body2" color="text.secondary">
                     {product.description}
                 </Typography>
             </CardContent>
 
+            {/* Add and remove buttons */}
             <CardActions>
                 <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity}>
                     <RemoveCircle />
                 </IconButton>
                 <span>{quantity}</span>
-                <IconButton onClick={addQuantity} disabled={!product.isAvailable || disabled}>
+                <IconButton onClick={addQuantity} disabled={!canAdd || disabled}>
                     <AddCircle />
                 </IconButton>
             </CardActions>

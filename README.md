@@ -30,6 +30,7 @@ Here is the TODO-list of the project, for the staff-side app :
 - [ ] make a statistical graph for products
 - [ ] make a better theme and a custom font
 - [ ] add custom sandwiches
+- [ ] store the global and products' stats somewhere
 
 For the customer-side app :
 - [ ] add the order page

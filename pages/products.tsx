@@ -33,21 +33,21 @@ const ProductPage: NextPage = () => {
                                 <>
                                     <ProductList products={products} />
                                     {staff?.isAdmin &&
-                    <Fab
-                        onClick={() => setPendingDialogOpen(true)}
-                        color="primary"
-                        sx={(theme) => ({
-                            position: 'fixed',
-                            bottom: 70,
-                            right: 50,
-                        })}>
-                        <Add />
-                    </Fab>
+                                        <Fab
+                                            onClick={() => setPendingDialogOpen(true)}
+                                            color="primary"
+                                            sx={(theme) => ({
+                                                position: 'fixed',
+                                                bottom: 70,
+                                                right: 50,
+                                            })}>
+                                            <Add />
+                                        </Fab>
                                     }
                                 </>
                             </FullHeightScrollableContainer>
                             {staff?.isAdmin &&
-                <PendingProductDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
+                                <PendingProductDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
                             }
                         </>
                     }

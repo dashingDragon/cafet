@@ -328,7 +328,7 @@ export const useAccountDeleter = () => {
 // =================== Product stuff
 export const useProductMaker = () => {
     const db = getFirestore();
-    const staff = useStaffUser(); // TODO need to be an admin for this
+    const staff = useStaffUser();
 
     if (!staff) return () => alert('Not connected !');
 
@@ -456,70 +456,6 @@ export const useRechargeTransactionMaker = () => {
  */
 export const computeTotalPrice = (product: Product, quantity: number ) => {
     return product?.price * quantity;
-};
-
-/**
- * Write a transaction for the exchange and update
- * the account's balance and stats.
- *
- * @returns a function to make the transation
- */
-export const usePayTransactionMaker = () => {
-    const db = getFirestore();
-    const staff = useStaffUser();
-
-    if (!staff) return () => alert('Not connected !');
-
-    const staffRef = doc(db, `staffs/${staff.id}`).withConverter(staffConverter);
-
-    return async (
-        account: Account,
-        productsWithQty: ProductWithQty[],
-    ) => {
-        let priceProducts = 0;
-        let priceDrinks = 0;
-        let priceSnacks = 0;
-
-        for (let i = 0; i < productsWithQty.length; i++) {
-            priceProducts += computeTotalPrice(productsWithQty[i].product, productsWithQty[i].quantity);
-        }
-
-        const totalPrice = priceProducts + priceDrinks + priceSnacks;
-        const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
-        const transactionRef = doc(collection(db, `transactions`)).withConverter(transactionConverter);
-
-        const productsRefWithQty = productsWithQty.map(({ product, quantity}) => {
-            return ({
-                product: product,
-                quantity: quantity,
-            }) as ProductWithQty;
-        }, []);
-
-        // Transaction
-        const batch = writeBatch(db);
-        batch.set(transactionRef, {
-            id: '0',
-            type: TransactionType.Order,
-            productsWithQty: productsRefWithQty,
-            price: totalPrice,
-            customer: account,
-            staff: staff,
-            createdAt: new Date(),
-        });
-        // Balance & stats
-        // TODO do this more efficiently
-        batch.update(accountRef, {
-            balance: account.balance - totalPrice,
-            // stats: {
-            //   quantityServingsEaten: account.stats.quantityServingsEaten + productsWithQty.filter((p) => p.product.type === "serving").reduce((a, b) => a + b.quantity, 0),
-            //   quantityDrank: account.stats.quantityDrank + productsWithQty.filter((p) => p.product.type === "drink").reduce((a, b) => a + b.quantity, 0),
-            //   quantitySnacksEaten: account.stats.quantitySnacksEaten + productsWithQty.filter((p) => p.product.type === "snack").reduce((a, b) => a + b.quantity, 0),
-            //   moneySpent: account.stats.moneySpent + totalPrice,
-            // },
-        });
-
-        await batch.commit();
-    };
 };
 
 export const useTransactionHistory = (account: Account) => {
