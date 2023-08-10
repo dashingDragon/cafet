@@ -40,7 +40,7 @@ export const PendingStaffsDialog: React.FC<{
         <>
             <Dialog open={open} onClose={onClose}>
                 <DialogTitle>
-          Liste des comptes non staffs (cliquez pour en faire des staffs)
+                    Liste des comptes non staffs (cliquez pour en faire des staffs)
                 </DialogTitle>
                 <DialogContent sx={{ width: 300 }}>
                     <List>
@@ -60,7 +60,7 @@ export const PendingStaffsDialog: React.FC<{
 
             <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
                 <DialogTitle>
-          Voulez vous vraiment rendre {choosenStaff?.name} staff ?
+                     Voulez vous vraiment rendre {choosenStaff?.name} staff ?
                 </DialogTitle>
                 <DialogActions>
                     <Button onClick={() => setConfirmOpen(false)}>Annuler</Button>

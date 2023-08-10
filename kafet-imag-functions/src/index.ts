@@ -6,7 +6,7 @@ import * as admin from 'firebase-admin';
 import {MakeStaffPayload, Staff, staffConverter as externalStaffConverter} from '../../lib/staffs';
 import {ListPendingStaffs} from '../../lib/firebaseFunctionHooks';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
-import {MakeTransactionPayload, TransactionOrder, TransactionType, transactionConverter} from '../../lib/transactions';
+import {MakeTransactionPayload, TransactionType} from '../../lib/transactions';
 import {Account, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/product';
 
@@ -81,21 +81,24 @@ export const makeStaff = functions.https.onCall(async (data, context) => {
 });
 
 /**
- * Write a transaction for the exchange and update
- * the account's balance and stats.
+ * Make a pay transaction.
+ * Check if the stock is available and if the user has provision for the payment.
+ * Also check if it is still time for an order.
  *
- * @returns a function to make the transation
  */
 export const makeTransaction = functions.https.onCall(async (data, context) => {
     checkIfStaff(context.auth?.uid); // TODO change this so that users can order themselves
+    const db = admin.firestore();
     const {account, productsWithQty} = (data as MakeTransactionPayload);
+    const accountRef = db.doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
+    const accountData = (await accountRef.get()).data();
 
     let priceProducts = 0;
 
-    // compute price and check availability of products
+    // Compute price, check user provision and check availability of products.
     for (let i = 0; i < productsWithQty.length; i++) {
         priceProducts += computeTotalPrice(productsWithQty[i].product, productsWithQty[i].quantity);
-        const productSnapshot = await admin.firestore().doc(`products/${productsWithQty[i].product.id}`).withConverter(productConverter as unknown as FirestoreDataConverter<Product>).get();
+        const productSnapshot = await db.doc(`products/${productsWithQty[i].product.id}`).withConverter(productConverter as unknown as FirestoreDataConverter<Product>).get();
         const productData = productSnapshot.data();
         if (!productData) {
             throw new functions.https.HttpsError('not-found', 'Product not found.');
@@ -106,23 +109,48 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         }
     }
 
-    // write the transaction
-    const transactionRef = admin.firestore().doc('transactions').withConverter(transactionConverter as unknown as FirestoreDataConverter<TransactionOrder>);
-    const accountRef = admin.firestore().doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
-    const staff = await admin.firestore().doc(`staffs/${context.auth?.uid}`).withConverter(staffConverter).get();
+    if (!accountData) {
+        throw new functions.https.HttpsError('not-found', 'Account not found');
+    }
 
-    const batch = admin.firestore().batch();
+    if (priceProducts > accountData.balance) {
+        throw new functions.https.HttpsError('permission-denied', 'You do not have enought provision on your account.');
+    }
+
+    // Write the transaction.
+    const transactionRef = db.collection('transactions').doc();
+    const staff = await db.doc(`staffs/${context.auth?.uid}`).withConverter(staffConverter).get();
+
+    // TODO add time limit when users can order
+
+
+    const batch = db.batch();
     batch.create(transactionRef, {
         id: '0',
         type: TransactionType.Order,
         productsWithQty: productsWithQty,
         price: priceProducts,
         customer: account,
-        staff: staff,
+        staff: staff.data(),
         createdAt: new Date(),
     });
 
-    // Balance & stats
+    // Update the products stocks.
+    for (let i = 0; i < productsWithQty.length; i++) {
+        const productRef = db.doc(`products/${productsWithQty[i].product.id}`).withConverter(productConverter as unknown as FirestoreDataConverter<Product>);
+        const productSnapshot = await productRef.get();
+        const productData = productSnapshot.data();
+        if (!productData) {
+            throw new functions.https.HttpsError('not-found', 'Product not found.');
+        }
+        if (productData.stock) {
+            batch.update(productRef, {
+                stock: productData.stock - productsWithQty[i].quantity,
+            });
+        }
+    }
+
+    // Update balance. // TODO stats
     batch.update(accountRef, {
         balance: account.balance - priceProducts,
     });
@@ -130,9 +158,9 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     try {
         // Exécutez le batch
         await batch.commit();
-        return {message: 'Mise à jour en lot réussie.'};
+        return {success: true, message: 'Batching succeeded.'};
     } catch (error) {
-        console.error('Erreur lors de la mise à jour en lot :', error);
-        throw new functions.https.HttpsError('internal', 'Une erreur est survenue lors de la mise à jour en lot.');
+        console.error('An error occured during batching :', error);
+        throw new functions.https.HttpsError('internal', 'An error occured during batching: ' + error);
     }
 });

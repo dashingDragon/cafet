@@ -26,10 +26,13 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add menu to edit customer account, balance
 - [x] add servings, drinks and snacks images
 - [x] add product editor
-- [ ] add history of transactions for users
+- [x] add history of transactions for users
+- [x] make transaction function
+- [ ] add the list of current orders
+- [ ] add custom sandwiches
+- [ ] add ingredients
 - [ ] make a statistical graph for products
 - [ ] make a better theme and a custom font
-- [ ] add custom sandwiches
 - [ ] store the global and products' stats somewhere
 
 For the customer-side app :
@@ -39,6 +42,9 @@ For the customer-side app :
 - [ ] add breakfast menu
 - [ ] add formulas (serving+drink, serving+snack...)
 - [ ] add current orders screen for staffs
-- [ ] send customers notifications when
+- [ ] send customers notifications when their order is ready
 - [ ] add favorites recommendations
 - [ ] recommend trending foods ?
+- [ ] make a day streak system
+- [ ] make a monthly leaderboard of the longest cumulative sandwich size eaten
+- [ ] let user add a custom message with the order (would have to sanitize user input, may be unsafe)

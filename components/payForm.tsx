@@ -3,11 +3,12 @@ import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, IconButto
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
-import { useProducts, computeTotalPrice, usePayTransactionMaker } from '../lib/firestoreHooks';
+import { useProducts, computeTotalPrice } from '../lib/firestoreHooks';
 import { Product, ProductWithQty } from '../lib/product';
 import { formatMoney } from './accountDetails';
 import { typeTranslation } from './productList';
 import { grey } from '@mui/material/colors';
+import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 
 const StyledCard: React.FC<{
   product: Product,
@@ -16,10 +17,13 @@ const StyledCard: React.FC<{
   disabled: boolean,
 }> = ({ product, selectedProductsWithQty, setSelectedProductsWithQty, disabled }) => {
     const [quantity, setQuantity] = useState(0);
+    const [canAdd, setCanAdd] = useState(false);
 
-    const canAdd = (!product.isAvailable || (product.stock ? product.stock - quantity <= 0 : false));
+    useEffect(() => {
+        setCanAdd(product.stock !== undefined ? product.isAvailable && product.stock > 0 && product.stock - quantity >= 0 : product.isAvailable);
+    }, [product.isAvailable, product.stock, quantity]);
 
-    const addQuantity = () => { // TODO make a function for this, user checks do not suffise
+    const addQuantity = () => {
         setQuantity(quantity + 1);
         const productWithQty = selectedProductsWithQty.get(product.id);
         if (productWithQty) {
@@ -49,7 +53,7 @@ const StyledCard: React.FC<{
             position: 'relative',
         }}>
             <Box sx={{
-                ...((!product.isAvailable || !product.stock) && {
+                ...((!product.isAvailable || product.stock === 0) && {
                     '&:before': {
                         position: 'absolute',
                         content: '\'\'',
@@ -63,7 +67,7 @@ const StyledCard: React.FC<{
                     },
                     '&:after': {
                         position: 'absolute',
-                        content: !product.stock ? '"Stock épuisé"' : '"Indisponible"',
+                        content: product.stock === 0 ? '"Stock épuisé"' : '"Indisponible"',
                         display: 'block',
                         color: 'white',
                         top: 20,
@@ -139,7 +143,7 @@ const ProductList: React.FC<{
     return (
         <>
             {['serving', 'drink', 'snack'].map((type) => (
-                <>
+                <React.Fragment key={type}>
                     <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
                     <Stack
                         direction={'row'}
@@ -158,7 +162,7 @@ const ProductList: React.FC<{
                             />
                         ))}
                     </Stack>
-                </>
+                </React.Fragment>
             ))}
         </>
     );
@@ -167,7 +171,7 @@ const ProductList: React.FC<{
 const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     const router = useRouter();
     const products = useProducts();
-    const makePayTransaction = usePayTransactionMaker();
+    const makeTransaction = useMakeTransaction();
 
     // State
     const [selectedProductsWithQty, setSelectedProductsWithQty] = useState(new Map<string, ProductWithQty>());
@@ -198,8 +202,13 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
 
     const handlePay = async () => {
         if (selectedProductsWithQty.values().next()) {
-            await makePayTransaction(account, Array.from(selectedProductsWithQty.values()).filter((s) => s.quantity));
+            const payload = {account: account, productsWithQty: Array.from(selectedProductsWithQty.values()).filter((s) => s.quantity)};
+            console.log(payload);
+            const result = await makeTransaction(payload);
+            // if (result?.success) {
             router.push(`/accounts/${account.id}`);
+            // }
+
         }
     };
 

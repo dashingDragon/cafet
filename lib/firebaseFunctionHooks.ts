@@ -56,6 +56,11 @@ export const useMakeTransaction = () => {
 
     return async (payload: MakeTransactionPayload) => {
         console.log('Called function makeTransaction');
-        await fun(payload);
+        try {
+            return await fun(payload);
+        } catch (e) {
+            console.error('makeTransaction failed : '  + e);
+            return;
+        }
     };
 };
