@@ -28,12 +28,14 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add product editor
 - [x] add history of transactions for users
 - [x] make transaction function
-- [ ] add the list of current orders
+- [x] make a better theme and a custom font
+- [ ] add the list of current orders with daily number
 - [ ] add custom sandwiches
 - [ ] add ingredients
 - [ ] make a statistical graph for products
-- [ ] make a better theme and a custom font
 - [ ] store the global and products' stats somewhere
+- [ ] snackbar for errors, successes and to inform user that the order is ready
+- [ ] show current order for user
 
 For the customer-side app :
 - [ ] add the order page

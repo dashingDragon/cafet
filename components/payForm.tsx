@@ -1,13 +1,12 @@
-import { AddCircle, ChevronRight, RemoveCircle } from '@mui/icons-material';
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, IconButton, Stack, Typography } from '@mui/material';
+import { AddBox, ChevronRight, IndeterminateCheckBox } from '@mui/icons-material';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
-import { useProducts, computeTotalPrice } from '../lib/firestoreHooks';
+import { computeTotalPrice, useProducts } from '../lib/firestoreHooks';
 import { Product, ProductWithQty } from '../lib/product';
 import { formatMoney } from './accountDetails';
 import { typeTranslation } from './productList';
-import { grey } from '@mui/material/colors';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 
 const StyledCard: React.FC<{
@@ -20,7 +19,7 @@ const StyledCard: React.FC<{
     const [canAdd, setCanAdd] = useState(false);
 
     useEffect(() => {
-        setCanAdd(product.stock !== undefined ? product.isAvailable && product.stock > 0 && product.stock - quantity >= 0 : product.isAvailable);
+        setCanAdd(product.stock !== undefined ? product.isAvailable && product.stock > 0 && product.stock - quantity > 0 : product.isAvailable);
     }, [product.isAvailable, product.stock, quantity]);
 
     const addQuantity = () => {
@@ -47,86 +46,93 @@ const StyledCard: React.FC<{
         }
     };
 
+    const isOutOfStock = product.stock === 0;
+
+    const isReallyAvailable = product.isAvailable && !isOutOfStock;
+
     return (
         <Card key={product.name} sx={{
             width: 350,
             position: 'relative',
         }}>
+            <CardHeader
+                title={product.name}
+                subheader={formatMoney(product.price)}
+                sx={(theme) => ({
+                    '.MuiCardHeader-title': {
+                        color: theme.colors.main,
+                    },
+                })}
+            />
             <Box sx={{
-                ...((!product.isAvailable || product.stock === 0) && {
-                    '&:before': {
+                ...(!isReallyAvailable && {
+                    position: 'relative',
+                    '::after': {
                         position: 'absolute',
-                        content: '\'\'',
+                        content: '""',
                         display: 'block',
                         background: 'hsla(0, 0%, 0%, 0.5)',
                         top: 0,
                         left: 0,
                         width: '100%',
-                        height: '140px',
-
-                    },
-                    '&:after': {
-                        position: 'absolute',
-                        content: product.stock === 0 ? '"Stock épuisé"' : '"Indisponible"',
-                        display: 'block',
-                        color: 'white',
-                        top: 20,
-                        left: 20,
+                        height: '200px',
                     },
                 }),
             }}>
                 <CardMedia
                     component="img"
-                    alt={`Image de ${product.name}`}
-                    height="140"
+                    height="200"
                     image={product.image}
+                    alt={`Image de ${product.name}`}
+                    sx={{
+                        position: 'relative',
+                    }}
+
                 />
             </Box>
 
 
             <CardContent>
-                <Stack
-                    direction={'row'}
-                    justifyContent={'space-between'}
-                >
-                    {/* Name */}
-                    <Typography gutterBottom variant="h5" component="div">
-                        {product.name}
-                    </Typography>
-
-                    {/* Price */}
-                    <Chip label={formatMoney(product.price)} />
-                </Stack>
-
-                {product.type !== 'serving' && (
-                    // Stock
-                    <Typography
-                        variant="body1"
-                        fontWeight="bold"
-                        sx={(theme) => ({
-                            color: product.stock
-                                ? theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300]
-                                : theme.palette.mode === 'light' ? 'hsla(357, 100%, 50%, 1)' : 'hsla(350, 67%, 56%, 1)',
-                        })}
-                    >
-                        {product.stock ? `${product.stock} restant${product.stock > 1 && 's'} en stock` : 'Stock épuisé'}
+                {product.description !== undefined && (
+                    <Typography variant="body1">
+                        {product.description}
                     </Typography>
                 )}
 
-                {/* Description */}
-                <Typography variant="body2" color="text.secondary">
-                    {product.description}
-                </Typography>
+                <Chip
+                    variant='outlined'
+                    color={product.stock
+                        ? 'success'
+                        : isOutOfStock
+                            ? 'error'
+                            : product.isAvailable
+                                ? 'success'
+                                : 'error'
+                    }
+                    label={product.stock ? (
+                        `${product.stock} restant${product.stock > 1 && 's'}`
+                    ) : isOutOfStock ? (
+                        'Stock épuisé'
+                    ) : product.isAvailable ? (
+                        'Disponible'
+                    ) : (
+                        'Indisponible'
+                    )}
+                    sx={{
+                        fontWeight: 700,
+                        mt: '16px',
+                    }}
+                />
             </CardContent>
 
             {/* Add and remove buttons */}
-            <CardActions>
+            <CardActions sx={{ justifyContent: 'flex-end' }}>
                 <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity}>
-                    <RemoveCircle />
+                    <IndeterminateCheckBox />
                 </IconButton>
                 <span>{quantity}</span>
                 <IconButton onClick={addQuantity} disabled={!canAdd || disabled}>
-                    <AddCircle />
+                    <AddBox />
                 </IconButton>
             </CardActions>
         </Card>

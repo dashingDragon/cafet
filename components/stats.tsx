@@ -1,4 +1,4 @@
-import { GroupAdd, Savings, LunchDining, EmojiFoodBeverage, Coffee, Cookie, Euro } from '@mui/icons-material';
+import { Coffee, Cookie, EmojiFoodBeverage, Euro, GroupAdd, LunchDining, Savings } from '@mui/icons-material';
 import { Avatar, Box, Card, CardContent, CardHeader, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
 import React from 'react';
 import { useCurrentStats } from '../lib/firestoreHooks';

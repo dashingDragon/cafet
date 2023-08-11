@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, DialogActions, FormControl, TextField, Button, Select, MenuItem } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Account, School } from '../lib/accounts';
 

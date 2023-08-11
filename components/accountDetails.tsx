@@ -1,9 +1,9 @@
-import { AccountBalanceWallet, Error, Close, SportsBar, Edit, DeleteForever, LocalBar, LocalBarOutlined, Savings, SavingsOutlined, PointOfSale, Euro, LunchDining, Coffee, Cookie } from '@mui/icons-material';
-import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, TextField, Typography } from '@mui/material';
+import { AccountBalanceWallet, Coffee, Cookie, DeleteForever, Edit, Error, Euro, LunchDining, PointOfSale } from '@mui/icons-material';
+import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account, MAX_MONEY_PER_ACCOUNT, School } from '../lib/accounts';
-import { useAccountMaker, useAccountDeleter, useRechargeTransactionMaker, useStaffUser, useAccountEditor, useCurrentStatsForAccount, useTransactionHistory } from '../lib/firestoreHooks';
+import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useRechargeTransactionMaker, useStaffUser, useTransactionHistory } from '../lib/firestoreHooks';
 import AccountEditDialog from './accountEditDialog';
 import { TransactionOrder, TransactionRecharge, TransactionType } from '../lib/transactions';
 
@@ -79,7 +79,7 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
                         }
                         <Typography variant="h4">{formatMoney(account.balance)}</Typography>
                     </Box>
-                    <Typography variant="body2">Cliquez pour recharger</Typography>
+                    <Typography variant="body1" sx={{ color: 'hsla(220, 27%, 98%, 1)' }}>Cliquez pour recharger</Typography>
                 </Box>
             </Button>
 
@@ -139,21 +139,21 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
 
     const buttons = [
         {
-            icon: <PointOfSale fontSize="large" />,
+            icon: <PointOfSale fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'primary',
             text: 'Encaisser',
             enabled: () => ((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false)) && account.balance > 0,
             onClick: () => router.push(`/accounts/${account.id}/pay`),
         },
         {
-            icon: <Edit fontSize="large" />,
+            icon: <Edit fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'primary',
             text: 'Editer',
             enabled: () => (staff?.isAvailable ?? false) || (staff?.isAdmin ?? false),
             onClick: () => setEditDialogOpen(true),
         },
         {
-            icon: <DeleteForever fontSize="large" />,
+            icon: <DeleteForever fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'error',
             text: 'Supprimer',
             enabled: () => staff?.isAdmin ?? false,
@@ -176,7 +176,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
                         >
                             <Box display="flex" flexDirection="column" alignItems="center">
                                 {icon}
-                                <Typography variant="body2">{text}</Typography>
+                                <Typography variant="body1" sx={{ color: 'hsla(220, 27%, 98%, 1)' }}>{text}</Typography>
                             </Box>
                         </Button>
                     )}
@@ -283,10 +283,10 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                             <div key={i}>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={1}>
                                     <Typography variant="body1">
-                    Recharge
+                                        Recharge
                                     </Typography>
                                     <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                    +{formatMoney((transaction as TransactionRecharge).amount)}
+                                        +{formatMoney((transaction as TransactionRecharge).amount)}
                                     </Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={3}>
@@ -295,7 +295,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     </Typography>
                                     {transaction.staff? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                      By {transaction.staff.name}
+                                            Passée par {transaction.staff.name}
                                         </Typography>
                                     ) : null
                                     }
@@ -307,10 +307,10 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                             <div key={i}>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={1}>
                                     <Typography variant="body1">
-                    Commande
+                                        Commande
                                     </Typography>
                                     <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                    -{formatMoney((transaction as TransactionOrder).price)}
+                                        -{formatMoney((transaction as TransactionOrder).price)}
                                     </Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={3}>
@@ -319,7 +319,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     </Typography>
                                     {transaction.staff? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                      By {transaction.staff.name}
+                                            Passée par {transaction.staff.name}
                                         </Typography>
                                     ) : null
                                     }
@@ -328,9 +328,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                             </div>
                         );
                     }
-                }
-
-                )}
+                })}
             </CardContent>
         </Card>
     );

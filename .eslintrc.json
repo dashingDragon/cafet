@@ -9,6 +9,13 @@
     "semi": ["error", "always"],
     "comma-dangle": ["error", "always-multiline"],
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react-hooks/exhaustive-deps": "warn",
+    "import/no-duplicates": "error",
+    "sort-imports": [
+      "error",
+      {
+        "ignoreDeclarationSort": true
+      }
+    ]
   }
 }

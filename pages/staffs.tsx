@@ -1,5 +1,5 @@
 import { Add } from '@mui/icons-material';
-import { Fab } from '@mui/material';
+import { Fab, Typography } from '@mui/material';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
@@ -9,7 +9,7 @@ import PendingStaffsDialog from '../components/pendingStaffsDialog';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import StaffList from '../components/staffList';
 import { useListPendingStaffs } from '../lib/firebaseFunctionHooks';
-import { useStaffs, useStaffUser } from '../lib/firestoreHooks';
+import { useStaffUser, useStaffs } from '../lib/firestoreHooks';
 import { useGuardIsConnected } from '../lib/hooks';
 
 const StaffPage: NextPage = () => {
@@ -32,6 +32,7 @@ const StaffPage: NextPage = () => {
                         : <>
                             <FullHeightScrollableContainer sx={{ position: 'relative' }}>
                                 <>
+                                    <Typography variant="h5" m={1}>Staffs</Typography>
                                     <StaffList staffs={staffs} />
                                     {staff?.isAdmin &&
                                         <Fab

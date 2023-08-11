@@ -1,6 +1,6 @@
 import { Google } from '@mui/icons-material';
 import { Box, Button, Container, Typography } from '@mui/material';
-import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/router';
 
 const Login = () => {

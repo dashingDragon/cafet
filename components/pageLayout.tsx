@@ -1,9 +1,10 @@
-import { AppBar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from '@mui/material';
-import { Groups, AdminPanelSettings, ArrowBack, Brightness6, Logout, QueryStats, FoodBank } from '@mui/icons-material';
+import { AppBar, Avatar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from '@mui/material';
+import { AdminPanelSettings, ArrowBack, Brightness6, FoodBank, FormatListBulleted, Groups, Logout, QueryStats } from '@mui/icons-material';
 import { ReactElement } from 'react';
 import { invertTheme, useAppTheme } from '../lib/theme';
 import { useRouter } from 'next/router';
 import { getAuth, signOut } from 'firebase/auth';
+import { useStaffUser } from '../lib/firestoreHooks';
 
 type PageLayoutProps = {
   children: ReactElement,
@@ -32,6 +33,7 @@ const ToggleThemeButton = () => {
 
 const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayoutProps) => {
     const router = useRouter();
+    const staff = useStaffUser();
     const handleLogout = async () => {
         await signOut(getAuth());
     };
@@ -45,21 +47,35 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
             }}>
                 <AppBar position="sticky">
                     <Toolbar>
-                        {backTo !== undefined &&
-              <IconButton
-                  size="large"
-                  edge="start"
-                  color="inherit"
-                  onClick={() => router.push(backTo)}
-              >
-                  <ArrowBack />
-              </IconButton>
-                        }
+                        {backTo !== undefined ? (
+                            <IconButton
+                                size="large"
+                                edge="start"
+                                color="inherit"
+                                onClick={() => router.push(backTo)}
+                            >
+                                <ArrowBack />
+                            </IconButton>
+                        ) : (
+                            <Avatar src='logo_white.jpg' sx={{ mr: '16px' }} />
+                        )}
 
                         <Typography variant="h6" sx={{ flexGrow: 1 }}>
                             {title}
                         </Typography>
-
+                        {staff?.isAdmin && (
+                            <IconButton
+                                onClick={() => router.push('/staffs')}
+                                size="large"
+                                edge="end"
+                                color="inherit"
+                                sx={{
+                                    marginRight: 0,
+                                }}
+                            >
+                                <AdminPanelSettings />
+                            </IconButton>
+                        )}
                         <ToggleThemeButton />
                         <IconButton
                             onClick={handleLogout}
@@ -76,17 +92,17 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
                 </>
 
                 {!hideBottomNavigation &&
-          <BottomNavigation
-              value={router.pathname}
-              onChange={(e, route) => router.push(route)}
-              showLabels
-              color="inherit"
-          >
-              <BottomNavigationAction value={'/'} label="Comptes" icon={<Groups />} color="inherit" />
-              <BottomNavigationAction value={'/products'} label="Nourriture" icon={<FoodBank />} color="inherit" />
-              <BottomNavigationAction value={'/staffs'} label="Staff" icon={<AdminPanelSettings />} color="inherit" />
-              <BottomNavigationAction value={'/stats'} label="Stats" icon={<QueryStats/>} color="inherit" />
-          </BottomNavigation>
+                    <BottomNavigation
+                        value={router.pathname}
+                        onChange={(e, route) => router.push(route)}
+                        showLabels
+                        color="inherit"
+                    >
+                        <BottomNavigationAction value={'/'} label="Comptes" icon={<Groups />} color="inherit" />
+                        <BottomNavigationAction value={'/orders'} label="Commandes" icon={<FormatListBulleted />} color="inherit" />
+                        <BottomNavigationAction value={'/products'} label="Plats" icon={<FoodBank />} color="inherit" />
+                        <BottomNavigationAction value={'/stats'} label="Stats" icon={<QueryStats/>} color="inherit" />
+                    </BottomNavigation>
                 }
             </Box>
         </Container>

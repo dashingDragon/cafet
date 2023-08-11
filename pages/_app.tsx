@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { darkTheme, lightTheme, useAppTheme } from '../lib/theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { useEffect, useMemo } from 'react';
-import { initializeApp, getApp } from 'firebase/app';
+import { getApp, initializeApp } from 'firebase/app';
 import { useRouter } from 'next/router';
 
 function MyApp({ Component, pageProps }: AppProps) {

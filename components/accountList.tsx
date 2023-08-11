@@ -1,8 +1,8 @@
 import { Add } from '@mui/icons-material';
-import { Box, darken, Fab, TextField } from '@mui/material';
+import { Box, Fab, TextField, darken } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccountList, useAccountMaker } from '../lib/firestoreHooks';
 import AccountEditDialog from './accountEditDialog';
 import { School } from '../lib/accounts';
@@ -64,6 +64,11 @@ const AccountList = () => {
                     placeholder="Chercher"
                     variant="standard"
                     fullWidth
+                    sx={{
+                        '.MuiInput-input': {
+                            height: '2em',
+                        },
+                    }}
                 />
             </Box>
 
@@ -100,9 +105,13 @@ const AccountList = () => {
                         display: 'none',
                     },
                     '& .bankrupt': {
-                        bgcolor: (theme) => darken(theme.palette.error.main, 0.4),
+                        color: 'white',
+                        bgcolor: (theme) => theme.palette.mode === 'light' ? theme.palette.error.main : theme.palette.error.main,
                         '&:hover': {
-                            bgcolor: (theme) => darken(theme.palette.error.dark, 0.4),
+                            bgcolor: (theme) => darken(theme.palette.error.main, 0.2),
+                        },
+                        '* > .MuiSvgIcon-root': {
+                            color: 'white',
                         },
                     },
                 }}

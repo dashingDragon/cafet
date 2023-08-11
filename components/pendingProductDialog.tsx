@@ -1,6 +1,6 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FilledInput, FormControl, FormHelperText, Input, InputAdornment, InputLabel, List, ListItem, ListItemButton, ListItemText, MenuItem, OutlinedInput, Select, Stack, TextField } from '@mui/material';
-import React, { ChangeEventHandler, useEffect, useState } from 'react';
-import { useProductMaker, useProducts } from '../lib/firestoreHooks';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FilledInput, FormControl, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { useProductMaker } from '../lib/firestoreHooks';
 import { SelectChangeEvent } from '@mui/material/Select/SelectInput';
 import { Product, productType } from '../lib/product';
 

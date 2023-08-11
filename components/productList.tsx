@@ -1,6 +1,6 @@
-import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Avatar, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Fab, FilledInput, FormControl, Grid, IconButton, InputAdornment, InputLabel, List, MenuItem, Select, Stack, Typography } from '@mui/material';
-import { grey } from '@mui/material/colors';
+import { DeleteOutlined, EditOutlined, ExpandMore } from '@mui/icons-material';
+import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Fab, FilledInput, FormControl, Grid, IconButton, InputAdornment, InputLabel, List, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { grey, red } from '@mui/material/colors';
 import React, { useState } from 'react';
 import { useProductDeleter, useSetProductAvailability, useStaffUser } from '../lib/firestoreHooks';
 import { Product } from '../lib/product';
@@ -39,129 +39,101 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
         setEditDialogOpen(true);
     };
 
+    const isOutOfStock = product.stock === 0;
+
+    const isReallyAvailable = product.isAvailable && !isOutOfStock;
+
     return (
         <>
-            <Button
-                variant="contained"
-                fullWidth
-                sx={(theme) => ({
-                    cursor: 'initial',
-                    textTransform: 'none',
-                    background: product.isAvailable
-                        ? (theme.palette.mode === 'light' ? 'hsl(207, 90%, 80%)' : '#282828')
-                        : 'transparent',
-                    '&:hover': {
-                        ...(!product.isAvailable && {
-                            background: (theme.palette.mode === 'light' ? 'hsl(207, 90%, 80%)' : '#282828'),
-                        }),
-                    },
-                })}
-                disableRipple
-            >
-                <Box display="flex" alignItems="stretch" width="100%">
-                    {product.image !== undefined
-                        ? <Avatar src={product.image} sx={{
-                            mr: 1,
-                            ...(!product.isAvailable && {
-                                '&:before': {
-                                    position: 'absolute',
-                                    content: '\'\'',
-                                    display: 'block',
-                                    background: 'hsla(0, 0%, 0%, 0.5)',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '40px',
-                                },
-                            }),
-                        }} />
-                        : <Avatar sx={{ mr: 1 }}>{product.name[0]}</Avatar>
-                    }
-                    <Box display="flex" flexDirection="column" sx={{ textAlign: 'start', flexGrow: 1 }}>
-                        <Grid container width={'100%'}>
-                            {/* Name */}
-                            <Grid item xs={4}>
-                                <Typography
-                                    variant="body1"
-                                    fontWeight="bold"
-                                    sx={(theme) => ({
-                                        opacity: product.isAvailable ? 1 : 0.8,
-                                        color: theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300],
-                                    })}
-                                >
-                                    {product.name}
-                                </Typography>
-                            </Grid>
+            <Card variant={isReallyAvailable ? 'elevation' : 'outlined'}>
+                <CardHeader
+                    title={product.name}
+                    subheader={formatMoney(product.price)}
+                    sx={(theme) => ({
+                        '.MuiCardHeader-title': {
+                            color: theme.colors.main,
+                        },
+                    })}
+                />
+                <Box sx={{
+                    ...(!isReallyAvailable && {
+                        position: 'relative',
+                        '::after': {
+                            position: 'absolute',
+                            content: '""',
+                            display: 'block',
+                            background: 'hsla(0, 0%, 0%, 0.5)',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '200px',
+                        },
+                    }),
+                }}>
+                    <CardMedia
+                        component="img"
+                        height="200"
+                        image={product.image}
+                        alt={`Image de ${product.name}`}
+                        sx={{
+                            position: 'relative',
+                        }}
 
-                            {/* Price */}
-                            <Grid item xs={'auto'}>
-                                <Typography
-                                    variant="body1"
-                                    fontWeight="bold"
-                                    sx={(theme) => ({
-                                        opacity: product.isAvailable ? 1 : 0.8,
-                                        color: theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300],
-                                    })}
-                                >
-                                    {formatMoney(product.price)}
-                                </Typography>
-                            </Grid>
-
-                            {staff?.isAdmin && (
-                            // Edit and Delete
-                                <Grid container item xs justifyContent={'flex-end'}>
-                                    <IconButton sx={{
-                                        marginLeft: 'auto',
-                                    }}>
-                                        <EditOutlined
-                                            onClick={handleOpenEditDialog}
-                                            sx={(theme) => ({
-                                                color: theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300],
-                                            })} />
-                                    </IconButton>
-
-                                    <IconButton onClick={handleOpenDeleteDialog}>
-                                        <DeleteOutlined sx={(theme) => ({
-                                            color: theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300],
-                                        })} />
-                                    </IconButton>
-                                </Grid>
-                            )}
-                        </Grid>
-
-                        {product.type !== 'serving' && (
-                            // Stock
-                            <Typography
-                                variant="body1"
-                                fontWeight="bold"
-                                sx={(theme) => ({
-                                    color: product.stock
-                                        ? theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300]
-                                        : theme.palette.mode === 'light' ? 'hsla(357, 100%, 50%, 1)' : 'hsla(350, 67%, 56%, 1)',
-                                })}
-                            >
-                                {product.stock ? `${product.stock} restant${product.stock > 1 && 's'} en stock` : 'Stock épuisé'}
-                            </Typography>
-                        )}
-
-                        {!product.isAvailable && (
-                            // Availability
-                            <Typography variant="body1" sx={(theme) => ({
-                                color: theme.palette.mode === 'light' ? 'hsla(357, 100%, 50%, 1)' : 'hsla(350, 67%, 56%, 1)',
-                            })}>
-                                Indisponible
-                            </Typography>
-                        )}
-
-                        {/* Description */}
-                        <Typography variant="body1" sx={(theme) => ({
-                            color: theme.palette.mode === 'light' ? 'hsla(207, 100%, 12%, 1)' : grey[300],
-                        })}>
-                            {(!product.description || product.description === '') && product.type === 'serving' ? 'Ce produit n\'a pas de description.' : product.description}
-                        </Typography>
-                    </Box>
+                    />
                 </Box>
-            </Button>
+
+                <CardContent>
+                    {product.description !== undefined && (
+                        <Typography variant="body1">
+                            {product.description}
+                        </Typography>
+                    )}
+
+                    <Chip
+                        variant='outlined'
+                        color={product.stock
+                            ? 'success'
+                            : isOutOfStock
+                                ? 'error'
+                                : product.isAvailable
+                                    ? 'success'
+                                    : 'error'
+                        }
+                        label={product.stock ? (
+                            `${product.stock} restant${product.stock > 1 && 's'}`
+                        ) : isOutOfStock ? (
+                            'Stock épuisé'
+                        ) : product.isAvailable ? (
+                            'Disponible'
+                        ) : (
+                            'Indisponible'
+                        )}
+                        sx={{
+                            fontWeight: 700,
+                            mt: '16px',
+                        }}
+                    />
+                </CardContent>
+                {staff?.isAdmin && (
+                    <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
+                        <IconButton>
+                            <EditOutlined
+                                onClick={handleOpenEditDialog}
+                                sx={(theme) => ({
+                                    color: theme.colors.main,
+                                })} />
+                        </IconButton>
+
+                        <IconButton>
+                            <DeleteOutlined
+                                onClick={handleOpenDeleteDialog}
+                                sx={(theme) => ({
+                                    color: theme.colors.main,
+                                })} />
+                        </IconButton>
+                    </CardActions>
+                )}
+            </Card>
 
             {/* Change availability dialog */}
             <Dialog open={availabilityDialogOpen} onClose={() => setAvailabilityDialogOpen(false)}>
@@ -195,13 +167,13 @@ const ProductList: React.FC<{
   products: Product[],
 }> = ({ products }) => {
     return (
-        <Box m={1} mb={'100px'}>
+        <Box m={'16px'} mb={'128px'}>
             {['serving', 'drink', 'snack'].map((type) => (
                 <React.Fragment key={type}>
                     <Typography variant="h5">{typeTranslation[type]}</Typography>
                     <List>
                         {products.filter(p => p.type === type).map((product) =>
-                            <Box key={product.id} mb={1}>
+                            <Box key={product.id} mb={'16px'}>
                                 <ProductItem product={product} />
                             </Box>
                         )}
