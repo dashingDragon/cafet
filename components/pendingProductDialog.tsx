@@ -150,7 +150,7 @@ export const PendingProductDialog: React.FC<{
                 </DialogContent>
 
                 <DialogActions>
-                    <Button onClick={onClose}>Annuler</Button>
+                    <Button onClick={onClose} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
                     <Button onClick={onCreate} variant="contained">Ajouter</Button>
                 </DialogActions>
             </Dialog>

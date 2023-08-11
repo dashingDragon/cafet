@@ -152,8 +152,8 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
                     {'Êtes-vous sûr de vouloir supprimer ce produit ?'}
                 </DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setDeleteDialogOpen(false)} variant="outlined">Non</Button>
-                    <Button onClick={handleDeleteProduct} color="error" variant="contained">Oui</Button>
+                    <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Non</Button>
+                    <Button onClick={handleDeleteProduct} color="error" variant="contained" sx={{ color: 'white' }}>Oui</Button>
                 </DialogActions>
             </Dialog>
 

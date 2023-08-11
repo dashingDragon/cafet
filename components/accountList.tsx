@@ -21,7 +21,7 @@ const AccountList = () => {
     }, [allRows]);
 
     const columns: GridColDef[] = [
-        {  field: 'firstName', headerName: 'Prénom', resizable: false, sortable: false, flex: 1 },
+        { field: 'firstName', headerName: 'Prénom', resizable: false, sortable: false, flex: 1 },
         { field: 'lastName', headerName: 'Nom', resizable: false, sortable: false, flex: 1 },
         { field: 'isStaff', headerName: 'Staff?', type: 'boolean', resizable: false, sortable: false, flex: 0.5 },
         {

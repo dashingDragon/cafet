@@ -98,8 +98,8 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleDialogClose}>Annuler</Button>
-                    <Button onClick={handleRecharge}>Ok</Button>
+                    <Button onClick={handleDialogClose} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
+                    <Button onClick={handleRecharge} variant="contained">Ok</Button>
                 </DialogActions>
             </Dialog>
         </>
@@ -205,8 +205,8 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
             <Dialog open={deleteConfirm2Open} onClose={() => setDeleteConfirm2Open(false)}>
                 <DialogTitle>Vraiment ????</DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setDeleteConfirm2Open(false)}>Annuler</Button>
-                    <Button onClick={handleAccountDelete}>Ok</Button>
+                    <Button onClick={() => setDeleteConfirm2Open(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
+                    <Button onClick={handleAccountDelete} variant="contained">Ok</Button>
                 </DialogActions>
             </Dialog>
         </>

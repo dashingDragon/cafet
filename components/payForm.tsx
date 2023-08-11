@@ -227,10 +227,9 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                 <Button
                     disabled={!canBeCompleted()}
                     onClick={handlePay}
-                    color="info"
                     variant="contained"
                     fullWidth
-                    sx={{ textTransform: 'none' }}
+                    sx={{ textTransform: 'none', mb: '16px' }}
                 >
                     <Box width="100%" display="flex" justifyContent="space-between" alignItems="center">
                         <Typography variant="h6">Total: {formatMoney(total)}</Typography>

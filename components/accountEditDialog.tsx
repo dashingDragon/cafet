@@ -88,8 +88,8 @@ const AccountEditDialog: React.FC<{
                 </FormControl>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose}>Annuler</Button>
-                <Button onClick={handleSubmit}>Ok</Button>
+                <Button onClick={onClose} sx={{ color: (theme) => theme.colors.main }}>Annuler</Button>
+                <Button onClick={handleSubmit} variant="contained">Ok</Button>
             </DialogActions>
         </Dialog>
     );

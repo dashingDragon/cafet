@@ -160,7 +160,7 @@ export const EditProductDialog: React.FC<EditProductProps> = ({ product, open, s
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={() => setEditDialogOpen(false)}>Annuler</Button>
+                <Button onClick={() => setEditDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
                 <Button onClick={handleEditProduct} variant="contained">Confirmer</Button>
             </DialogActions>
         </Dialog>
