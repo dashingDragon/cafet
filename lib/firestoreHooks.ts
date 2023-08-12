@@ -4,7 +4,8 @@ import { Account, School, accountConverter } from './accounts';
 import { useUser } from './hooks';
 import { Staff, staffConverter } from './staffs';
 import { Transaction, TransactionOrder, TransactionRecharge, TransactionType, transactionConverter } from './transactions';
-import { Product, ProductWithQty, productConverter, productType } from './product';
+import { Product, ProductWithQty, productConverter, productType } from './products';
+import { Ingredient, ingredientCategory, ingredientConverter } from './ingredients';
 
 // =================== Staff stuff
 /**
@@ -409,6 +410,75 @@ export const useProductDeleter = () => {
     return async (product: Product) => {
         console.log(`Deleting ${product.name}`);
         await deleteDoc(doc(db, `products/${product.id}`));
+    };
+};
+
+// =================== Ingredients stuff
+export const useIngredientMaker = () => {
+    const db = getFirestore();
+    const staff = useStaffUser();
+
+    if (!staff) return () => alert('Not connected !');
+
+    return async ({ id, name, category, isVege, isVegan, price, allergen }: Ingredient) => {
+        console.log('Create ingredient');
+        return await addDoc(collection(db, 'ingredients').withConverter(ingredientConverter), {
+            id,
+            name,
+            category,
+            isVege,
+            isVegan,
+            price,
+            allergen,
+        });
+    };
+};
+
+/**
+ * Fetch the list of existing ingredients from the database.
+ *
+ * @returns an array of Ingredients type
+ */
+export const useIngredients = () => {
+    const db = getFirestore();
+    const user = useUser();
+    const [ingredients, setIngredients] = useState([] as Ingredient[]);
+
+    useEffect(() => {
+        const q = collection(db, 'ingredients').withConverter(ingredientConverter);
+        return onSnapshot(q, (snapshot) => {
+            setIngredients(snapshot.docs.map((b) => b.data()));
+        });
+    }, [db, user]);
+
+    return ingredients;
+};
+
+/**
+ * Get the function to edit a ingredient.
+ *
+ * @returns an edit ingredient function
+ */
+export const useIngredientEditor = () => {
+    const db = getFirestore();
+
+    return async (ingredient: Ingredient, name: string, category: ingredientCategory, isVege: boolean, isVegan: boolean, price: number, allergen: string ) => {
+        console.log(`Updating ${name}`);
+        await updateDoc(doc(db, `ingredients/${ingredient.id}`).withConverter(ingredientConverter), { name, category, isVege, isVegan, price, allergen });
+    };
+};
+
+/**
+ * Get the function to delete a ingredient.
+ *
+ * @returns a delete account function
+ */
+export const useIngredientDeleter = () => {
+    const db = getFirestore();
+
+    return async (ingredient: Ingredient) => {
+        console.log(`Deleting ${ingredient.name}`);
+        await deleteDoc(doc(db, `ingredients/${ingredient.id}`));
     };
 };
 

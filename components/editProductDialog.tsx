@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FilledInput, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField } from '@mui/material';
 import { useState } from 'react';
-import { Product, productType } from '../lib/product';
+import { Product, productType } from '../lib/products';
 import { useProductEditor } from '../lib/firestoreHooks';
 
 interface EditProductProps extends DialogProps {
@@ -81,7 +81,7 @@ export const EditProductDialog: React.FC<EditProductProps> = ({ product, open, s
                 {`Modifier ${product.name}`}
             </DialogTitle>
 
-            <DialogContent sx={{ width: 300 }}>
+            <DialogContent>
                 <Stack direction={'column'} flexGrow={1}>
                     {/* Type */}
                     <InputLabel id="type-select-label">Sélectionnez le type du produit :</InputLabel>

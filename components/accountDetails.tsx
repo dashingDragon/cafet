@@ -196,8 +196,8 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
             <Dialog open={deleteConfirm1Open} onClose={() => setDeleteConfirm1Open(false)}>
                 <DialogTitle>Etes vous vraiment sûr de supprimer ce compte ?</DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setDeleteConfirm1Open(false)}>Annuler</Button>
-                    <Button onClick={() => { setDeleteConfirm1Open(false); setDeleteConfirm2Open(true); }}>Ok</Button>
+                    <Button onClick={() => setDeleteConfirm1Open(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
+                    <Button onClick={() => { setDeleteConfirm1Open(false); setDeleteConfirm2Open(true); }} variant="contained">Ok</Button>
                 </DialogActions>
             </Dialog>
 

@@ -63,7 +63,7 @@ export const PendingStaffsDialog: React.FC<{
                      Voulez vous vraiment rendre {choosenStaff?.name} staff ?
                 </DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setConfirmOpen(false)} sx={{ color: 'white' }}>Annuler</Button>
+                    <Button onClick={() => setConfirmOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
                     <Button onClick={handleMakeStaff} variant="contained">Oui</Button>
                 </DialogActions>
             </Dialog>

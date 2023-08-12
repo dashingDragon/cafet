@@ -8,7 +8,7 @@ import {ListPendingStaffs} from '../../lib/firebaseFunctionHooks';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
 import {MakeTransactionPayload, TransactionType} from '../../lib/transactions';
 import {Account, accountConverter} from '../../lib/accounts';
-import {Product, productConverter} from '../../lib/product';
+import {Product, productConverter} from '../../lib/products';
 
 const staffConverter = externalStaffConverter as unknown as FirestoreDataConverter<Staff>;
 

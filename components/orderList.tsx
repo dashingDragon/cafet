@@ -56,7 +56,7 @@ const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, numbe
                     La commande est-elle prête ?
                 </DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => handleChangeStatus(false)} sx={{ color: 'white' }}>Non</Button>
+                    <Button onClick={() => handleChangeStatus(false)} sx={{ color: theme => theme.colors.main }}>Non</Button>
                     <Button onClick={() => handleChangeStatus(true)} variant="contained">Oui</Button>
                 </DialogActions>
             </Dialog>

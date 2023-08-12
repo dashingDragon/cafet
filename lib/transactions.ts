@@ -1,6 +1,6 @@
 import type { FirestoreDataConverter } from 'firebase/firestore';
 import { Account } from './accounts';
-import { ProductWithQty } from './product';
+import { ProductWithQty } from './products';
 import { Staff } from './staffs';
 import { Timestamp } from 'firebase/firestore';
 

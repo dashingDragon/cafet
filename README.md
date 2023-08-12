@@ -30,17 +30,19 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] make transaction function
 - [x] make a better theme and a custom font
 - [x] add the list of current orders with daily number
+- [x] add ingredients
+- [x] take allergies into account
 - [ ] add custom sandwiches
-- [ ] add ingredients
 - [ ] make a statistical graph for products
 - [ ] store the global and products' stats somewhere
-- [ ] snackbar for errors, successes and to inform user that the order is ready
-- [ ] show current order for user
+- [ ] add more icons and colors
+- [ ] add collapse in products page
 
 For the customer-side app :
+- [ ] show current order for user
+- [ ] inform user that the order is ready
 - [ ] add the order page
 - [ ] add the customer profile page
-- [ ] take allergies into account
 - [ ] add breakfast menu
 - [ ] add formulas (serving+drink, serving+snack...)
 - [ ] add current orders screen for staffs

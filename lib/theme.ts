@@ -43,18 +43,6 @@ const createThemeMode = (mode: PaletteMode) => {
         },
     });
 
-    theme.typography.body1 = {
-        fontSize: '14px',
-        color: theme.colors.main,
-        fontFamily: `"Poppins", "sans-serif"`,
-    };
-
-    theme.typography.body2 = {
-        fontSize: '12px',
-        color: theme.colors.secondary,
-        fontFamily: `"Poppins", "sans-serif"`,
-    };
-
     theme.typography.h3 = {
         fontSize: '36px',
         fontWeight: 700,
@@ -70,6 +58,18 @@ const createThemeMode = (mode: PaletteMode) => {
     theme.typography.h6 = {
         fontSize: '16px',
         fontWeight: 500,
+        fontFamily: `"Poppins", "sans-serif"`,
+    };
+
+    theme.typography.body1 = {
+        fontSize: '14px',
+        color: theme.colors.main,
+        fontFamily: `"Poppins", "sans-serif"`,
+    };
+
+    theme.typography.body2 = {
+        fontSize: '12px',
+        color: theme.colors.secondary,
         fontFamily: `"Poppins", "sans-serif"`,
     };
 

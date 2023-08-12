@@ -1,11 +1,9 @@
-import { Coffee, Cookie, EmojiFoodBeverage, Euro, GroupAdd, LunchDining, Savings } from '@mui/icons-material';
-import { Avatar, Box, Card, CardContent, CardHeader, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import { Coffee, Cookie, Euro, LunchDining, Savings } from '@mui/icons-material';
+import {  Box, Card, CardContent, CardHeader, List, Typography } from '@mui/material';
 import React from 'react';
 import { useCurrentStats } from '../lib/firestoreHooks';
 
 const formatMoney = (n: number) => (n / 100).toFixed(2) + ' €';
-const formatProductsQuantity = (q: number) => (q / 4).toFixed(2) + ' kg';
-const formatDrinksQuantity = (q: number) => (q / 4).toFixed(2) + ' L';
 
 const Stats: React.FC = () => {
     const [totalProfits, servingsProfits, drinksProfits, snacksProfits] = useCurrentStats();

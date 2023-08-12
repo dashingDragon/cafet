@@ -6,6 +6,11 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import { useEffect, useMemo } from 'react';
 import { getApp, initializeApp } from 'firebase/app';
 import { useRouter } from 'next/router';
+import { ImageLoaderProps } from 'next/image';
+
+export const imageLoader = ({ src, width, quality }: ImageLoaderProps) => {
+    return `${src}?w=${width}&q=${quality || 75}`;
+};
 
 function MyApp({ Component, pageProps }: AppProps) {
     const router = useRouter();

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
 import { computeTotalPrice, useProducts } from '../lib/firestoreHooks';
-import { Product, ProductWithQty } from '../lib/product';
+import { Product, ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
 import { typeTranslation } from './productList';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';

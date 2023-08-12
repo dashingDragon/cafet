@@ -3,11 +3,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import PageLayout from '../../components/pageLayout';
 import { Button, Stack, Typography } from '@mui/material';
-import Image, { ImageLoaderProps } from 'next/image';
-
-const imageLoader = ({ src, width, quality }: ImageLoaderProps) => {
-    return `${src}?w=${width}&q=${quality || 75}`;
-};
+import Image from 'next/image';
+import { imageLoader } from '../_app';
 
 const SuccessPage: NextPage = () => {
     const router = useRouter();

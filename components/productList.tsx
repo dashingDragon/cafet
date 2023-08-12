@@ -3,7 +3,7 @@ import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, CardMe
 import { grey, red } from '@mui/material/colors';
 import React, { useState } from 'react';
 import { useProductDeleter, useSetProductAvailability, useStaffUser } from '../lib/firestoreHooks';
-import { Product } from '../lib/product';
+import { Product } from '../lib/products';
 import { formatMoney } from './accountDetails';
 import { EditProductDialog } from './editProductDialog';
 
@@ -177,8 +177,8 @@ const ProductList: React.FC<{
   products: Product[],
 }> = ({ products }) => {
     return (
-        <Box m={'16px'} mb={'128px'}>
-            {['serving', 'drink', 'snack'].map((type) => (
+        <Box m={'16px'}>
+            {Object.keys(typeTranslation).map((type) => (
                 <React.Fragment key={type}>
                     <Typography variant="h5">{typeTranslation[type]}</Typography>
                     <List>

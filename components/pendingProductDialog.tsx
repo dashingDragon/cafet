@@ -2,7 +2,8 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FilledInput,
 import React, { useState } from 'react';
 import { useProductMaker } from '../lib/firestoreHooks';
 import { SelectChangeEvent } from '@mui/material/Select/SelectInput';
-import { Product, productType } from '../lib/product';
+import { Product, productType } from '../lib/products';
+import { typeTranslation } from './productList';
 
 // TODO add errors when fields are empty
 export const PendingProductDialog: React.FC<{
@@ -68,9 +69,9 @@ export const PendingProductDialog: React.FC<{
         <>
             <Dialog open={open} onClose={onClose}>
                 <DialogTitle>
-          Ajouter un produit
+                    Ajouter un produit
                 </DialogTitle>
-                <DialogContent sx={{ width: 300 }}>
+                <DialogContent>
                     <Stack direction={'column'} flexGrow={1}>
 
                         {/* Type */}
@@ -80,9 +81,9 @@ export const PendingProductDialog: React.FC<{
                             value={type}
                             onChange={handleChange}
                         >
-                            <MenuItem value={'serving'}>Plat</MenuItem>
-                            <MenuItem value={'drink'}>Boisson</MenuItem>
-                            <MenuItem value={'snack'}>Snack</MenuItem>
+                            {Object.entries(typeTranslation).map(([k, v]) =>
+                                <MenuItem key={k} value={k}>{v}</MenuItem>
+                            )}
                         </Select>
 
                         {/* Name */}
@@ -97,16 +98,18 @@ export const PendingProductDialog: React.FC<{
                         </FormControl>
 
                         {/* Description */}
-                        <TextField
-                            id="standard-multiline-flexible"
-                            label="Description"
-                            multiline
-                            maxRows={4}
-                            variant="filled"
-                            value={description}
-                            onChange={handleChangeDescription}
-                            sx={{ marginTop: 3, minWidth: 120 }}
-                        />
+                        {type === 'serving' && (
+                            <TextField
+                                id="description-input"
+                                label="Description"
+                                multiline
+                                maxRows={4}
+                                variant="filled"
+                                value={description}
+                                onChange={handleChangeDescription}
+                                sx={{ marginTop: 3, minWidth: 120 }}
+                            />
+                        )}
 
                         {/* Prix */}
                         <FormControl fullWidth sx={{ marginTop: 3 }} variant="filled">

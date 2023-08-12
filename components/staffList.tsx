@@ -48,7 +48,7 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
                     {'Ce staff est-il disponible ?'}
                 </DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => handleChangeAvailability(false)} sx={{ color: 'white' }}>Non</Button>
+                    <Button onClick={() => handleChangeAvailability(false)} sx={{ color: theme => theme.colors.main }}>Non</Button>
                     <Button onClick={() => handleChangeAvailability(true)} variant="contained">Oui</Button>
                 </DialogActions>
             </Dialog>
