@@ -1,9 +1,9 @@
-import { getFirestore, collection, query, orderBy, onSnapshot, doc, writeBatch, limit, addDoc, updateDoc, deleteDoc, where, DocumentReference } from 'firebase/firestore';
+import { DocumentReference, addDoc, collection, deleteDoc, doc, getFirestore, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Account, School, accountConverter } from './accounts';
 import { useUser } from './hooks';
 import { Staff, staffConverter } from './staffs';
-import { transactionConverter, Transaction, TransactionType, TransactionOrder, TransactionRecharge } from './transactions';
+import { Transaction, TransactionOrder, TransactionRecharge, TransactionType, transactionConverter } from './transactions';
 import { Product, ProductWithQty, productConverter, productType } from './product';
 
 // =================== Staff stuff
@@ -481,4 +481,45 @@ export const useTransactionHistory = (account: Account) => {
     }, [account.id, db, products]);
 
     return transactions;
+};
+
+export const useTodaysOrders = () => {
+    const db = getFirestore();
+    const [transactions, setTransactions] = useState([] as Transaction[]);
+
+    const startOfDay = new Date();
+    startOfDay.setHours(7, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(11, 30, 0, 0);
+
+    useEffect(() => {
+        const transactionQuery = query(
+            collection(db, 'transactions'),
+            where('createdAt', '>=', startOfDay),
+            where('createdAt', '<', endOfDay)
+        ).withConverter(transactionConverter);
+
+        return onSnapshot(transactionQuery, (snapshot) => {
+            const _transactions = snapshot.docs.map((a) => a.data());
+            console.log(_transactions);
+            if (_transactions) {
+                setTransactions(_transactions);
+            }
+        });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [db]);
+
+    return transactions;
+};
+
+export const useUpdateOrderStatus = () => {
+    const db = getFirestore();
+
+    return async (transaction: TransactionOrder, isReady: boolean) => {
+        console.log(`Updating transaction ${transaction.id} status`);
+        await updateDoc(doc(db, `transactions/${transaction.id}`), {
+            isReady,
+        });
+    };
 };

@@ -29,7 +29,7 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add history of transactions for users
 - [x] make transaction function
 - [x] make a better theme and a custom font
-- [ ] add the list of current orders with daily number
+- [x] add the list of current orders with daily number
 - [ ] add custom sandwiches
 - [ ] add ingredients
 - [ ] make a statistical graph for products

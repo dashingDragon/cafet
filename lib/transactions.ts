@@ -25,6 +25,7 @@ export type TransactionOrder = {
     id: string;
     productsWithQty: ProductWithQty[],
     price: number,
+    isReady: boolean,
 } & TransactionMetadata;
 
 export type Transaction = TransactionRecharge | TransactionOrder;
@@ -53,11 +54,13 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
             const {
                 productsWithQty,
                 price,
+                isReady,
             } = data as TransactionOrder;
             return {
                 id: snapshot.id,
                 productsWithQty,
                 price,
+                isReady,
                 type,
                 customer,
                 staff,
@@ -82,10 +85,12 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
             const {
                 productsWithQty,
                 price,
+                isReady,
             } = transaction as TransactionOrder;
             return {
                 productsWithQty,
                 price,
+                isReady,
                 type,
                 customer,
                 staff,

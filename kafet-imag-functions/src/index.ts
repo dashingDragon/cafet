@@ -15,6 +15,9 @@ const staffConverter = externalStaffConverter as unknown as FirestoreDataConvert
 admin.initializeApp();
 
 const computeTotalPrice = (product: Product, quantity: number ) => {
+    if (quantity <= 0) {
+        throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
+    }
     return product?.price * quantity;
 };
 
@@ -107,6 +110,10 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         if (productData.stock && productData.stock < productsWithQty[i].quantity) {
             throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');
         }
+
+        if (!productData.isAvailable) {
+            throw new functions.https.HttpsError('unavailable', 'Product is unavailable');
+        }
     }
 
     if (!accountData) {
@@ -114,7 +121,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     }
 
     if (priceProducts > accountData.balance) {
-        throw new functions.https.HttpsError('permission-denied', 'You do not have enought provision on your account.');
+        throw new functions.https.HttpsError('permission-denied', 'You do not have enough provision on your account.');
     }
 
     // Write the transaction.
@@ -123,13 +130,13 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
 
     // TODO add time limit when users can order
 
-
     const batch = db.batch();
     batch.create(transactionRef, {
         id: '0',
         type: TransactionType.Order,
         productsWithQty: productsWithQty,
         price: priceProducts,
+        isReady: false,
         customer: account,
         staff: staff.data(),
         createdAt: new Date(),
@@ -158,7 +165,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     try {
         // Exécutez le batch
         await batch.commit();
-        return {success: true, message: 'Batching succeeded.'};
+        return {success: true};
     } catch (error) {
         console.error('An error occured during batching :', error);
         throw new functions.https.HttpsError('internal', 'An error occured during batching: ' + error);

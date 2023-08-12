@@ -8,9 +8,11 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
     const setStaffAvailability = useSetStaffAvailability();
     const [availableDialogOpen, setAvailableDialogOpen] = useState(false);
 
-    const handleChangeAvailability = async () => {
+    const handleChangeAvailability = async (isAvailable: boolean) => {
         setAvailableDialogOpen(false);
-        await setStaffAvailability(staff, !staff.isAvailable);
+        if (isAvailable != staff.isAvailable) {
+            await setStaffAvailability(staff, !staff.isAvailable);
+        }
     };
 
     return (
@@ -23,7 +25,14 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
                 sx={{ textTransform: 'none' }}
             >
                 <Box display="flex" alignItems="center" width="100%">
-                    <Avatar sx={{ mr: 1 }}>{staff.name.split(' ').map(p => p[0].toUpperCase()).join('')}</Avatar>
+                    <Avatar sx={{ mr: 1, background: 'default', fontSize: '12px', color: 'white' }}>
+                        <Typography
+                            variant="body1"
+                        >
+                            {staff.name.split(' ').map(p => p[0].toUpperCase()).join('')}
+                        </Typography>
+
+                    </Avatar>
                     <Typography
                         variant="body1"
                         fontWeight="bold"
@@ -36,11 +45,11 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
             {/* Change availability dialog */}
             <Dialog open={availableDialogOpen} onClose={() => setAvailableDialogOpen(false)}>
                 <DialogTitle>
-                    {staff.isAvailable ? 'Rendre non disponible ?' : 'Rendre disponible ?'}
+                    {'Ce staff est-il disponible ?'}
                 </DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setAvailableDialogOpen(false)}>Non</Button>
-                    <Button onClick={handleChangeAvailability}>Oui</Button>
+                    <Button onClick={() => handleChangeAvailability(false)} sx={{ color: 'white' }}>Non</Button>
+                    <Button onClick={() => handleChangeAvailability(true)} variant="contained">Oui</Button>
                 </DialogActions>
             </Dialog>
         </>

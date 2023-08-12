@@ -56,8 +56,18 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
                     })}
                 />
                 <Box sx={{
+                    position: 'relative',
+                    '::after': {
+                        position: 'absolute',
+                        content: '""',
+                        display: 'block',
+                        boxShadow: 'inset 0px 5px 5px 0px hsla(0,0%,0%,0.2), inset 0px -5px 5px 0px hsla(0,0%,0%,0.2)',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '200px',
+                    },
                     ...(!isReallyAvailable && {
-                        position: 'relative',
                         '::after': {
                             position: 'absolute',
                             content: '""',

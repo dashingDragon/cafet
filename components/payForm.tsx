@@ -1,5 +1,5 @@
 import { AddBox, ChevronRight, IndeterminateCheckBox } from '@mui/icons-material';
-import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
@@ -127,11 +127,11 @@ const StyledCard: React.FC<{
 
             {/* Add and remove buttons */}
             <CardActions sx={{ justifyContent: 'flex-end' }}>
-                <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity}>
+                <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity} title="Retirer du panier">
                     <IndeterminateCheckBox />
                 </IconButton>
                 <span>{quantity}</span>
-                <IconButton onClick={addQuantity} disabled={!canAdd || disabled}>
+                <IconButton onClick={addQuantity} disabled={!canAdd || disabled} title="Ajouter au panier">
                     <AddBox />
                 </IconButton>
             </CardActions>
@@ -182,6 +182,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     // State
     const [selectedProductsWithQty, setSelectedProductsWithQty] = useState(new Map<string, ProductWithQty>());
     const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const _selectedProductsWithQty = new Map();
@@ -210,32 +211,46 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
         if (selectedProductsWithQty.values().next()) {
             const payload = {account: account, productsWithQty: Array.from(selectedProductsWithQty.values()).filter((s) => s.quantity)};
             console.log(payload);
+            setLoading(true);
             const result = await makeTransaction(payload);
-            // if (result?.success) {
-            router.push(`/accounts/${account.id}`);
-            // }
+            console.log(result);
+            if (result.data.success) {
+                router.push(`/success/${account.id}`);
+            } else {
+                router.push(`/error/${account.id}`);
+            }
 
         }
     };
 
     return (
         <>
-            <Box m={1}>
+            <Box m={'8px'} pb='64px'>
                 <ProductList selectedProductsWithQty={selectedProductsWithQty} setSelectedProductsWithQty={setSelectedProductsWithQty} limit={account.balance - total} />
             </Box>
-            <Box m={1}>
-                <Button
-                    disabled={!canBeCompleted()}
-                    onClick={handlePay}
-                    variant="contained"
-                    fullWidth
-                    sx={{ textTransform: 'none', mb: '16px' }}
-                >
-                    <Box width="100%" display="flex" justifyContent="space-between" alignItems="center">
-                        <Typography variant="h6">Total: {formatMoney(total)}</Typography>
-                        <ChevronRight fontSize="large" />
-                    </Box>
-                </Button>
+            <Box m={'8px'}>
+                {total > 0 && (
+                    <Button
+                        disabled={!canBeCompleted()}
+                        onClick={handlePay}
+                        variant="contained"
+                        sx={{
+                            textTransform: 'none',
+                            bottom: '16px',
+                            position: 'fixed',
+                            width: 'calc(100% - 16px)',
+                        }}
+                    >
+                        <Box width="100%" display="flex" justifyContent="space-between" alignItems="center" title="Payer">
+                            <Typography variant="h6">Total: <strong>{formatMoney(total)}</strong></Typography>
+                            {loading ? (
+                                <CircularProgress sx={{ color: 'white' }}/>
+                            ) : (
+                                <ChevronRight fontSize="large" sx={{ height: '40px', width: '40px' }} />
+                            )}
+                        </Box>
+                    </Button>
+                )}
             </Box>
         </>
     );

@@ -1,5 +1,5 @@
 import type {} from '@mui/x-data-grid-pro/themeAugmentation';
-import { createTheme, PaletteMode, Theme } from '@mui/material';
+import { PaletteMode, Theme, createTheme } from '@mui/material';
 import useLocalStorage from '@rehooks/local-storage';
 import { CSSProperties } from 'react';
 
@@ -55,9 +55,21 @@ const createThemeMode = (mode: PaletteMode) => {
         fontFamily: `"Poppins", "sans-serif"`,
     };
 
+    theme.typography.h3 = {
+        fontSize: '36px',
+        fontWeight: 700,
+        fontFamily: `"Poppins", "sans-serif"`,
+    };
+
     theme.typography.h5 = {
         fontSize: '24px',
         fontWeight: 700,
+        fontFamily: `"Poppins", "sans-serif"`,
+    };
+
+    theme.typography.h6 = {
+        fontSize: '16px',
+        fontWeight: 500,
         fontFamily: `"Poppins", "sans-serif"`,
     };
 

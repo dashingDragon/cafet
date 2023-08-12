@@ -50,7 +50,7 @@ const StaffPage: NextPage = () => {
                             </FullHeightScrollableContainer>
 
                             {staff?.isAdmin &&
-                <PendingStaffsDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
+                                <PendingStaffsDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
                             }
                         </>
                     }

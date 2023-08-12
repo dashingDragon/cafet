@@ -277,7 +277,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
         <Card>
             <CardContent>
                 <Typography variant="h6" sx={{ pb: 4 }}>Historique</Typography>
-                {transactions.map((transaction, i) => {
+                {transactions.sort((a, b) => +b.createdAt - +a.createdAt).map((transaction, i) => {
                     if (transaction.type === TransactionType.Recharge) {
                         return (
                             <div key={i}>

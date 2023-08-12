@@ -42,7 +42,7 @@ export const PendingStaffsDialog: React.FC<{
                 <DialogTitle>
                     Liste des comptes non staffs (cliquez pour en faire des staffs)
                 </DialogTitle>
-                <DialogContent sx={{ width: 300 }}>
+                <DialogContent>
                     <List>
                         {pendingStaffs.map((user) => (
                             <ListItem key={user.uid} disablePadding>
@@ -63,8 +63,8 @@ export const PendingStaffsDialog: React.FC<{
                      Voulez vous vraiment rendre {choosenStaff?.name} staff ?
                 </DialogTitle>
                 <DialogActions>
-                    <Button onClick={() => setConfirmOpen(false)}>Annuler</Button>
-                    <Button onClick={handleMakeStaff}>Oui</Button>
+                    <Button onClick={() => setConfirmOpen(false)} sx={{ color: 'white' }}>Annuler</Button>
+                    <Button onClick={handleMakeStaff} variant="contained">Oui</Button>
                 </DialogActions>
             </Dialog>
         </>
