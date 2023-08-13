@@ -16,11 +16,14 @@ export const categoryTranslation: Record<string, string> = {
     'bread': 'Pains',
 };
 
-const IngredientItem: React.FC<{ ingredient: Ingredient }> = ({ ingredient }) => {
+const IngredientItem: React.FC<{
+    ingredient: Ingredient,
+    setIngredientDialogOpen: (b: boolean) => void;
+    setIngredient: (i: Ingredient) => void;
+}> = ({ ingredient, setIngredientDialogOpen, setIngredient }) => {
     const staff = useStaffUser();
     const deleteIngredient = useIngredientDeleter();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
 
     const handleDeleteIngredient = async () => {
         await deleteIngredient(ingredient);
@@ -32,9 +35,10 @@ const IngredientItem: React.FC<{ ingredient: Ingredient }> = ({ ingredient }) =>
         setDeleteDialogOpen(true);
     };
 
-    const handleOpenEditDialog = (event: React.MouseEvent) => {
+    const handleOpenIngredientDialog = (event: React.MouseEvent) => {
         event.stopPropagation();
-        setEditDialogOpen(true);
+        setIngredient(ingredient);
+        setIngredientDialogOpen(true);
     };
 
     const hasContents = (ingredient.allergen || ingredient.isVegan || ingredient.isVege);
@@ -111,7 +115,7 @@ const IngredientItem: React.FC<{ ingredient: Ingredient }> = ({ ingredient }) =>
                     <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
                         <IconButton>
                             <EditOutlined
-                                onClick={handleOpenEditDialog}
+                                onClick={handleOpenIngredientDialog}
                                 sx={(theme) => ({
                                     color: theme.colors.main,
                                 })} />
@@ -138,25 +142,24 @@ const IngredientItem: React.FC<{ ingredient: Ingredient }> = ({ ingredient }) =>
                     <Button onClick={handleDeleteIngredient} color="error" variant="contained" sx={{ color: 'white' }}>Oui</Button>
                 </DialogActions>
             </Dialog>
-
-            {/* Edit ingredient dialog */}
-            {/* <EditIngredientDialog open={editDialogOpen} setEditDialogOpen={setEditDialogOpen} ingredient={ingredient} /> */}
         </>
     );
 };
 
 const IngredientList: React.FC<{
   ingredients: Ingredient[],
-}> = ({ ingredients }) => {
+  setIngredientDialogOpen: (b: boolean) => void;
+  setIngredient: (i: Ingredient) => void;
+}> = ({ ingredients, setIngredientDialogOpen, setIngredient }) => {
     return (
-        <Box m={'16px'} mb={'128px'}>
+        <Box m={'16px'}>
             {Object.keys(categoryTranslation).map((category) => (
                 <React.Fragment key={category}>
                     <Typography variant="h5">{categoryTranslation[category]}</Typography>
                     <List>
                         {ingredients.filter(p => p.category === category).map((ingredient) =>
                             <Box key={ingredient.id} mb={'16px'}>
-                                <IngredientItem ingredient={ingredient} />
+                                <IngredientItem ingredient={ingredient} setIngredientDialogOpen={setIngredientDialogOpen} setIngredient={setIngredient} />
                             </Box>
                         )}
                     </List>

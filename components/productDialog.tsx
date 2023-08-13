@@ -1,23 +1,50 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FilledInput, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Product, productType } from '../lib/products';
-import { useProductEditor } from '../lib/firestoreHooks';
+import { useProductEditor, useProductMaker } from '../lib/firestoreHooks';
+import { typeTranslation } from './productList';
 
-interface EditProductProps extends DialogProps {
-    product: Product;
-    setEditDialogOpen: (b: boolean) => void;
+interface IProductDialog extends DialogProps {
+    setProductDialogOpen: (b: boolean) => void;
+    product?: Product;
 }
 
-export const EditProductDialog: React.FC<EditProductProps> = ({ product, open, setEditDialogOpen }) => {
-    const [type, setType] = useState<productType>(product.type as productType);
-    const [name, setName] = useState(product.name);
-    const [imagePath, setImagePath] = useState(product.image ?? '');
-    const [isAvailable, setIsAvailable] = useState(product.isAvailable ? 'true' : 'false');
-    const [price, setPrice] = useState(product.price);
-    const [description, setDescription] = useState(product.description);
+export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialogOpen, product }) => {
+    console.log(product);
+    const [type, setType] = useState<productType>('serving');
+    const [name, setName] = useState('');
+    const [isAvailable, setIsAvailable] = useState('true');
+    const [price, setPrice] = useState(0);
+    const [description, setDescription] = useState('');
     const [stock, setStock] = useState(0);
+    const [image, setImage] = useState('');
 
-    const editor = useProductEditor();
+    useEffect(() => {
+        if (product) {
+            setType(product.type as productType);
+            setName(product.name);
+            setIsAvailable(product.isAvailable ? 'true' : 'false');
+            setPrice(product.price);
+            setImage(product.image);
+            if (product.description) {
+                setDescription(product.description);
+            }
+            if (product.stock) {
+                setStock(product.stock);
+            }
+        } else {
+            setType('serving');
+            setName('');
+            setIsAvailable('true');
+            setPrice(0);
+            setImage('');
+            setDescription('');
+            setStock(0);
+        }
+    }, [product]);
+
+    const makeProduct = useProductMaker();
+    const editProduct = useProductEditor();
 
     const handleChangeType = (event: SelectChangeEvent) => {
         setType(event.target.value as productType);
@@ -47,56 +74,83 @@ export const EditProductDialog: React.FC<EditProductProps> = ({ product, open, s
         setIsAvailable(event.target.value);
     };
 
-    const handleEditProduct = async () => {
-        if (type === 'serving') {
-            await editor(
-                product,
-                type,
-                name,
-                isAvailable === 'true',
-                imagePath,
-                price,
-                description,
-                undefined,
-            );
-        } else {
-            await editor(
-                product,
-                type,
-                name,
-                isAvailable === 'true',
-                imagePath,
-                price,
-                undefined,
-                stock,
-            );
-        }
+    const handleChangeImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setImage(event.target.value);
+    };
 
-        setEditDialogOpen(false);
+    const handleCreateProduct = async () => {
+        const product: Product = {
+            id: '0',
+            type: type,
+            name: name,
+            description: description,
+            isAvailable: isAvailable === 'true',
+            image: image,
+            price: price,
+        };
+        await makeProduct(product);
+        setType('serving');
+        setName('');
+        setIsAvailable('true');
+        setPrice(0);
+        setStock(0);
+        setDescription('');
+
+        setProductDialogOpen(false);
+    };
+
+    const handleEditProduct = async () => {
+        if (product) {
+            if (type === 'serving') {
+                await editProduct(
+                    product,
+                    type,
+                    name,
+                    isAvailable === 'true',
+                    image,
+                    price,
+                    description,
+                    undefined,
+                );
+            } else {
+                await editProduct(
+                    product,
+                    type,
+                    name,
+                    isAvailable === 'true',
+                    image,
+                    price,
+                    undefined,
+                    stock,
+                );
+            }
+        }
+        setProductDialogOpen(false);
     };
 
     return (
-        <Dialog open={open} onClose={() => setEditDialogOpen(false)}>
+        <Dialog open={open} onClose={() => setProductDialogOpen(false)}>
             <DialogTitle>
-                {`Modifier ${product.name}`}
+                {product ? `Modifier ${product.name}` : 'Ajouter un produit'}
             </DialogTitle>
 
             <DialogContent>
                 <Stack direction={'column'} flexGrow={1}>
+
                     {/* Type */}
-                    <InputLabel id="type-select-label">Sélectionnez le type du produit :</InputLabel>
+                    <InputLabel id="type-select-label">Type du produit :</InputLabel>
                     <Select
                         labelId="type-select-label"
                         value={type}
                         onChange={handleChangeType}
                     >
-                        <MenuItem value={'serving'}>Plat</MenuItem>
-                        <MenuItem value={'drink'}>Boisson</MenuItem>
-                        <MenuItem value={'snack'}>Snack</MenuItem>
+                        {Object.entries(typeTranslation).map(([k, v]) =>
+                            <MenuItem key={k} value={k}>{v}</MenuItem>
+                        )}
                     </Select>
 
                     {/* Name */}
-                    <FormControl  sx={{ marginTop: 3, minWidth: 120 }}>
+                    <FormControl fullWidth sx={{ marginTop: 3 }}>
                         <InputLabel>Nom</InputLabel>
                         <FilledInput
                             id="name-input"
@@ -145,6 +199,16 @@ export const EditProductDialog: React.FC<EditProductProps> = ({ product, open, s
                         </FormControl>
                     )}
 
+                    {/* Image */}
+                    <FormControl fullWidth sx={{ marginTop: 3 }}>
+                        <InputLabel>Image</InputLabel>
+                        <FilledInput
+                            id="image-input"
+                            value={image}
+                            onChange={handleChangeImage}
+                        />
+                    </FormControl>
+
                     {/* Availability */}
                     <InputLabel id="availability-input" sx={{ marginTop: 3 }}>Le produit est-il disponible ?</InputLabel>
                     <Select
@@ -156,12 +220,13 @@ export const EditProductDialog: React.FC<EditProductProps> = ({ product, open, s
                         <MenuItem value={'false'}>Non</MenuItem>
                     </Select>
 
+
                 </Stack>
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={() => setEditDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
-                <Button onClick={handleEditProduct} variant="contained">Confirmer</Button>
+                <Button onClick={() => setProductDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
+                <Button onClick={product ? handleEditProduct : handleCreateProduct} variant="contained">Confirmer</Button>
             </DialogActions>
         </Dialog>
     );

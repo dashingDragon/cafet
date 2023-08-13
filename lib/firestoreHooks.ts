@@ -368,24 +368,6 @@ export const useProducts = () => {
 };
 
 /**
- * Update the availability status of a product.
- *
- * @returns a function to modify a products availability
- */
-export const useSetProductAvailability = () => {
-    const db = getFirestore();
-    const staff = useStaffUser();
-
-    if (!staff) return () => alert('Not connected !');
-
-    return async (product: Product, isAvailable: boolean) => {
-        await updateDoc(doc(db, `products/${product.id}`).withConverter(productConverter), {
-            isAvailable,
-        });
-    };
-};
-
-/**
  * Get the function to edit a product.
  *
  * @returns an edit product function

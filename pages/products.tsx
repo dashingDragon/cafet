@@ -9,10 +9,12 @@ import { useIngredients, useProducts, useStaffUser } from '../lib/firestoreHooks
 import { useGuardIsConnected } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useState } from 'react';
-import PendingProductDialog from '../components/pendingProductDialog';
 import PendingDialog from '../components/pendingDialog';
 import IngredientList from '../components/ingredientList';
-import PendingIngredientDialog from '../components/pendingIngredientDialog';
+import { ProductDialog } from '../components/productDialog';
+import { Product } from '../lib/products';
+import IngredientDialog from '../components/ingredientDialog';
+import { Ingredient } from '../lib/ingredients';
 
 const ProductPage: NextPage = () => {
     useGuardIsConnected();
@@ -20,8 +22,10 @@ const ProductPage: NextPage = () => {
     const ingredients = useIngredients();
     const staff = useStaffUser();
     const [pendingDialogOpen, setPendingDialogOpen] = useState(false);
-    const [pendingProductDialogOpen, setPendingProductDialogOpen] = useState(false);
-    const [pendingIngredientDialogOpen, setPendingIngredientDialogOpen] = useState(false);
+    const [productDialogOpen, setProductDialogOpen] = useState(false);
+    const [product, setProduct] = useState<Product>();
+    const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false);
+    const [ingredient, setIngredient] = useState<Ingredient>();
 
     return (
         <>
@@ -37,11 +41,19 @@ const ProductPage: NextPage = () => {
                         : <>
                             <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>
                                 <>
-                                    <ProductList products={products} />
-                                    <IngredientList ingredients={ingredients} />
+                                    <ProductList
+                                        products={products}
+                                        setProductDialogOpen={setProductDialogOpen}
+                                        setProduct={setProduct}
+                                    />
+                                    <IngredientList
+                                        ingredients={ingredients}
+                                        setIngredientDialogOpen={setIngredientDialogOpen}
+                                        setIngredient={setIngredient}
+                                    />
                                     {staff?.isAdmin &&
                                         <Fab
-                                            onClick={() => setPendingDialogOpen(true)}
+                                            onClick={() => { setProduct(undefined); setIngredient(undefined); setPendingDialogOpen(true);}}
                                             color="primary"
                                             sx={{
                                                 position: 'fixed',
@@ -58,11 +70,19 @@ const ProductPage: NextPage = () => {
                                     <PendingDialog
                                         open={pendingDialogOpen}
                                         onClose={() => setPendingDialogOpen(false)}
-                                        setPendingProductDialogOpen={setPendingProductDialogOpen}
-                                        setPendingIngredientDialogOpen={setPendingIngredientDialogOpen}
+                                        setPendingProductDialogOpen={setProductDialogOpen}
+                                        setPendingIngredientDialogOpen={setIngredientDialogOpen}
                                     />
-                                    <PendingProductDialog open={pendingProductDialogOpen} onClose={() => setPendingProductDialogOpen(false)} />
-                                    <PendingIngredientDialog open={pendingIngredientDialogOpen} onClose={() => setPendingIngredientDialogOpen(false)} />
+                                    <ProductDialog
+                                        open={productDialogOpen}
+                                        setProductDialogOpen={setProductDialogOpen}
+                                        product={product}
+                                    />
+                                    <IngredientDialog
+                                        open={ingredientDialogOpen}
+                                        setIngredientDialogOpen={setIngredientDialogOpen}
+                                        ingredient={ingredient}
+                                    />
                                 </>
                             )}
                         </>

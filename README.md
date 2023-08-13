@@ -32,11 +32,13 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add the list of current orders with daily number
 - [x] add ingredients
 - [x] take allergies into account
+- [ ] compute the number of baguettes needed
 - [ ] add custom sandwiches
 - [ ] make a statistical graph for products
 - [ ] store the global and products' stats somewhere
 - [ ] add more icons and colors
 - [ ] add collapse in products page
+- [ ] make a backup script for the database
 
 For the customer-side app :
 - [ ] show current order for user

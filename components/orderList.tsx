@@ -67,7 +67,7 @@ const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, numbe
 
 export const OrderList: React.FC<{orders: Transaction[]}> = ({orders}) => {
     return (
-        <Box m='1' >
+        <Box m='1'>
             {orders.sort((a, b) => +a.createdAt - +b.createdAt).map((order, i) => (
                 <OrderItem order={order} key={order.id} number={i + 1} />
             ))}

@@ -14,11 +14,14 @@ const staffConverter = externalStaffConverter as unknown as FirestoreDataConvert
 
 admin.initializeApp();
 
-const computeTotalPrice = (product: Product, quantity: number ) => {
+const computeTotalPrice = (price: number, quantity: number ) => {
     if (quantity <= 0) {
         throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
     }
-    return product?.price * quantity;
+    if (price <= 0) {
+        throw new functions.https.HttpsError('invalid-argument', 'Price must be positive.');
+    }
+    return price * quantity;
 };
 
 const checkIfConnected = async (uid: string | undefined) => {
@@ -100,12 +103,13 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
 
     // Compute price, check user provision and check availability of products.
     for (let i = 0; i < productsWithQty.length; i++) {
-        priceProducts += computeTotalPrice(productsWithQty[i].product, productsWithQty[i].quantity);
         const productSnapshot = await db.doc(`products/${productsWithQty[i].product.id}`).withConverter(productConverter as unknown as FirestoreDataConverter<Product>).get();
         const productData = productSnapshot.data();
         if (!productData) {
             throw new functions.https.HttpsError('not-found', 'Product not found.');
         }
+        // Do not trust user product price
+        priceProducts += computeTotalPrice(productData.price, productsWithQty[i].quantity);
 
         if (productData.stock && productData.stock < productsWithQty[i].quantity) {
             throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');

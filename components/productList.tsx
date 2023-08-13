@@ -1,28 +1,20 @@
 import { DeleteOutlined, EditOutlined, ExpandMore } from '@mui/icons-material';
-import { Avatar, Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Fab, FilledInput, FormControl, Grid, IconButton, InputAdornment, InputLabel, List, MenuItem, Select, Stack, Typography } from '@mui/material';
-import { grey, red } from '@mui/material/colors';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Fab, FilledInput, FormControl, Grid, IconButton, InputAdornment, InputLabel, List, MenuItem, Select, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useProductDeleter, useSetProductAvailability, useStaffUser } from '../lib/firestoreHooks';
+import { useProductDeleter, useStaffUser } from '../lib/firestoreHooks';
 import { Product } from '../lib/products';
 import { formatMoney } from './accountDetails';
-import { EditProductDialog } from './editProductDialog';
 
 export const typeTranslation: Record<string, string> = { 'serving': 'Plat', 'drink': 'Boisson', 'snack': 'Snack'};
 
-const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
+const ProductItem: React.FC<{
+    product: Product,
+    setProductDialogOpen: (b: boolean) => void,
+    setProduct: (p: Product) => void
+}> = ({ product, setProductDialogOpen, setProduct }) => {
     const staff = useStaffUser();
-    const setProductAvailability = useSetProductAvailability();
     const deleteProduct = useProductDeleter();
-    const [availabilityDialogOpen, setAvailabilityDialogOpen] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
-
-    const handleChangeAvailability = async (shouldBeAvailable: boolean) => {
-        setAvailabilityDialogOpen(false);
-        if (product.isAvailable !== shouldBeAvailable) {
-            await setProductAvailability(product, !product.isAvailable);
-        }
-    };
 
     const handleDeleteProduct = async () => {
         await deleteProduct(product);
@@ -34,9 +26,10 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
         setDeleteDialogOpen(true);
     };
 
-    const handleOpenEditDialog = (event: React.MouseEvent) => {
+    const handleOpenProductDialog = (event: React.MouseEvent) => {
         event.stopPropagation();
-        setEditDialogOpen(true);
+        setProduct(product);
+        setProductDialogOpen(true);
     };
 
     const isOutOfStock = product.stock === 0;
@@ -126,14 +119,16 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
                 </CardContent>
                 {staff?.isAdmin && (
                     <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
+                        {/* Edit button */}
                         <IconButton>
                             <EditOutlined
-                                onClick={handleOpenEditDialog}
+                                onClick={handleOpenProductDialog}
                                 sx={(theme) => ({
                                     color: theme.colors.main,
                                 })} />
                         </IconButton>
 
+                        {/* Delete button */}
                         <IconButton>
                             <DeleteOutlined
                                 onClick={handleOpenDeleteDialog}
@@ -145,17 +140,6 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
                 )}
             </Card>
 
-            {/* Change availability dialog */}
-            <Dialog open={availabilityDialogOpen} onClose={() => setAvailabilityDialogOpen(false)}>
-                <DialogTitle>
-                    {'Le produit est-il disponible ?'}
-                </DialogTitle>
-                <DialogActions>
-                    <Button onClick={() => handleChangeAvailability(false)}>Non</Button>
-                    <Button onClick={() => handleChangeAvailability(true)}>Oui</Button>
-                </DialogActions>
-            </Dialog>
-
             {/* Delete product dialog */}
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
                 <DialogTitle>
@@ -166,16 +150,15 @@ const ProductItem: React.FC<{ product: Product }> = ({ product }) => {
                     <Button onClick={handleDeleteProduct} color="error" variant="contained" sx={{ color: 'white' }}>Oui</Button>
                 </DialogActions>
             </Dialog>
-
-            {/* Edit product dialog */}
-            <EditProductDialog open={editDialogOpen} setEditDialogOpen={setEditDialogOpen} product={product} />
         </>
     );
 };
 
 const ProductList: React.FC<{
   products: Product[],
-}> = ({ products }) => {
+  setProductDialogOpen: (b: boolean) => void;
+  setProduct: (p: Product) => void;
+}> = ({ products, setProductDialogOpen, setProduct }) => {
     return (
         <Box m={'16px'}>
             {Object.keys(typeTranslation).map((type) => (
@@ -184,7 +167,7 @@ const ProductList: React.FC<{
                     <List>
                         {products.filter(p => p.type === type).map((product) =>
                             <Box key={product.id} mb={'16px'}>
-                                <ProductItem product={product} />
+                                <ProductItem product={product} setProductDialogOpen={setProductDialogOpen} setProduct={setProduct} />
                             </Box>
                         )}
                     </List>
