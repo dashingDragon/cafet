@@ -32,8 +32,9 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add the list of current orders with daily number
 - [x] add ingredients
 - [x] take allergies into account
-- [ ] compute the number of baguettes needed
-- [ ] add custom sandwiches
+- [ ] add sandwich size
+- [ ] compute the number of baguettes needed for a day
+- [ ] add custom composition for sandwiches
 - [ ] make a statistical graph for products
 - [ ] store the global and products' stats somewhere
 - [ ] add more icons and colors

@@ -249,7 +249,7 @@ const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
                 <Typography variant="h6" sx={{ pb: 2 }}>Statistiques</Typography>
                 {/* For each row */}
                 {rows.map((row, i) =>
-                    <div key={i}>
+                    <React.Fragment key={i}>
                         <Box display="flex" justifyContent="space-around" flexDirection={'column'}>
                             {/* For each stat in the row */}
                             {row.map(({ icon, value, text }, i) =>
@@ -263,7 +263,7 @@ const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
                             )}
                         </Box>
                         <Divider />
-                    </div>
+                    </React.Fragment>
                 )}
             </CardContent>
         </Card>

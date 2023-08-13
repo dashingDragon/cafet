@@ -76,6 +76,7 @@ const ProductPage: NextPage = () => {
                                     <ProductDialog
                                         open={productDialogOpen}
                                         setProductDialogOpen={setProductDialogOpen}
+                                        ingredients={ingredients}
                                         product={product}
                                     />
                                     <IngredientDialog

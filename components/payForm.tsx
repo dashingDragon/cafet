@@ -1,13 +1,14 @@
 import { AddBox, ChevronRight, IndeterminateCheckBox } from '@mui/icons-material';
-import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, CircularProgress, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
-import { computeTotalPrice, useProducts } from '../lib/firestoreHooks';
+import { useProducts } from '../lib/firestoreHooks';
 import { Product, ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
 import { typeTranslation } from './productList';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
+import { type } from 'os';
 
 const StyledCard: React.FC<{
   product: Product,
@@ -17,6 +18,7 @@ const StyledCard: React.FC<{
 }> = ({ product, selectedProductsWithQty, setSelectedProductsWithQty, disabled }) => {
     const [quantity, setQuantity] = useState(0);
     const [canAdd, setCanAdd] = useState(false);
+    const [selectedSize, setSelectedSize] = useState('');
 
     useEffect(() => {
         setCanAdd(product.stock !== undefined ? product.isAvailable && product.stock > 0 && product.stock - quantity > 0 : product.isAvailable);
@@ -46,6 +48,10 @@ const StyledCard: React.FC<{
         }
     };
 
+    const handleChangeSize = (event: SelectChangeEvent) => {
+        setSelectedSize(event.target.value);
+    };
+
     const isOutOfStock = product.stock === 0;
 
     const isReallyAvailable = product.isAvailable && !isOutOfStock;
@@ -57,7 +63,7 @@ const StyledCard: React.FC<{
         }}>
             <CardHeader
                 title={product.name}
-                subheader={formatMoney(product.price)}
+                subheader={formatMoney(product.sizeWithPrices[selectedSize])}
                 sx={(theme) => ({
                     '.MuiCardHeader-title': {
                         color: theme.colors.main,
@@ -127,6 +133,24 @@ const StyledCard: React.FC<{
 
             {/* Add and remove buttons */}
             <CardActions sx={{ justifyContent: 'flex-end' }}>
+                {/* Size */}
+                <InputLabel id="size-select-label">Type du produit :</InputLabel>
+                <Select
+                    labelId="size-select-label"
+                    value={selectedSize}
+                    onChange={handleChangeSize}
+                >
+                    {Object.entries(product.sizeWithPrices).map(([k, v]) =>
+                        <MenuItem key={k} value={k}>
+                            <Typography variant="body1">
+                                {k}
+                            </Typography>
+                            <Typography variant="body2" sx={{ ml: 'auto' }}>
+                                {formatMoney(v)}
+                            </Typography>
+                        </MenuItem>
+                    )}
+                </Select>
                 <IconButton onClick={removeQuantity} disabled={!product.isAvailable || !quantity} title="Retirer du panier">
                     <IndeterminateCheckBox />
                 </IconButton>
@@ -164,7 +188,7 @@ const ProductList: React.FC<{
                                 product={product}
                                 selectedProductsWithQty={selectedProductsWithQty}
                                 setSelectedProductsWithQty={setSelectedProductsWithQty}
-                                disabled={product.price > limit}
+                                disabled={!Object.values(product.sizeWithPrices).some(value => value <= limit)}
                             />
                         ))}
                     </Stack>
@@ -196,7 +220,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
         let priceProducts = 0;
 
         for (const productWithQty of selectedProductsWithQty.values()) {
-            priceProducts += computeTotalPrice(productWithQty.product, productWithQty.quantity);
+            priceProducts += productWithQty.product.sizeWithPrices[productWithQty.size] * productWithQty.quantity;
         }
 
         setTotal(priceProducts);

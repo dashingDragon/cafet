@@ -9,7 +9,7 @@ import { imageLoader } from '../pages/_app';
 
 export const categoryTranslation: Record<string, string> = {
     'meat': 'Viandes/Poisson',
-    'chesse': 'Fromage',
+    'cheese': 'Fromage',
     'veggie': 'Légumes',
     'spice': 'Épices',
     'sauce': 'Sauce',

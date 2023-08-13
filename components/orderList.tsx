@@ -2,7 +2,7 @@ import { Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTi
 import { Transaction, TransactionOrder } from '../lib/transactions';
 import React, { useState } from 'react';
 import { formatDate, formatMoney } from './accountDetails';
-import { computeTotalPrice, useUpdateOrderStatus } from '../lib/firestoreHooks';
+import { useUpdateOrderStatus } from '../lib/firestoreHooks';
 import {CheckCircle, Timelapse} from '@mui/icons-material';
 
 const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, number}) => {
@@ -30,7 +30,7 @@ const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, numbe
                     {(order as TransactionOrder).productsWithQty.map((productWithQty) =>
                         <Stack key={productWithQty.product.name} direction="row" justifyContent={'space-between'}>
                             <Typography variant="body1">{productWithQty.product.name} x {productWithQty.quantity}</Typography>
-                            <Typography variant="body2">{formatMoney(computeTotalPrice(productWithQty.product, productWithQty.quantity))}</Typography>
+                            <Typography variant="body2">{formatMoney(productWithQty.quantity * productWithQty.product.sizeWithPrices[productWithQty.size])}</Typography>
                         </Stack>
                     )}
                 </Box>

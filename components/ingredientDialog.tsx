@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FilledInput, FormControl, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FilledInput, FormControl, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Stack, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useIngredientEditor, useIngredientMaker } from '../lib/firestoreHooks';
 import { SelectChangeEvent } from '@mui/material/Select/SelectInput';
@@ -57,9 +57,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
     };
 
     const handleChangePrice = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (parseInt(event.target.value)) {
-            setPrice(parseInt(event.target.value));
-        }
+        setPrice(parseInt(event.target.value));
     };
 
     const handleChangeAllergen = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,9 +124,9 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
 
                         {/* Name */}
                         <FormControl sx={{ marginTop: 3, minWidth: 120 }}>
-                            <InputLabel>Nom</InputLabel>
-                            <FilledInput
+                            <OutlinedInput
                                 id="my-input"
+                                placeholder="Nom"
                                 aria-describedby="my-helper-text"
                                 value={name}
                                 onChange={handleChangeName}
@@ -159,9 +157,9 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
 
                         {/* Allergen */}
                         <FormControl sx={{ marginTop: 3, minWidth: 120 }}>
-                            <InputLabel>Allergène</InputLabel>
-                            <FilledInput
+                            <OutlinedInput
                                 id="my-input"
+                                placeholder="Allergène"
                                 aria-describedby="my-helper-text"
                                 value={allergen}
                                 onChange={handleChangeAllergen}
@@ -170,9 +168,9 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
 
                         {/* Prix */}
                         <FormControl fullWidth sx={{ marginTop: 3 }} variant="filled">
-                            <InputLabel htmlFor="filled-adornment-amount">Prix (en centimes)</InputLabel>
-                            <FilledInput
+                            <OutlinedInput
                                 id="filled-adornment-amount"
+                                placeholder="Prix (en centimes)"
                                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
                                 value={price}
                                 onChange={handleChangePrice}

@@ -1,9 +1,12 @@
-import { DeleteOutlined, EditOutlined, ExpandMore } from '@mui/icons-material';
-import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Collapse, Dialog, DialogActions, DialogContent, DialogTitle, Fab, FilledInput, FormControl, Grid, IconButton, InputAdornment, InputLabel, List, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Dialog, DialogActions, DialogTitle, IconButton, List, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useProductDeleter, useStaffUser } from '../lib/firestoreHooks';
 import { Product } from '../lib/products';
 import { formatMoney } from './accountDetails';
+import { imageLoader } from '../pages/_app';
+import Image from 'next/image';
+import { getIngredientPrice } from '../lib/ingredients';
 
 export const typeTranslation: Record<string, string> = { 'serving': 'Plat', 'drink': 'Boisson', 'snack': 'Snack'};
 
@@ -40,8 +43,28 @@ const ProductItem: React.FC<{
         <>
             <Card variant={isReallyAvailable ? 'elevation' : 'outlined'}>
                 <CardHeader
-                    title={product.name}
-                    subheader={formatMoney(product.price)}
+                    title={
+                        <>
+                            {product.name}
+                            {(product.isVege || product.isVegan) && product.type === 'serving' && (
+                                <Image
+                                    loader={imageLoader}
+                                    src={'svg/leaf.png'}
+                                    alt={'Vege'}
+                                    height={36}
+                                    width={36}
+                                    className={'icon'}
+                                />
+                            )}
+
+
+                        </>}
+                    subheader={product.sizeWithPrices
+                        ? Object.entries(product.sizeWithPrices)
+                            .map(([size, price]) => `${size}: ${formatMoney(price + getIngredientPrice(product.ingredients))}`)
+                            .join(' · ')
+                        : ''
+                    }
                     sx={(theme) => ({
                         '.MuiCardHeader-title': {
                             color: theme.colors.main,
@@ -90,6 +113,42 @@ const ProductItem: React.FC<{
                         <Typography variant="body1">
                             {product.description}
                         </Typography>
+                    )}
+
+                    {product.allergen  && (
+                        <Chip
+                            variant='outlined'
+                            color={'warning'}
+                            label={product.allergen}
+                            sx={{
+                                fontWeight: 700,
+                                mt: '16px',
+                                mr: '16px',
+                            }}
+                        />
+                    )}
+                    {product.isVegan ? (
+                        <Chip
+                            variant='outlined'
+                            color={'success'}
+                            label={'Végan'}
+                            sx={{
+                                fontWeight: 700,
+                                mt: '16px',
+                                mr: '16px',
+                            }}
+                        />
+                    ) : product.isVege && (
+                        <Chip
+                            variant='outlined'
+                            color={'success'}
+                            label={'Végé'}
+                            sx={{
+                                fontWeight: 700,
+                                mt: '16px',
+                                mr: '16px',
+                            }}
+                        />
                     )}
 
                     <Chip

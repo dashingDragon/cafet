@@ -5,7 +5,7 @@ import { useUser } from './hooks';
 import { Staff, staffConverter } from './staffs';
 import { Transaction, TransactionOrder, TransactionRecharge, TransactionType, transactionConverter } from './transactions';
 import { Product, ProductWithQty, productConverter, productType } from './products';
-import { Ingredient, ingredientCategory, ingredientConverter } from './ingredients';
+import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients } from './ingredients';
 
 // =================== Staff stuff
 /**
@@ -333,18 +333,44 @@ export const useProductMaker = () => {
 
     if (!staff) return () => alert('Not connected !');
 
-    return async ({ id, type, name, isAvailable, image, price, description, stock }: Product) => {
+    return async (
+        id: string,
+        type: productType,
+        name: string,
+        isAvailable: boolean,
+        image: string,
+        sizeWithPrices: Record<string, number>,
+        ingredients: Ingredient[],
+        stock: number
+    ) => {
         console.log('Create product');
-        return await addDoc(collection(db, 'products').withConverter(productConverter), {
-            id,
-            type,
-            name,
-            isAvailable,
-            image,
-            price,
-            ...(description && {description}),
-            ...(stock && {stock}),
-        });
+        if (type === 'serving') {
+            const {isVege, isVegan, allergen, description} = parseIngredients(ingredients);
+
+            return await addDoc(collection(db, 'products').withConverter(productConverter), {
+                id,
+                type,
+                name,
+                isAvailable,
+                image,
+                sizeWithPrices,
+                isVege,
+                isVegan,
+                allergen,
+                ingredients,
+                description,
+            });
+        } else {
+            return await addDoc(collection(db, 'products').withConverter(productConverter), {
+                id,
+                type,
+                name,
+                isAvailable,
+                image,
+                sizeWithPrices,
+                stock,
+            });
+        }
     };
 };
 /**
@@ -375,9 +401,41 @@ export const useProducts = () => {
 export const useProductEditor = () => {
     const db = getFirestore();
 
-    return async (product: Product, type: productType, name: string, isAvailable: boolean, image: string, price: number, description?: string, stock?: number ) => {
+    return async (
+        product: Product,
+        type: productType,
+        name: string,
+        isAvailable: boolean,
+        image: string,
+        sizeWithPrices: Record<string, number>,
+        ingredients: Ingredient[],
+        stock: number
+    ) => {
         console.log(`Updating ${name}`);
-        await updateDoc(doc(db, `products/${product.id}`).withConverter(productConverter), { type, name, isAvailable, image, price, ...(description && {description}), ...(stock !== undefined && {stock}) });
+        if (type === 'serving') {
+            const {isVege, isVegan, allergen, description} = parseIngredients(ingredients);
+            return await updateDoc(doc(db, `products/${product.id}`).withConverter(productConverter), {
+                type,
+                name,
+                isAvailable,
+                image,
+                sizeWithPrices,
+                isVege,
+                isVegan,
+                allergen,
+                ingredients,
+                description,
+            });
+        } else {
+            return await updateDoc(doc(db, `products/${product.id}`).withConverter(productConverter), {
+                type,
+                name,
+                isAvailable,
+                image,
+                sizeWithPrices,
+                stock,
+            });
+        }
     };
 };
 
@@ -444,9 +502,24 @@ export const useIngredients = () => {
 export const useIngredientEditor = () => {
     const db = getFirestore();
 
-    return async (ingredient: Ingredient, name: string, category: ingredientCategory, isVege: boolean, isVegan: boolean, price: number, allergen: string ) => {
+    return async (
+        ingredient: Ingredient,
+        name: string,
+        category: ingredientCategory,
+        isVege: boolean,
+        isVegan: boolean,
+        price: number,
+        allergen: string
+    ) => {
         console.log(`Updating ${name}`);
-        await updateDoc(doc(db, `ingredients/${ingredient.id}`).withConverter(ingredientConverter), { name, category, isVege, isVegan, price, allergen });
+        await updateDoc(doc(db, `ingredients/${ingredient.id}`).withConverter(ingredientConverter), {
+            name,
+            category,
+            isVege,
+            isVegan,
+            price,
+            allergen,
+        });
     };
 };
 
@@ -496,18 +569,6 @@ export const useRechargeTransactionMaker = () => {
 
         await batch.commit();
     };
-};
-
-/**
- * Compute the total amount of money to pay for a certain
- * quantity of a given product.
- *
- * @param product product
- * @param quantity quantity of product
- * @returns the price to pay
- */
-export const computeTotalPrice = (product: Product, quantity: number ) => {
-    return product?.price * quantity;
 };
 
 export const useTransactionHistory = (account: Account) => {

@@ -1,8 +1,5 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, FilledInput, FormControl, InputAdornment, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import React, { Dispatch, SetStateAction, useState } from 'react';
-import { useProductMaker } from '../lib/firestoreHooks';
-import { SelectChangeEvent } from '@mui/material/Select/SelectInput';
-import { Product, productType } from '../lib/products';
+import { Box, Dialog, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
+import React, { Dispatch, SetStateAction } from 'react';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
 
