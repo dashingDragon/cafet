@@ -105,9 +105,9 @@ const AccountList = () => {
                     },
                     '& .bankrupt': {
                         color: 'white',
-                        bgcolor: (theme) => theme.palette.mode === 'light' ? theme.palette.error.main : theme.palette.error.main,
+                        bgcolor: (theme) => theme.palette.mode === 'light' ? theme.palette.error.light : theme.palette.error.main,
                         '&:hover': {
-                            bgcolor: (theme) => darken(theme.palette.error.main, 0.2),
+                            bgcolor: (theme) => theme.palette.mode === 'light' ? theme.palette.error.main : theme.palette.error.light,
                         },
                         '* > .MuiSvgIcon-root': {
                             color: 'white',

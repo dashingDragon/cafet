@@ -21,8 +21,7 @@ export type Product = {
 export type ProductWithQty = {
     id: string;
     product: Product;
-    quantity: number;
-    size: string;
+    sizeWithQuantities: Record<string, number>;
 }
 
 export const productConverter: FirestoreDataConverter<Product> = {
@@ -65,16 +64,15 @@ export const productConverter: FirestoreDataConverter<Product> = {
 export const productWithQtyConverter: FirestoreDataConverter<ProductWithQty> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        const { product, quantity, size } = data;
+        const { product, sizeWithQuantities } = data;
         return {
             id: snapshot.id,
             product,
-            quantity,
-            size,
+            sizeWithQuantities,
         };
     },
     toFirestore: (productWithQty) => {
-        const { product, quantity, size } = productWithQty;
-        return { product: doc(getFirestore(), `products/${(product as Product).id}`), quantity, size };
+        const { product, sizeWithQuantities } = productWithQty;
+        return { product: doc(getFirestore(), `products/${(product as Product).id}`), sizeWithQuantities };
     },
 };

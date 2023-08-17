@@ -88,34 +88,34 @@ export const useCurrentStats = () => {
     const [drinksProfits, setDrinksProfits] = useState(0);
     const [snacksProfits, setSnacksProfits] = useState(0);
 
-    const [statsProducts] = useCurrentStatsForProducts();
+    // const [statsProducts] = useCurrentStatsForProducts();
 
-    useEffect(() => {
-        if (! statsProducts || !statsProducts.length) {
-            return;
-        }
-        let _servingsProfits = 0, _drinksProfits = 0, _snacksProfits = 0;
-        console.log(statsProducts);
+    // useEffect(() => {
+    //     if (! statsProducts || !statsProducts.length) {
+    //         return;
+    //     }
+    //     let _servingsProfits = 0, _drinksProfits = 0, _snacksProfits = 0;
+    //     console.log(statsProducts);
 
-        statsProducts.forEach(({ product, quantity, money }) => {
-            switch (product.type) {
-            case 'serving':
-                _servingsProfits += money;
-                break;
-            case 'drink':
-                _drinksProfits += money;
-                break;
-            case 'snack':
-                _snacksProfits += money;
-                break;
-            }
-        });
+    //     statsProducts.forEach(({ product, quantity, money }) => {
+    //         switch (product.type) {
+    //         case 'serving':
+    //             _servingsProfits += money;
+    //             break;
+    //         case 'drink':
+    //             _drinksProfits += money;
+    //             break;
+    //         case 'snack':
+    //             _snacksProfits += money;
+    //             break;
+    //         }
+    //     });
 
-        setServingsProfits(_servingsProfits);
-        setDrinksProfits(_drinksProfits);
-        setSnacksProfits(_snacksProfits);
-        setTotalProfits(_servingsProfits + _drinksProfits + _snacksProfits);
-    }, [statsProducts]);
+    //     setServingsProfits(_servingsProfits);
+    //     setDrinksProfits(_drinksProfits);
+    //     setSnacksProfits(_snacksProfits);
+    //     setTotalProfits(_servingsProfits + _drinksProfits + _snacksProfits);
+    // }, [statsProducts]);
 
     return [totalProfits, servingsProfits, drinksProfits, snacksProfits];
 };
@@ -126,114 +126,75 @@ export const useCurrentStats = () => {
  */
 export const useCurrentStatsForAccount = (account: Account) => {
     const db = getFirestore();
-    const products = useProducts();
-
-    const [totalExpense, setTotalExpense] = useState(0);
-    const [servingsExpense, setServingsExpense] = useState(0);
-    const [drinksExpense, setDrinksExpense] = useState(0);
-    const [snacksExpense, setSnacksExpense] = useState(0);
-
-    useEffect(() => {
-        const transactionOrder = query(
-            collection(db, `transactions`),
-            where('type', '==', TransactionType.Order),
-            where('customer.id', '==', account.id),
-        ).withConverter(transactionConverter);
-
-        return onSnapshot(transactionOrder, (snapshot) => {
-            const transactions = snapshot.docs.map((a) => a.data());
-
-            let _servingsExpense = 0, _drinksExpense = 0, _snacksExpense = 0;
-
-            // Setup map
-            const _productsStats = new Map();
-            products.forEach((p) => {
-                _productsStats.set(p.id, { product: p, quantity: 0, money: 0 });
-            });
-
-            // Fill it with the transactions
-            transactions.forEach((transaction) => {
-                const order = transaction as TransactionOrder;
-                console.log(order);
-                for (let i = 0; i < order.productsWithQty.length; i++) {
-                    const id = order.productsWithQty[i].product.id;
-                    if (_productsStats.has(id)) {
-                        const { product, quantity, money } = _productsStats.get(id);
-                        // _productsStats.set(id, {
-                        //   product,
-                        //   quantity: quantity + order.productsWithQty[i],
-                        //   money: money + order.productsWithQty[i].quantity * product.price,
-                        // });
-                        switch (product.type) {
-                        case 'serving':
-                            _servingsExpense += order.productsWithQty[i].quantity * product.price;
-                            break;
-                        case 'drink':
-                            _drinksExpense += order.productsWithQty[i].quantity * product.price;
-                            break;
-                        case 'snack':
-                            _snacksExpense += order.productsWithQty[i].quantity * product.price;
-                            break;
-                        }
-                    }
-                }
-            });
-
-            console.log(_drinksExpense);
-            setServingsExpense(_servingsExpense);
-            setDrinksExpense(_drinksExpense);
-            setSnacksExpense(_snacksExpense);
-            setTotalExpense(_servingsExpense + _drinksExpense + _snacksExpense);
-
-        });
-    }, [account.id, db, products]);
-
-    return [totalExpense, servingsExpense, drinksExpense, snacksExpense];
-};
-
-export const useCurrentStatsForProducts = () => {
-    const db = getFirestore();
-    const products = useProducts();
-
-    const [productsStats, setProductsStats] = useState(new Map<string, { product: Product, quantity: number, money: number }>());
+    const [stats, setStats] = useState<{
+        totalMoneySpent: number;
+        servingsOrdered: number;
+        drinksOrdered: number;
+        snacksOrdered: number;
+    }>({
+        totalMoneySpent: 0,
+        servingsOrdered: 0,
+        drinksOrdered: 0,
+        snacksOrdered: 0,
+    });
 
     useEffect(() => {
-        const transactionOrder = query(
-            collection(db, `transactions`),
-            where('type', '==', TransactionType.Order),
-        ).withConverter(transactionConverter);
+        const q = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
+        return onSnapshot(q, (snapshot) => {
+            const accountData = snapshot.data();
+            if (accountData) {
+                setStats(accountData.stats);
+            }
 
-        return onSnapshot(transactionOrder, (snapshot) => {
-            const transactions = snapshot.docs.map((a) => a.data());
-
-            // Setup map
-            const _productsStats = new Map();
-            products.forEach((p) => {
-                _productsStats.set(p.id, { product: p, quantity: 0, money: 0 });
-            });
-
-            // Fill it with the transactions
-            transactions.forEach((transaction) => {
-                const order = transaction as TransactionOrder;
-                for (let i = 0; i < order.productsWithQty.length; i++) {
-                    const id = order.productsWithQty[i].product.id;
-                    if (_productsStats.has(id)) {
-                        const { product, quantity, money } = _productsStats.get(id);
-                        _productsStats.set(id, {
-                            product,
-                            quantity: quantity + order.productsWithQty[i],
-                            money: money + order.productsWithQty[i].quantity * product.price,
-                        });
-                    }
-                }
-            });
-
-            setProductsStats(_productsStats);
         });
-    }, [db, products]);
+    }, [db, account]);
 
-    return [Array.from(productsStats.values())];
+    return stats;
 };
+
+// export const useCurrentStatsForProducts = () => {
+//     const db = getFirestore();
+//     const products = useProducts();
+
+//     const [productsStats, setProductsStats] = useState(new Map<string, { product: Product, quantity: number, money: number }>());
+
+//     useEffect(() => {
+//         const transactionOrder = query(
+//             collection(db, `transactions`),
+//             where('type', '==', TransactionType.Order),
+//         ).withConverter(transactionConverter);
+
+//         return onSnapshot(transactionOrder, (snapshot) => {
+//             const transactions = snapshot.docs.map((a) => a.data());
+
+//             // Setup map
+//             const _productsStats = new Map();
+//             products.forEach((p) => {
+//                 _productsStats.set(p.id, { product: p, quantity: 0, money: 0 });
+//             });
+
+//             // Fill it with the transactions
+//             transactions.forEach((transaction) => {
+//                 const order = transaction as TransactionOrder;
+//                 for (let i = 0; i < order.productsWithQty.length; i++) {
+//                     const id = order.productsWithQty[i].product.id;
+//                     if (_productsStats.has(id)) {
+//                         const { product, quantity, money } = _productsStats.get(id);
+//                         _productsStats.set(id, {
+//                             product,
+//                             quantity: quantity + order.productsWithQty[i],
+//                             money: money + order.productsWithQty[i].quantity * product.price,
+//                         });
+//                     }
+//                 }
+//             });
+
+//             setProductsStats(_productsStats);
+//         });
+//     }, [db, products]);
+
+//     return [Array.from(productsStats.values())];
+// };
 
 // =================== Accounts stuff
 /**
@@ -294,6 +255,12 @@ export const useAccountMaker = () => {
             lastName,
             school,
             balance: 0,
+            stats: {
+                totalMoneySpent: 0,
+                servingsOrdered: 0,
+                drinksOrdered: 0,
+                snacksOrdered: 0,
+            },
         });
     };
 };

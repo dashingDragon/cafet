@@ -14,16 +14,6 @@ const staffConverter = externalStaffConverter as unknown as FirestoreDataConvert
 
 admin.initializeApp();
 
-const computeTotalPrice = (price: number, quantity: number ) => {
-    if (quantity <= 0) {
-        throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
-    }
-    if (price <= 0) {
-        throw new functions.https.HttpsError('invalid-argument', 'Price must be positive.');
-    }
-    return price * quantity;
-};
-
 const checkIfConnected = async (uid: string | undefined) => {
     if (!uid) {
         throw new functions.https.HttpsError('unauthenticated', 'You need to be connected.');
@@ -98,30 +88,46 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     const {account, productsWithQty} = (data as MakeTransactionPayload);
     const accountRef = db.doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
     const accountData = (await accountRef.get()).data();
-
-    let priceProducts = 0;
+    if (!accountData) {
+        throw new functions.https.HttpsError('not-found', 'Account not found');
+    }
 
     // Compute price, check user provision and check availability of products.
+    let priceProducts = 0;
+    const quantityOrdered = {
+        'serving': 0,
+        'drink': 0,
+        'snack': 0,
+    };
     for (let i = 0; i < productsWithQty.length; i++) {
-        const productSnapshot = await db.doc(`products/${productsWithQty[i].product.id}`).withConverter(productConverter as unknown as FirestoreDataConverter<Product>).get();
+        const productWithQtySize = productsWithQty[i];
+
+        // Do not trust user product price, check with db
+        const productSnapshot = await db.doc(`products/${productWithQtySize.product.id}`)
+            .withConverter(productConverter as unknown as FirestoreDataConverter<Product>)
+            .get();
         const productData = productSnapshot.data();
         if (!productData) {
             throw new functions.https.HttpsError('not-found', 'Product not found.');
         }
-        // Do not trust user product price
-        priceProducts += computeTotalPrice(productData.price, productsWithQty[i].quantity);
-
-        if (productData.stock && productData.stock < productsWithQty[i].quantity) {
-            throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');
-        }
-
         if (!productData.isAvailable) {
             throw new functions.https.HttpsError('unavailable', 'Product is unavailable');
         }
-    }
 
-    if (!accountData) {
-        throw new functions.https.HttpsError('not-found', 'Account not found');
+        Object.entries(productWithQtySize.sizeWithQuantities).forEach(([size, quantity]) => {
+            // Check user input.
+            if (quantity < 0) {
+                throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
+            }
+            if (!Object.keys(productData.sizeWithPrices).includes(size)) {
+                throw new functions.https.HttpsError('invalid-argument', 'Size must exist for given product.');
+            }
+            if (productData.stock && productData.stock < quantity) {
+                throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');
+            }
+            priceProducts += productData.sizeWithPrices[size] * quantity;
+            quantityOrdered[productWithQtySize.product.type] += quantity;
+        });
     }
 
     if (priceProducts > accountData.balance) {
@@ -156,14 +162,20 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         }
         if (productData.stock) {
             batch.update(productRef, {
-                stock: productData.stock - productsWithQty[i].quantity,
+                stock: productData.stock - Object.values(productsWithQty[i].sizeWithQuantities).reduce((a, b) => a + b),
             });
         }
     }
 
-    // Update balance. // TODO stats
+    // Update balance.
     batch.update(accountRef, {
         balance: account.balance - priceProducts,
+        stats: {
+            totalMoneySpent: account.stats.totalMoneySpent += priceProducts,
+            servingsOrdered: account.stats.servingsOrdered += quantityOrdered['serving'],
+            drinksOrdered: account.stats.drinksOrdered += quantityOrdered['drink'],
+            snacksOrdered: account.stats.snacksOrdered += quantityOrdered['snack'],
+        },
     });
 
     try {

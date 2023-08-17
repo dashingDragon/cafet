@@ -50,7 +50,7 @@ const createThemeMode = (mode: PaletteMode) => {
     };
 
     theme.typography.h5 = {
-        fontSize: '24px',
+        fontSize: '20px',
         fontWeight: 700,
         fontFamily: `"Poppins", "sans-serif"`,
     };

@@ -71,8 +71,6 @@ const IngredientItem: React.FC<{
                     })}
                 />
 
-
-
                 {hasContents && (
                     <CardContent>
                         {ingredient.allergen  && (

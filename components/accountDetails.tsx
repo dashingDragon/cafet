@@ -214,30 +214,30 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
 };
 
 const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
-    const [totalExpense, servingsExpense, drinksExpense, snacksExpense] = useCurrentStatsForAccount(account);
+    const {totalMoneySpent, servingsOrdered, drinksOrdered, snacksOrdered} = useCurrentStatsForAccount(account);
 
     const rows = [
         [
             {
                 icon: <LunchDining />,
-                value: formatMoney(servingsExpense),
-                text: 'Sous-total des plats',
+                value: servingsOrdered,
+                text: 'Plats commandés',
             },
             {
                 icon: <Coffee />,
-                value: formatMoney(drinksExpense),
-                text: 'Sous-total des boissons',
+                value: drinksOrdered,
+                text: 'Boissons commandées',
             },
             {
                 icon: <Cookie />,
-                value: formatMoney(snacksExpense),
-                text: 'Sous-total des snacks',
+                value: snacksOrdered,
+                text: 'Snacks commandés',
             },
         ],
         [
             {
                 icon: <Euro />,
-                value: formatMoney(totalExpense),
+                value: formatMoney(totalMoneySpent),
                 text: 'Total dépensé',
             },
         ],

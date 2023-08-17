@@ -16,7 +16,7 @@ import { Product } from '../lib/products';
 import IngredientDialog from '../components/ingredientDialog';
 import { Ingredient } from '../lib/ingredients';
 
-const ProductPage: NextPage = () => {
+const ProductListPage: NextPage = () => {
     useGuardIsConnected();
     const products = useProducts();
     const ingredients = useIngredients();
@@ -95,4 +95,4 @@ const ProductPage: NextPage = () => {
     );
 };
 
-export default ProductPage;
+export default ProductListPage;

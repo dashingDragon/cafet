@@ -21,22 +21,34 @@ export type Account = {
     lastName: string;
     school: School;
     balance: number;
+    stats: {
+        totalMoneySpent: number;
+        servingsOrdered: number;
+        drinksOrdered: number;
+        snacksOrdered: number;
+    }
 };
 
 export const accountConverter: FirestoreDataConverter<Account> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        const { firstName, lastName, school, balance } = data;
+        const { firstName, lastName, school, balance, stats: {totalMoneySpent, servingsOrdered, drinksOrdered, snacksOrdered} } = data;
         return {
             id: snapshot.id,
             firstName,
             lastName,
             school,
             balance,
+            stats: {
+                totalMoneySpent,
+                servingsOrdered,
+                drinksOrdered,
+                snacksOrdered,
+            },
         };
     },
     toFirestore: (account) => {
-        const { firstName, lastName, school, balance } = account;
-        return { firstName, lastName, school, balance };
+        const { firstName, lastName, school, balance, stats } = account;
+        return { firstName, lastName, school, balance, stats };
     },
 };
