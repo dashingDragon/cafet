@@ -1,4 +1,4 @@
-import { ChevronRight } from '@mui/icons-material';
+import { ChevronRight, ShoppingBasket } from '@mui/icons-material';
 import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
@@ -53,16 +53,6 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     const [total, setTotal] = useState(0);
     const [nbItems, setNbItems] = useState(0);
 
-    // useEffect(() => {
-    //     const _basket = new Map();
-    //     products.forEach((s) => {
-    //         const _quantities = new Map();
-    //         (s.sizeWithPrices)
-    //         _basket.set(s.id, { product: s, quantity: 0 });
-    //     });
-    //     setBasket(_basket);
-    // }, [products]);
-
     useEffect(() => {
         let priceProducts = 0;
 
@@ -106,6 +96,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                         }}
                     >
                         <Box width="100%" display="flex" justifyContent="space-between" alignItems="center" title="Payer">
+                            <ShoppingBasket />
                             <Typography variant="h6">Panier: <strong>{formatMoney(total)}</strong></Typography>
                             <ChevronRight fontSize="large" sx={{ height: '40px', width: '40px' }} />
                         </Box>

@@ -7,6 +7,7 @@ import { Account } from '../lib/accounts';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { useProducts } from '../lib/firestoreHooks';
 import { useState } from 'react';
+import { OrderItemLine } from './orderList';
 
 const BasketModal: React.FC<{
     open: boolean,
@@ -78,9 +79,17 @@ const BasketModal: React.FC<{
                             />
                         ))}
                     </Stack>
-                    <Button variant="contained" onClick={makeOrder}>
-                        Commander
-                    </Button>
+                    <Box m={2}>
+                        {Array.from(basket.values()).map((productWithQty) => (
+                            Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
+                                (quantity > 0 && <OrderItemLine productWithQty={productWithQty} quantity={quantity} size={size} /> ))))
+                        }
+                    </Box>
+                    <Box m={2} display="flex" justifyContent={'flex-end'}>
+                        <Button variant="contained" onClick={makeOrder}>
+                            Commander
+                        </Button>
+                    </Box>
                 </>
             </Box>
         </Modal>

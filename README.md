@@ -40,6 +40,7 @@ Here is the TODO-list of the project, for the staff-side app :
 - [ ] add more icons and colors
 - [ ] add collapse in products page
 - [ ] make a backup script for the database
+- [ ] add cancel order button
 
 For the customer-side app :
 - [ ] show current order for user

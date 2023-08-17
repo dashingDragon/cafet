@@ -4,6 +4,37 @@ import React, { useState } from 'react';
 import { formatDate, formatMoney } from './accountDetails';
 import { useUpdateOrderStatus } from '../lib/firestoreHooks';
 import {CheckCircle, Timelapse} from '@mui/icons-material';
+import { ProductWithQty } from '../lib/products';
+
+export const OrderItemLine: React.FC<{productWithQty: ProductWithQty, quantity: number, size: string, showIngredients?: boolean}> = ({ productWithQty, quantity, size, showIngredients }) => {
+    if (productWithQty.product.type === 'serving') {
+        return (
+            <>
+                <Stack key={productWithQty.product.name} direction="row" justifyContent={'space-between'}>
+                    <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
+                        {quantity} x {productWithQty.product.name}: <strong>{size}</strong>
+                    </Typography>
+                    <Typography variant="body2">{formatMoney(quantity * productWithQty.product.sizeWithPrices[size])}</Typography>
+                </Stack>
+                {showIngredients && productWithQty.product.ingredients && productWithQty.product.ingredients.map((ingredient) =>
+                    <Stack key={ingredient.name} direction="row" justifyContent={'space-between'} pl={'8px'}>
+                        <Typography variant="body1">· {ingredient.name}</Typography>
+                        {ingredient.price > 0 && <Typography variant="body2">+{formatMoney(ingredient.price)}</Typography>}
+                    </Stack>
+                )}
+            </>
+        );
+    } else {
+        return (
+            <Stack key={productWithQty.product.name} direction="row" justifyContent={'space-between'}>
+                <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
+                    {quantity} x {productWithQty.product.name}: {size}
+                </Typography>
+                <Typography variant="body2">{formatMoney(quantity * productWithQty.product.sizeWithPrices[size])}</Typography>
+            </Stack>
+        );
+    }
+};
 
 const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, number}) => {
     const setOrderStatus = useUpdateOrderStatus();
@@ -27,12 +58,10 @@ const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, numbe
                 </Box>
 
                 <Box mb={2}>
-                    {(order as TransactionOrder).productsWithQty.map((productWithQty) =>
-                        <Stack key={productWithQty.product.name} direction="row" justifyContent={'space-between'}>
-                            <Typography variant="body1">{productWithQty.product.name} x {productWithQty.quantity}</Typography>
-                            <Typography variant="body2">{formatMoney(productWithQty.quantity * productWithQty.product.sizeWithPrices[productWithQty.size])}</Typography>
-                        </Stack>
-                    )}
+                    {(order as TransactionOrder).productsWithQty.map((productWithQty) => (
+                        Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
+                            (quantity > 0 && <OrderItemLine productWithQty={productWithQty} quantity={quantity} size={size} showIngredients /> ))))
+                    }
                 </Box>
 
                 <Box display="flex" justifyContent="flex-end" flexDirection={'row'}>

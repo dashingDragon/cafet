@@ -1,9 +1,11 @@
-import { Add, FileCopy, Print, Save, Share } from '@mui/icons-material';
-import { Box, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Menu, MenuItem, SelectChangeEvent, Typography } from '@mui/material';
+import { Add } from '@mui/icons-material';
+import { Box, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { getIngredientPrice } from '../lib/ingredients';
 import { Product, ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
+import { imageLoader } from '../pages/_app';
+import Image from 'next/image';
 
 export const ShortProductCard: React.FC<{
     product: Product,
@@ -56,7 +58,7 @@ export const ShortProductCard: React.FC<{
     const isReallyAvailable = product.isAvailable && !isOutOfStock;
 
     return (
-        <Card key={product.name} sx={{
+        <Card variant={isReallyAvailable ? 'elevation' : 'outlined'} sx={{
             width: 350,
             position: 'relative',
             borderRadius: '20px',
@@ -88,13 +90,29 @@ export const ShortProductCard: React.FC<{
                 />
             </Box>
             <CardHeader
-                title={product.name}
+                title={
+                    <>
+                        {product.name}
+                        {(product.isVege || product.isVegan) && product.type === 'serving' && (
+                            <Image
+                                loader={imageLoader}
+                                src={'../../svg/leaf.png'}
+                                alt={'Vege'}
+                                height={36}
+                                width={36}
+                                className={'icon'}
+                            />
+                        )}
+                    </>
+                }
                 subheader={
                     product.sizeWithPrices
                         ? Object.entries(product.sizeWithPrices)
                             .map(([size, price], i) => (
                                 <span key={size}>
-                                    {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))} {i < Object.entries(product.sizeWithPrices).length - 1 && ' · '}</strong>
+                                    {size}: <strong>
+                                        {formatMoney(price + getIngredientPrice(product.ingredients))} {i < Object.entries(product.sizeWithPrices).length - 1 && ' · '}
+                                    </strong>
                                 </span>
                             ))
                         : ''
@@ -117,8 +135,6 @@ export const ShortProductCard: React.FC<{
                         {product.description}
                     </Typography>
                 )}
-
-
             </CardContent>
 
             {/* Add and remove buttons */}
@@ -128,10 +144,15 @@ export const ShortProductCard: React.FC<{
                 flexWrap: 'wrap',
                 spacing: 0,
                 px: '24px',
-                paddingRight: '8px',
+                gap: '8px',
+                paddingRight: '16px',
+                paddingBottom: '16px',
                 '& > :not(:first-of-type)': {
-                    // TODO
+                    ml: 0,
                 },
+                // '& > :not(:last-of-type)': {
+                //     mr: '8px',
+                // },
             }}>
                 {product.allergen  && (
                     <Chip
@@ -191,7 +212,7 @@ export const ShortProductCard: React.FC<{
                     }}
                 />
                 <IconButton sx={{
-                    background: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 43%, 1)',
+                    background: 'hsla(145, 28%, 43%, 1)',
                     color: 'white',
                     ml: 'auto',
                 }} onClick={handleOpenMenu}>
@@ -205,7 +226,7 @@ export const ShortProductCard: React.FC<{
                 >
                     {product.sizeWithPrices ? Object.entries(product.sizeWithPrices).map(([size, price]) =>
                         <MenuItem key={size} onClick={() => addToBasket(size)}>
-                            {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))}</strong>
+                            {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))}</strong>
                         </MenuItem>
                     ) : null}
                 </Menu>

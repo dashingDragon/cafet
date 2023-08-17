@@ -1,15 +1,19 @@
-import { Add, Remove } from '@mui/icons-material';
-import { Box, CardMedia, IconButton, Stack, Typography } from '@mui/material';
+import { Add, Clear, Remove } from '@mui/icons-material';
+import { Box, Button, ButtonGroup, CardMedia, Dialog, DialogActions, DialogTitle, IconButton, Stack, Typography, useTheme } from '@mui/material';
 import { ProductWithQty } from '../lib/products';
 import React, { useState } from 'react';
 import { getIngredientPrice } from '../lib/ingredients';
 import { formatMoney } from './accountDetails';
+import { imageLoader } from '../pages/_app';
+import Image from 'next/image';
 
 const MiniProductCard: React.FC<{
     productWithQty: ProductWithQty,
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
 }> = ({ productWithQty, basket, setBasket }) => {
+    const theme = useTheme();
+
     const addQuantity = (size: string) => {
         const basketItem = basket.get(productWithQty.product.id);
         if (basketItem) {
@@ -18,18 +22,25 @@ const MiniProductCard: React.FC<{
         }
     };
 
-    // TODO
     const removeQuantity = (size: string) => {
-        // if (quantity) {
-        //     setQuantity(quantity - 1);
-        //     const productWithQty = basket.get(product.id);
-        //     if (productWithQty) {
-        //         setBasket(new Map(basket.set(product.id, {
-        //             product: productWithQty.product,
-        //             quantity: productWithQty.quantity - 1,
-        //         } as ProductWithQty)));
-        //     }
-        // }
+        const basketItem = basket.get(productWithQty.product.id);
+        if (basketItem) {
+            basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] - 1,
+            setBasket(new Map(basket.set(basketItem.product.id, basketItem)));
+        }
+    };
+
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+    const handleDeleteBasketItem = async () => {
+        basket.delete(productWithQty.product.id);
+        setBasket(new Map(basket));
+        setDeleteDialogOpen(false);
+    };
+
+    const handleOpenDeleteDialog = (event: React.MouseEvent) => {
+        event.stopPropagation();
+        setDeleteDialogOpen(true);
     };
 
     return (
@@ -48,27 +59,63 @@ const MiniProductCard: React.FC<{
                 />
             </Box>
             <Stack direction="column">
-                <Typography variant="h5" >
-                    {productWithQty.product.name}
-                </Typography>
+                <Stack direction="row" spacing={'16px'} width='100%' justifyContent={'space-between'}>
+                    <Typography variant="h5" >
+                        {productWithQty.product.name}
+                    </Typography>
+                    {(productWithQty.product.isVege || productWithQty.product.isVegan) && productWithQty.product.type === 'serving' && (
+                        <Image
+                            loader={imageLoader}
+                            src={'../../svg/leaf.png'}
+                            alt={'Vege'}
+                            height={36}
+                            width={36}
+                            className={'icon'}
+                        />
+                    )}
+                    <IconButton color='primary' onClick={handleOpenDeleteDialog}>
+                        <Clear />
+                    </IconButton>
+                </Stack>
+
                 {Object.entries(productWithQty.product.sizeWithPrices).map(([size, price]) => (
-                    <React.Fragment key={size}>
+                    <Stack direction="row" m={'8px'} key={size} justifyContent={'space-between'} width="100%">
                         <Typography>
                             {size}: <strong>{formatMoney(price + getIngredientPrice(productWithQty.product.ingredients))}</strong>
                         </Typography>
-                        <Stack direction="row">
-                            <IconButton onClick={() => removeQuantity(size)} disabled={!productWithQty.product.isAvailable || !productWithQty.sizeWithQuantities[size]} title="Retirer du panier">
+                        <ButtonGroup variant={theme.palette.mode === 'light' ? 'outlined' : 'contained'} sx={{ borderRadius: '10px', overflow: 'hidden' }}>
+                            <Button
+                                sx={{ borderRadius: '10px'}}
+                                onClick={() => removeQuantity(size)}
+                                disabled={!productWithQty.product.isAvailable || !productWithQty.sizeWithQuantities[size]}
+                                title="Retirer du panier"
+                            >
                                 <Remove />
-                            </IconButton>
-                            <span>{productWithQty.sizeWithQuantities[size]}</span>
-                            <IconButton onClick={() => addQuantity(size)} title="Ajouter au panier">
+                            </Button>
+                            <Button sx={{ '&:hover': { cursor: 'auto' }}}>
+                                {productWithQty.sizeWithQuantities[size]}
+                            </Button>
+                            <Button
+                                sx={{ borderRadius: '10px'}}
+                                onClick={() => addQuantity(size)}
+                                title="Ajouter au panier"
+                            >
                                 <Add />
-                            </IconButton>
-                        </Stack>
-                    </React.Fragment>
+                            </Button>
+                        </ButtonGroup>
+                    </Stack>
                 ))}
-
             </Stack>
+            {/* Delete ingredient dialog */}
+            <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
+                <DialogTitle>
+                    {'Êtes-vous sûr de vouloir supprimer produit du panier ?'}
+                </DialogTitle>
+                <DialogActions>
+                    <Button onClick={() => setDeleteDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Non</Button>
+                    <Button onClick={handleDeleteBasketItem} color="error" variant="contained" sx={{ color: 'white' }}>Oui</Button>
+                </DialogActions>
+            </Dialog>
         </Stack>
     );
 };

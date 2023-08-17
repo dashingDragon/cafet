@@ -571,7 +571,7 @@ export const useTodaysOrders = () => {
     startOfDay.setHours(7, 0, 0, 0);
 
     const endOfDay = new Date();
-    endOfDay.setHours(11, 30, 0, 0);
+    endOfDay.setHours(23, 30, 0, 0);
 
     useEffect(() => {
         const transactionQuery = query(
