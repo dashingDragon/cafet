@@ -5,9 +5,9 @@ import MiniProductCard from './miniProductCard';
 import { useRouter } from 'next/router';
 import { Account } from '../lib/accounts';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
-import { useProducts } from '../lib/firestoreHooks';
 import { useState } from 'react';
 import { OrderItemLine } from './orderList';
+import { formatMoney } from './accountDetails';
 
 const BasketModal: React.FC<{
     open: boolean,
@@ -15,9 +15,9 @@ const BasketModal: React.FC<{
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
     account: Account,
-}> = ({open, setBasketOpen, basket, setBasket, account}) => {
+    priceLimit: number,
+}> = ({open, setBasketOpen, basket, setBasket, account, priceLimit }) => {
     const router = useRouter();
-    const products = useProducts();
     const makeTransaction = useMakeTransaction();
     const [loading, setLoading] = useState(false);
 
@@ -76,6 +76,7 @@ const BasketModal: React.FC<{
                                 productWithQty={productWithQty}
                                 basket={basket}
                                 setBasket={setBasket}
+                                priceLimit={priceLimit}
                             />
                         ))}
                     </Stack>
@@ -84,9 +85,21 @@ const BasketModal: React.FC<{
                             Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
                                 (quantity > 0 && <OrderItemLine productWithQty={productWithQty} quantity={quantity} size={size} /> ))))
                         }
+                        {Array.from(basket.values()).length === 0 ? (
+                            <Typography variant='h3'>
+                                Votre panier est vide.
+                            </Typography>
+                        ) : (
+                            <Stack mt='16px' direction="row" justifyContent={'space-between'}>
+                                <Typography fontWeight='bold' variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
+                                    Total
+                                </Typography>
+                                <Typography variant="body2">{formatMoney(account.balance - priceLimit)}</Typography>
+                            </Stack>
+                        )}
                     </Box>
                     <Box m={2} display="flex" justifyContent={'flex-end'}>
-                        <Button variant="contained" onClick={makeOrder}>
+                        <Button variant="contained" onClick={makeOrder} disabled={Array.from(basket.values()).length === 0}>
                             Commander
                         </Button>
                     </Box>

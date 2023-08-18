@@ -9,6 +9,7 @@ import {FirestoreDataConverter} from '@google-cloud/firestore';
 import {MakeTransactionPayload, TransactionType} from '../../lib/transactions';
 import {Account, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/products';
+import {Stat, statConverter} from '../../lib/stats';
 
 const staffConverter = externalStaffConverter as unknown as FirestoreDataConverter<Staff>;
 
@@ -166,6 +167,21 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
             });
         }
     }
+
+    // Update the global stats
+    const statsRef = db.doc('stats/0').withConverter(statConverter as unknown as FirestoreDataConverter<Stat>);
+    const statsData = (await statsRef.get()).data();
+
+    if (!statsData) {
+        throw new functions.https.HttpsError('internal', 'Could not access global stats.');
+    }
+
+    batch.update(statsRef, {
+        totalMoneySpent: statsData.totalMoneySpent += priceProducts,
+        servingsOrdered: statsData.servingsOrdered += quantityOrdered['serving'],
+        drinksOrdered: statsData.drinksOrdered += quantityOrdered['drink'],
+        snacksOrdered: statsData.snacksOrdered += quantityOrdered['snack'],
+    });
 
     // Update balance.
     batch.update(accountRef, {

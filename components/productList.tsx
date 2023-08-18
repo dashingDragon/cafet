@@ -225,8 +225,17 @@ const ProductList: React.FC<{
                     <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
                     <Stack
                         direction={'row'}
-                        justifyContent={'center'}
-                        flexWrap={'wrap'}
+                        justifyContent={'flex-start'}
+                        sx={{
+                            overflowX: 'auto',
+                            scrollbarWidth: 'none',
+                            '&::-webkit-scrollbar': {
+                                display: 'none',
+                            },
+                            '&-ms-overflow-style:': {
+                                display: 'none',
+                            },
+                        }}
                         gap={4}
                         mb={5}
                     >

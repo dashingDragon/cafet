@@ -6,31 +6,31 @@ import { useCurrentStats } from '../lib/firestoreHooks';
 const formatMoney = (n: number) => (n / 100).toFixed(2) + ' €';
 
 const Stats: React.FC = () => {
-    const [totalProfits, servingsProfits, drinksProfits, snacksProfits] = useCurrentStats();
+    const stats = useCurrentStats();
 
     const rows = [
         [
             {
                 icon: <LunchDining />,
-                value: formatMoney(servingsProfits),
-                text: 'Vente des plats',
+                value: formatMoney(stats.servingsOrdered),
+                text: 'Plats vendus',
             },
             {
                 icon: <Coffee />,
-                value: formatMoney(drinksProfits),
-                text: 'Vente des boissons',
+                value: formatMoney(stats.drinksOrdered),
+                text: 'Boissons vendues',
             },
             {
                 icon: <Cookie />,
-                value: formatMoney(snacksProfits),
-                text: 'Vente des snacks',
+                value: formatMoney(stats.snacksOrdered),
+                text: 'Snacks vendus',
             },
         ],
         [
             {
                 icon: <Euro />,
-                value: formatMoney(totalProfits),
-                text: 'Total vendu',
+                value: formatMoney(stats.totalMoneySpent),
+                text: 'Recettes totales',
             },
         ],
     ] as const;
@@ -38,7 +38,7 @@ const Stats: React.FC = () => {
     return (
         <Card>
             <CardContent>
-                <Typography variant="h5" sx={{ pb: 2 }}>Statistiques</Typography>
+                <Typography variant="h5" sx={{ pb: 2 }}>Statistiques globales</Typography>
                 {/* For each row */}
                 {rows.map((row, i) =>
                     <Box key={i} display="flex" justifyContent="space-around" flexDirection={'column'}>

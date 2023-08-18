@@ -6,6 +6,7 @@ import { Staff, staffConverter } from './staffs';
 import { Transaction, TransactionOrder, TransactionRecharge, TransactionType, transactionConverter } from './transactions';
 import { Product, ProductWithQty, productConverter, productType } from './products';
 import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients } from './ingredients';
+import { Stat, statConverter } from './stats';
 
 // =================== Staff stuff
 /**
@@ -83,41 +84,26 @@ export const useSetStaffAvailability = () => {
 export const useCurrentStats = () => {
     const db = getFirestore();
 
-    const [totalProfits, setTotalProfits] = useState(0);
-    const [servingsProfits, setServingsProfits] = useState(0);
-    const [drinksProfits, setDrinksProfits] = useState(0);
-    const [snacksProfits, setSnacksProfits] = useState(0);
+    const [stats, setStats] = useState<Stat>({
+        id: '0',
+        totalMoneySpent: 0,
+        servingsOrdered: 0,
+        drinksOrdered: 0,
+        snacksOrdered: 0,
+    });
 
-    // const [statsProducts] = useCurrentStatsForProducts();
+    useEffect(() => {
+        const q = doc(db, `stats/0`).withConverter(statConverter);
+        return onSnapshot(q, (snapshot) => {
+            const stats = snapshot.data();
+            if (stats) {
+                setStats(stats);
+            }
 
-    // useEffect(() => {
-    //     if (! statsProducts || !statsProducts.length) {
-    //         return;
-    //     }
-    //     let _servingsProfits = 0, _drinksProfits = 0, _snacksProfits = 0;
-    //     console.log(statsProducts);
+        });
+    }, [db, stats]);
 
-    //     statsProducts.forEach(({ product, quantity, money }) => {
-    //         switch (product.type) {
-    //         case 'serving':
-    //             _servingsProfits += money;
-    //             break;
-    //         case 'drink':
-    //             _drinksProfits += money;
-    //             break;
-    //         case 'snack':
-    //             _snacksProfits += money;
-    //             break;
-    //         }
-    //     });
-
-    //     setServingsProfits(_servingsProfits);
-    //     setDrinksProfits(_drinksProfits);
-    //     setSnacksProfits(_snacksProfits);
-    //     setTotalProfits(_servingsProfits + _drinksProfits + _snacksProfits);
-    // }, [statsProducts]);
-
-    return [totalProfits, servingsProfits, drinksProfits, snacksProfits];
+    return stats;
 };
 
 /**

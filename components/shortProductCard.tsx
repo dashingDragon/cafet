@@ -11,11 +11,9 @@ export const ShortProductCard: React.FC<{
     product: Product,
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
-    disabled: boolean,
-}> = ({ product, basket, setBasket, disabled }) => {
+    priceLimit: number,
+}> = ({ product, basket, setBasket, priceLimit }) => {
     const [quantity, setQuantity] = useState(0);
-    const [canAdd, setCanAdd] = useState(false);
-    const [selectedSize, setSelectedSize] = useState('');
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -48,11 +46,6 @@ export const ShortProductCard: React.FC<{
         handleCloseMenu();
     };
 
-    useEffect(() => {
-        setCanAdd(product.stock !== undefined ? product.isAvailable && product.stock > 0 && product.stock - quantity > 0 : product.isAvailable);
-    }, [product.isAvailable, product.stock, quantity]);
-
-
     const isOutOfStock = product.stock === 0;
 
     const isReallyAvailable = product.isAvailable && !isOutOfStock;
@@ -60,8 +53,11 @@ export const ShortProductCard: React.FC<{
     return (
         <Card variant={isReallyAvailable ? 'elevation' : 'outlined'} sx={{
             width: 350,
+            minWidth: 350,
             position: 'relative',
             borderRadius: '20px',
+            display: 'flex',
+            flexDirection: 'column',
         }}>
 
             <Box sx={{
@@ -147,12 +143,10 @@ export const ShortProductCard: React.FC<{
                 gap: '8px',
                 paddingRight: '16px',
                 paddingBottom: '16px',
+                mt: 'auto',
                 '& > :not(:first-of-type)': {
                     ml: 0,
                 },
-                // '& > :not(:last-of-type)': {
-                //     mr: '8px',
-                // },
             }}>
                 {product.allergen  && (
                     <Chip
@@ -211,7 +205,7 @@ export const ShortProductCard: React.FC<{
                         fontWeight: 700,
                     }}
                 />
-                <IconButton sx={{
+                <IconButton disabled={!isReallyAvailable} sx={{
                     background: 'hsla(145, 28%, 43%, 1)',
                     color: 'white',
                     ml: 'auto',
@@ -225,7 +219,7 @@ export const ShortProductCard: React.FC<{
                     onClose={handleCloseMenu}
                 >
                     {product.sizeWithPrices ? Object.entries(product.sizeWithPrices).map(([size, price]) =>
-                        <MenuItem key={size} onClick={() => addToBasket(size)}>
+                        <MenuItem key={size} onClick={() => addToBasket(size)} disabled={price > priceLimit}>
                             {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))}</strong>
                         </MenuItem>
                     ) : null}

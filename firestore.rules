@@ -7,7 +7,7 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-     match /transactions/{document=**} {
+    match /transactions/{document=**} {
       allow read, create, update: if isStaff();
       allow delete: if isAdmin();
     }
@@ -26,6 +26,10 @@ service cloud.firestore {
       allow read: if isStaff();
       allow create, update: if isAdmin();
       allow delete: if false;
+    }
+
+    match /stats/{document=**} {
+      allow read, create, update, delete: if isAdmin();
     }
 
     function isLoggedIn() {

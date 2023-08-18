@@ -14,8 +14,8 @@ import BasketModal from './basketModal';
 const ProductShortCardList: React.FC<{
   basket: Map<string, ProductWithQty>,
   setBasket: (m: Map<string, ProductWithQty>) => void,
-  limit: number
-}> = ({ basket, setBasket, limit }) => {
+  priceLimit: number,
+}> = ({ basket, setBasket, priceLimit }) => {
     const products = useProducts();
 
     return (
@@ -25,8 +25,17 @@ const ProductShortCardList: React.FC<{
                     <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
                     <Stack
                         direction={'row'}
-                        justifyContent={'center'}
-                        flexWrap={'wrap'}
+                        justifyContent={'flex-start'}
+                        sx={{
+                            overflowX: 'auto',
+                            scrollbarWidth: 'none',
+                            '&::-webkit-scrollbar': {
+                                display: 'none',
+                            },
+                            '&-ms-overflow-style:': {
+                                display: 'none',
+                            },
+                        }}
                         gap={4}
                         mb={5}
                     >
@@ -36,7 +45,7 @@ const ProductShortCardList: React.FC<{
                                 product={product}
                                 basket={basket}
                                 setBasket={setBasket}
-                                disabled={product.sizeWithPrices ? !Object.values(product.sizeWithPrices).some(value => value <= limit) : false}
+                                priceLimit={priceLimit}
                             />
                         ))}
                     </Stack>
@@ -80,7 +89,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     return (
         <>
             <Box m={'8px'} pb='64px'>
-                <ProductShortCardList basket={basket} setBasket={setBasket} limit={account.balance - total} />
+                <ProductShortCardList basket={basket} setBasket={setBasket} priceLimit={account.balance - total} />
             </Box>
             <Box m={'8px'}>
                 {total > 0 && (
@@ -103,7 +112,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                     </Button>
                 )}
             </Box>
-            <BasketModal open={basketOpen} setBasketOpen={setBasketOpen} basket={basket} setBasket={setBasket} account={account} />
+            <BasketModal open={basketOpen} setBasketOpen={setBasketOpen} basket={basket} setBasket={setBasket} account={account} priceLimit={account.balance - total} />
         </>
     );
 };

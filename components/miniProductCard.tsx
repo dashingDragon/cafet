@@ -11,7 +11,8 @@ const MiniProductCard: React.FC<{
     productWithQty: ProductWithQty,
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
-}> = ({ productWithQty, basket, setBasket }) => {
+    priceLimit: number,
+}> = ({ productWithQty, basket, setBasket, priceLimit }) => {
     const theme = useTheme();
 
     const addQuantity = (size: string) => {
@@ -99,6 +100,9 @@ const MiniProductCard: React.FC<{
                                 sx={{ borderRadius: '10px'}}
                                 onClick={() => addQuantity(size)}
                                 title="Ajouter au panier"
+                                disabled={price > priceLimit
+                                    || (productWithQty.product.stock !== undefined && productWithQty.sizeWithQuantities[size] >= productWithQty.product.stock)
+                                }
                             >
                                 <Add />
                             </Button>
