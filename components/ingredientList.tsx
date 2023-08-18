@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Box, Button, Card, CardActions, CardContent, CardHeader, Chip, Dialog, DialogActions, DialogTitle, IconButton,  List, Typography } from '@mui/material';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, Chip, Dialog, DialogActions, DialogTitle, IconButton,  List, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useIngredientDeleter, useStaffUser } from '../lib/firestoreHooks';
 import { Ingredient } from '../lib/ingredients';
@@ -45,7 +45,11 @@ const IngredientItem: React.FC<{
 
     return (
         <>
-            <Card variant={'elevation'}>
+            <Card variant={'elevation'} sx={{
+                width: 200,
+                position: 'relative',
+                borderRadius: '20px',
+            }}>
                 <CardHeader
                     title={
                         <>
@@ -63,10 +67,13 @@ const IngredientItem: React.FC<{
 
 
                         </>}
-                    subheader={ingredient.price ? formatMoney(ingredient.price) : ''}
+                    subheader={ingredient.price ? <strong>+{formatMoney(ingredient.price)}</strong> : ''}
                     sx={(theme) => ({
                         '.MuiCardHeader-title': {
                             color: theme.colors.main,
+                        },
+                        '.MuiCardHeader-subheader': {
+                            color: theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)',
                         },
                     })}
                 />
@@ -153,14 +160,44 @@ const IngredientList: React.FC<{
         <Box m={'16px'}>
             {Object.keys(categoryTranslation).map((category) => (
                 <React.Fragment key={category}>
-                    <Typography variant="h5">{categoryTranslation[category]}</Typography>
-                    <List>
+                    <Card sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        my: '16px',
+                        borderRadius: '20px',
+                        overflow: 'visible',
+                        px: '32px',
+                        height: '64px',
+                        background: theme => theme.palette.mode === 'light'
+                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
+                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
+                    }}>
+                        <Typography variant="h5">{categoryTranslation[category]}</Typography>
+                    </Card>
+                    <Stack
+                        direction={'row'}
+                        justifyContent={'flex-start'}
+                        sx={{
+                            overflowX: 'auto',
+                            scrollbarWidth: 'none',
+                            '&::-webkit-scrollbar': {
+                                display: 'none',
+                            },
+                            '&-ms-overflow-style:': {
+                                display: 'none',
+                            },
+                        }}
+                        gap={4}
+                        mt={2}
+                        mb={4}
+                    >
                         {ingredients.filter(p => p.category === category).map((ingredient) =>
                             <Box key={ingredient.id} mb={'16px'}>
                                 <IngredientItem ingredient={ingredient} setIngredientDialogOpen={setIngredientDialogOpen} setIngredient={setIngredient} />
                             </Box>
                         )}
-                    </List>
+                    </Stack>
                 </React.Fragment>
             ))}
         </Box>

@@ -46,7 +46,14 @@ const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, numbe
     };
 
     return (
-        <Card sx={{ marginBottom: 2, marginRight: 1, marginLeft: 1 }}>
+        <Card variant={(order as TransactionOrder).isReady ? 'outlined' : 'elevation'} sx={{
+            width: 350,
+            minWidth: 350,
+            position: 'relative',
+            borderRadius: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+        }}>
             <CardContent>
                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={2}>
                     <Typography variant="body1">
@@ -96,10 +103,10 @@ const OrderItem: React.FC<{order: Transaction, number: number}> = ({order, numbe
 
 export const OrderList: React.FC<{orders: Transaction[]}> = ({orders}) => {
     return (
-        <Box m='1'>
+        <Stack direction='column' gap='16px' alignItems={'center'}>
             {orders.sort((a, b) => +a.createdAt - +b.createdAt).map((order, i) => (
                 <OrderItem order={order} key={order.id} number={i + 1} />
             ))}
-        </Box>
+        </Stack>
     );
 };

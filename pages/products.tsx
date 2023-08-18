@@ -1,5 +1,5 @@
 import { Add } from '@mui/icons-material';
-import { Fab } from '@mui/material';
+import { Box, Card, Fab } from '@mui/material';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import ProductList from '../components/productList';
@@ -15,6 +15,8 @@ import { ProductDialog } from '../components/productDialog';
 import { Product } from '../lib/products';
 import IngredientDialog from '../components/ingredientDialog';
 import { Ingredient } from '../lib/ingredients';
+import Image from 'next/image';
+import { imageLoader } from './_app';
 
 const ProductListPage: NextPage = () => {
     useGuardIsConnected();
@@ -40,17 +42,17 @@ const ProductListPage: NextPage = () => {
                         ? <LoadingScreen />
                         : <>
                             <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>
+                                <ProductList
+                                    products={products}
+                                    setProductDialogOpen={setProductDialogOpen}
+                                    setProduct={setProduct}
+                                />
+                                <IngredientList
+                                    ingredients={ingredients}
+                                    setIngredientDialogOpen={setIngredientDialogOpen}
+                                    setIngredient={setIngredient}
+                                />
                                 <>
-                                    <ProductList
-                                        products={products}
-                                        setProductDialogOpen={setProductDialogOpen}
-                                        setProduct={setProduct}
-                                    />
-                                    <IngredientList
-                                        ingredients={ingredients}
-                                        setIngredientDialogOpen={setIngredientDialogOpen}
-                                        setIngredient={setIngredient}
-                                    />
                                     {staff?.isAdmin &&
                                         <Fab
                                             onClick={() => { setProduct(undefined); setIngredient(undefined); setPendingDialogOpen(true);}}
@@ -59,7 +61,8 @@ const ProductListPage: NextPage = () => {
                                                 position: 'fixed',
                                                 bottom: 70,
                                                 right: 50,
-                                            }}>
+                                            }}
+                                        >
                                             <Add />
                                         </Fab>
                                     }

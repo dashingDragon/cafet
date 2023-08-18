@@ -6,7 +6,9 @@ import { useGuardIsConnected } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useTodaysOrders } from '../lib/firestoreHooks';
 import { OrderList } from '../components/orderList';
-import { Typography } from '@mui/material';
+import { Box, Card, Stack, Typography } from '@mui/material';
+import Image from 'next/image';
+import { imageLoader } from './_app';
 
 const OrderPage: NextPage = () => {
     useGuardIsConnected();
@@ -24,12 +26,36 @@ const OrderPage: NextPage = () => {
                     {orders === undefined
                         ? <LoadingScreen />
                         : <>
-                            <FullHeightScrollableContainer sx={{ position: 'relative' }}>
-                                <>
-                                    <Typography variant="h5" m={1}>Commandes</Typography>
-                                    <OrderList orders={orders} />
-                                </>
-                            </FullHeightScrollableContainer>
+                            <Stack
+                                flexGrow={1}
+                                direction="column"
+                                pb={4}
+                                overflow='auto'
+                                maxHeight='100%'
+                            >
+                                <Card sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    margin: '16px',
+                                    borderRadius: '20px',
+                                    overflow: 'visible',
+                                    px: '32px',
+                                    background: theme => theme.palette.mode === 'light'
+                                        ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
+                                        : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
+                                }}>
+                                    <Typography variant="h5" >Commandes</Typography>
+                                    <Image
+                                        loader={imageLoader}
+                                        src={'/svg/cooking.svg'}
+                                        alt={'Success image'}
+                                        width={64}
+                                        height={64}
+                                    />
+                                </Card>
+                                <OrderList orders={orders} />
+                            </Stack>
                         </>
                     }
                 </PageLayout>

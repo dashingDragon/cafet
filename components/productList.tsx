@@ -219,10 +219,32 @@ const ProductList: React.FC<{
   setProduct: (p: Product) => void;
 }> = ({ products, setProductDialogOpen, setProduct }) => {
     return (
-        <Box m={'16px'}>
+        <Box mx={'16px'}>
             {Object.keys(typeTranslation).map((type) => (
                 <React.Fragment key={type}>
-                    <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
+                    <Card sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        my: '16px',
+                        borderRadius: '20px',
+                        overflow: 'visible',
+                        px: '32px',
+                        height: '64px',
+                        background: theme => theme.palette.mode === 'light'
+                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
+                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
+                    }}>
+                        <Typography variant="h5">{typeTranslation[type]}</Typography>
+                        {/* <Image
+                            loader={imageLoader}
+                            src={'/svg/cooking.svg'}
+                            alt={'Success image'}
+                            width={64}
+                            height={64}
+                        /> */}
+                    </Card>
+
                     <Stack
                         direction={'row'}
                         justifyContent={'flex-start'}
@@ -237,7 +259,6 @@ const ProductList: React.FC<{
                             },
                         }}
                         gap={4}
-                        mb={5}
                     >
                         {products.filter(p => p.type === type).map((product) =>
                             <Box key={product.id} mb={'16px'}>

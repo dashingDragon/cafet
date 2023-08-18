@@ -1,4 +1,4 @@
-import { Box, Button, CardMedia, Fab, IconButton, Modal, ModalProps, Stack, Typography } from '@mui/material';
+import { Box, Button, CardMedia, CircularProgress, Fab, IconButton, Modal, ModalProps, Stack, Typography } from '@mui/material';
 import { ArrowBack, Favorite, Remove } from '@mui/icons-material';
 import { Product, ProductWithQty } from '../lib/products';
 import MiniProductCard from './miniProductCard';
@@ -99,8 +99,15 @@ const BasketModal: React.FC<{
                         )}
                     </Box>
                     <Box m={2} display="flex" justifyContent={'flex-end'}>
-                        <Button variant="contained" onClick={makeOrder} disabled={Array.from(basket.values()).length === 0}>
-                            Commander
+                        <Button
+                            variant="contained"
+                            onClick={makeOrder}
+                            disabled={Array.from(basket.values()).length === 0 || loading}
+                            sx={{ width: '128px' }}
+                        >
+                            {loading ? (
+                                <CircularProgress sx={{ color: 'white' }} size='24.5px' />
+                            ) : 'Commander'}
                         </Button>
                     </Box>
                 </>

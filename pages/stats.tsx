@@ -3,6 +3,10 @@ import Head from 'next/head';
 import PageLayout from '../components/pageLayout';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import Stats from '../components/stats';
+import { Card } from '@mui/material';
+import Image from 'next/image';
+import { imageLoader } from './_app';
+import { url } from 'inspector';
 
 const StatsPage: NextPage = () => {
     return (
@@ -16,6 +20,7 @@ const StatsPage: NextPage = () => {
                 <PageLayout title={`Statistiques`}>
                     <FullHeightScrollableContainer>
                         <Stats />
+                        <></>
                     </FullHeightScrollableContainer>
                 </PageLayout>
             </main>
