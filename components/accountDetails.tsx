@@ -18,7 +18,7 @@ export const formatDate = (date: Date) => {
 
 const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
     return (
-        <Card>
+        <Card sx={{ borderRadius: '10px' }}>
             <CardContent>
                 <Box display="flex">
                     <Avatar
@@ -64,7 +64,7 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
                 size="large"
                 fullWidth
                 color={account.balance <= 0 ? 'error' : undefined}
-                sx={{ textTransform: 'none' }}
+                sx={{ textTransform: 'none', borderRadius: '10px' }}
             >
                 <Box
                     width="100%"
@@ -164,7 +164,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
     return (
         <>
             <Box width="100%">
-                <ButtonGroup variant="contained" fullWidth>
+                <ButtonGroup variant="contained" fullWidth sx={{ borderRadius: '10px', overflow: 'hidden'}}>
 
                     {buttons.map(({ icon, color, text, enabled, onClick }, i) =>
                         <Button
@@ -244,9 +244,9 @@ const AccountStats: React.FC<{ account: Account }> = ({ account }) => {
     ] as const;
 
     return (
-        <Card>
+        <Card sx={{ borderRadius: '10px' }}>
             <CardContent>
-                <Typography variant="h6" sx={{ pb: 2 }}>Statistiques</Typography>
+                <Typography variant="h5" sx={{ pb: 2 }}>Statistiques</Typography>
                 {/* For each row */}
                 {rows.map((row, i) =>
                     <React.Fragment key={i}>
@@ -274,9 +274,9 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
     const transactions = useTransactionHistory(account);
 
     return (
-        <Card>
-            <CardContent>
-                <Typography variant="h6" sx={{ pb: 4 }}>Historique</Typography>
+        <Card sx={{ mb: 4, borderRadius: '10px' }}>
+            <CardContent sx={{ pb: 0 }}>
+                <Typography variant="h5" sx={{ pb: 4 }}>Historique</Typography>
                 {transactions.sort((a, b) => +b.createdAt - +a.createdAt).map((transaction, i) => {
                     if (transaction.type === TransactionType.Recharge) {
                         return (

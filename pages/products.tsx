@@ -38,10 +38,11 @@ const ProductListPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {products === undefined
-                        ? <LoadingScreen />
-                        : <>
-                            <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>
+                    {products === undefined ? (
+                        <LoadingScreen />
+                    ) : (
+                        <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>
+                            <>
                                 <ProductList
                                     products={products}
                                     setProductDialogOpen={setProductDialogOpen}
@@ -52,8 +53,7 @@ const ProductListPage: NextPage = () => {
                                     setIngredientDialogOpen={setIngredientDialogOpen}
                                     setIngredient={setIngredient}
                                 />
-                                <>
-                                    {staff?.isAdmin &&
+                                {staff?.isAdmin &&
                                         <Fab
                                             onClick={() => { setProduct(undefined); setIngredient(undefined); setPendingDialogOpen(true);}}
                                             color="primary"
@@ -65,33 +65,31 @@ const ProductListPage: NextPage = () => {
                                         >
                                             <Add />
                                         </Fab>
-                                    }
-                                </>
-                            </FullHeightScrollableContainer>
-                            {staff?.isAdmin && (
-                                <>
-                                    <PendingDialog
-                                        open={pendingDialogOpen}
-                                        onClose={() => setPendingDialogOpen(false)}
-                                        setPendingProductDialogOpen={setProductDialogOpen}
-                                        setPendingIngredientDialogOpen={setIngredientDialogOpen}
-                                    />
-                                    <ProductDialog
-                                        open={productDialogOpen}
-                                        setProductDialogOpen={setProductDialogOpen}
-                                        ingredients={ingredients}
-                                        product={product}
-                                    />
-                                    <IngredientDialog
-                                        open={ingredientDialogOpen}
-                                        setIngredientDialogOpen={setIngredientDialogOpen}
-                                        ingredient={ingredient}
-                                    />
-                                </>
-                            )}
-                        </>
-                    }
-
+                                }
+                                {staff?.isAdmin && (
+                                    <>
+                                        <PendingDialog
+                                            open={pendingDialogOpen}
+                                            onClose={() => setPendingDialogOpen(false)}
+                                            setPendingProductDialogOpen={setProductDialogOpen}
+                                            setPendingIngredientDialogOpen={setIngredientDialogOpen}
+                                        />
+                                        <ProductDialog
+                                            open={productDialogOpen}
+                                            setProductDialogOpen={setProductDialogOpen}
+                                            ingredients={ingredients}
+                                            product={product}
+                                        />
+                                        <IngredientDialog
+                                            open={ingredientDialogOpen}
+                                            setIngredientDialogOpen={setIngredientDialogOpen}
+                                            ingredient={ingredient}
+                                        />
+                                    </>
+                                )}
+                            </>
+                        </FullHeightScrollableContainer>
+                    )}
                 </PageLayout>
             </main>
         </>

@@ -1,5 +1,5 @@
 import { ChevronRight, ShoppingBasket } from '@mui/icons-material';
-import { Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CircularProgress, Stack, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
@@ -22,7 +22,21 @@ const ProductShortCardList: React.FC<{
         <>
             {Object.keys(typeTranslation).map((type) => (
                 <React.Fragment key={type}>
-                    <Typography variant="h5" mb={2}>{typeTranslation[type]}</Typography>
+                    <Card sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        my: '16px',
+                        borderRadius: '20px',
+                        overflow: 'visible',
+                        px: '32px',
+                        height: '40px',
+                        background: theme => theme.palette.mode === 'light'
+                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
+                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
+                    }}>
+                        <Typography variant="h5">{typeTranslation[type]}</Typography>
+                    </Card>
                     <Stack
                         direction={'row'}
                         justifyContent={'flex-start'}
@@ -36,17 +50,18 @@ const ProductShortCardList: React.FC<{
                                 display: 'none',
                             },
                         }}
-                        gap={4}
-                        mb={5}
+                        gap={2}
+                        mb={4}
                     >
                         {products.filter(p => p.type === type).map((product) => (
-                            <ShortProductCard
-                                key={product.name}
-                                product={product}
-                                basket={basket}
-                                setBasket={setBasket}
-                                priceLimit={priceLimit}
-                            />
+                            <Box key={product.name}>
+                                <ShortProductCard
+                                    product={product}
+                                    basket={basket}
+                                    setBasket={setBasket}
+                                    priceLimit={priceLimit}
+                                />
+                            </Box>
                         ))}
                     </Stack>
                 </React.Fragment>

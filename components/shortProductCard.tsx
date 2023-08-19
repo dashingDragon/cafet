@@ -13,7 +13,6 @@ export const ShortProductCard: React.FC<{
     setBasket: (m: Map<string, ProductWithQty>) => void,
     priceLimit: number,
 }> = ({ product, basket, setBasket, priceLimit }) => {
-    const [quantity, setQuantity] = useState(0);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -52,12 +51,10 @@ export const ShortProductCard: React.FC<{
 
     return (
         <Card variant={isReallyAvailable ? 'elevation' : 'outlined'} sx={{
-            width: 350,
-            minWidth: 350,
+            width: 200,
+            minWidth: 200,
             position: 'relative',
             borderRadius: '20px',
-            display: 'flex',
-            flexDirection: 'column',
         }}>
 
             <Box sx={{
@@ -71,13 +68,13 @@ export const ShortProductCard: React.FC<{
                         top: 0,
                         left: 0,
                         width: '100%',
-                        height: '200px',
+                        height: '100px',
                     },
                 }),
             }}>
                 <CardMedia
                     component="img"
-                    height="200"
+                    height="100"
                     image={product.image}
                     alt={`Image de ${product.name}`}
                     sx={{
@@ -94,8 +91,8 @@ export const ShortProductCard: React.FC<{
                                 loader={imageLoader}
                                 src={'../../svg/leaf.png'}
                                 alt={'Vege'}
-                                height={36}
-                                width={36}
+                                height={18}
+                                width={18}
                                 className={'icon'}
                             />
                         )}
@@ -117,21 +114,23 @@ export const ShortProductCard: React.FC<{
                     px: '24px',
                     pt: '8px',
                     '.MuiCardHeader-title': {
+                        fontSize: '16px',
                         color: theme.colors.main,
                     },
                     '.MuiCardHeader-subheader': {
+                        fontSize: '12px',
                         color: theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)',
                     },
                 })}
             />
+            {product.description !== undefined && (
+                <CardContent sx={{ px: '24px', pt: '8px' }} >
 
-            <CardContent sx={{ px: '24px', pt: '8px' }} >
-                {product.description !== undefined && (
                     <Typography variant="body1">
                         {product.description}
                     </Typography>
-                )}
-            </CardContent>
+                </CardContent>
+            )}
 
             {/* Add and remove buttons */}
             <CardActions sx={{

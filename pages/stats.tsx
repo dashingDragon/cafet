@@ -20,7 +20,6 @@ const StatsPage: NextPage = () => {
                 <PageLayout title={`Statistiques`}>
                     <FullHeightScrollableContainer>
                         <Stats />
-                        <></>
                     </FullHeightScrollableContainer>
                 </PageLayout>
             </main>

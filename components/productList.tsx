@@ -41,7 +41,7 @@ const ProductItem: React.FC<{
 
     return (
         <Card variant={isReallyAvailable ? 'elevation' : 'outlined'} sx={{
-            width: 350,
+            width: 200,
             position: 'relative',
             borderRadius: '20px',
         }}>
@@ -56,13 +56,13 @@ const ProductItem: React.FC<{
                         top: 0,
                         left: 0,
                         width: '100%',
-                        height: '200px',
+                        height: '100px',
                     },
                 }),
             }}>
                 <CardMedia
                     component="img"
-                    height="200"
+                    height="100"
                     image={product.image}
                     alt={`Image de ${product.name}`}
                     sx={{
@@ -79,8 +79,8 @@ const ProductItem: React.FC<{
                                 loader={imageLoader}
                                 src={'svg/leaf.png'}
                                 alt={'Vege'}
-                                height={36}
-                                width={36}
+                                height={18}
+                                width={18}
                                 className={'icon'}
                             />
                         )}
@@ -99,84 +99,89 @@ const ProductItem: React.FC<{
                         : ''
                 }
                 sx={(theme) => ({
-                    px: '24px',
+                    px: '16px',
                     pt: '8px',
+                    pb: 0,
                     '.MuiCardHeader-title': {
+                        fontSize: '16px',
                         color: theme.colors.main,
                     },
                     '.MuiCardHeader-subheader': {
+                        fontSize: '12px',
                         color: theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)',
                     },
                 })}
             />
 
-            <CardContent>
+            <CardContent sx={{ pb: 0 }}>
                 {product.description !== undefined && (
-                    <Typography variant="body1">
+                    <Typography variant="body1" mb="16px" fontSize="10px">
                         {product.description}
                     </Typography>
                 )}
 
-                {product.allergen  && (
-                    <Chip
-                        variant='outlined'
-                        color={'warning'}
-                        label={product.allergen}
-                        sx={{
-                            fontWeight: 700,
-                            mt: '16px',
-                            mr: '16px',
-                        }}
-                    />
-                )}
-                {product.isVegan ? (
-                    <Chip
-                        variant='outlined'
-                        color={'success'}
-                        label={'Végan'}
-                        sx={{
-                            fontWeight: 700,
-                            mt: '16px',
-                            mr: '16px',
-                        }}
-                    />
-                ) : product.isVege && (
-                    <Chip
-                        variant='outlined'
-                        color={'success'}
-                        label={'Végé'}
-                        sx={{
-                            fontWeight: 700,
-                            mt: '16px',
-                            mr: '16px',
-                        }}
-                    />
-                )}
-
-                <Chip
-                    variant='outlined'
-                    color={product.stock
-                        ? 'success'
-                        : isOutOfStock
-                            ? 'error'
-                            : product.isAvailable
-                                ? 'success'
-                                : 'error'
-                    }
-                    label={product.stock ? (
-                        `${product.stock} restant${product.stock > 1 && 's'}`
-                    ) : isOutOfStock ? (
-                        'Stock épuisé'
-                    ) : product.isAvailable ? (
-                        'Disponible'
-                    ) : (
-                        'Indisponible'
+                <Stack gap={1} alignItems={'flex-start'}>
+                    {product.allergen  && (
+                        <Chip
+                            variant='outlined'
+                            color={'warning'}
+                            label={product.allergen}
+                            sx={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                mr: '16px',
+                            }}
+                        />
                     )}
-                    sx={{
-                        fontWeight: 700,
-                        mt: '16px',
-                    }}
-                />
+                    {product.isVegan ? (
+                        <Chip
+                            variant='outlined'
+                            color={'success'}
+                            label={'Végan'}
+                            sx={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                mr: '16px',
+                            }}
+                        />
+                    ) : product.isVege && (
+                        <Chip
+                            variant='outlined'
+                            color={'success'}
+                            label={'Végé'}
+                            sx={{
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                mr: '16px',
+                            }}
+                        />
+                    )}
+
+                    <Chip
+                        variant='outlined'
+                        color={product.stock
+                            ? 'success'
+                            : isOutOfStock
+                                ? 'error'
+                                : product.isAvailable
+                                    ? 'success'
+                                    : 'error'
+                        }
+                        label={product.stock ? (
+                            `${product.stock} restant${product.stock > 1 && 's'}`
+                        ) : isOutOfStock ? (
+                            'Stock épuisé'
+                        ) : product.isAvailable ? (
+                            'Disponible'
+                        ) : (
+                            'Indisponible'
+                        )}
+                        sx={{
+                            fontSize: '10px',
+                            fontWeight: 700,
+                        }}
+                    />
+                </Stack>
             </CardContent>
             {staff?.isAdmin && (
                 <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
@@ -230,19 +235,12 @@ const ProductList: React.FC<{
                         borderRadius: '20px',
                         overflow: 'visible',
                         px: '32px',
-                        height: '64px',
+                        height: '40px',
                         background: theme => theme.palette.mode === 'light'
                             ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
                             : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
                     }}>
                         <Typography variant="h5">{typeTranslation[type]}</Typography>
-                        {/* <Image
-                            loader={imageLoader}
-                            src={'/svg/cooking.svg'}
-                            alt={'Success image'}
-                            width={64}
-                            height={64}
-                        /> */}
                     </Card>
 
                     <Stack
@@ -258,10 +256,10 @@ const ProductList: React.FC<{
                                 display: 'none',
                             },
                         }}
-                        gap={4}
+                        gap={2}
                     >
                         {products.filter(p => p.type === type).map((product) =>
-                            <Box key={product.id} mb={'16px'}>
+                            <Box key={product.id} mb={'8px'}>
                                 <ProductItem product={product} setProductDialogOpen={setProductDialogOpen} setProduct={setProduct} />
                             </Box>
                         )}

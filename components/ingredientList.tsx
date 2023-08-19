@@ -59,8 +59,8 @@ const IngredientItem: React.FC<{
                                     loader={imageLoader}
                                     src={'svg/leaf.png'}
                                     alt={'Vege'}
-                                    height={36}
-                                    width={36}
+                                    height={18}
+                                    width={18}
                                     className={'icon'}
                                 />
                             )}
@@ -70,24 +70,26 @@ const IngredientItem: React.FC<{
                     subheader={ingredient.price ? <strong>+{formatMoney(ingredient.price)}</strong> : ''}
                     sx={(theme) => ({
                         '.MuiCardHeader-title': {
+                            fontSize: '16px',
                             color: theme.colors.main,
                         },
                         '.MuiCardHeader-subheader': {
+                            fontSize: '12px',
                             color: theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)',
                         },
                     })}
                 />
 
                 {hasContents && (
-                    <CardContent>
+                    <CardContent sx={{ py: 0 }}>
                         {ingredient.allergen  && (
                             <Chip
                                 variant='outlined'
                                 color={'warning'}
                                 label={ingredient.allergen}
                                 sx={{
+                                    fontSize: '10px',
                                     fontWeight: 700,
-                                    mt: '16px',
                                     mr: '16px',
                                 }}
                             />
@@ -98,8 +100,8 @@ const IngredientItem: React.FC<{
                                 color={'success'}
                                 label={'Végan'}
                                 sx={{
+                                    fontSize: '10px',
                                     fontWeight: 700,
-                                    mt: '16px',
                                 }}
                             />
                         ) : ingredient.isVege && (
@@ -108,8 +110,8 @@ const IngredientItem: React.FC<{
                                 color={'success'}
                                 label={'Végé'}
                                 sx={{
+                                    fontSize: '10px',
                                     fontWeight: 700,
-                                    mt: '16px',
                                 }}
                             />
                         )}
@@ -168,7 +170,7 @@ const IngredientList: React.FC<{
                         borderRadius: '20px',
                         overflow: 'visible',
                         px: '32px',
-                        height: '64px',
+                        height: '40px',
                         background: theme => theme.palette.mode === 'light'
                             ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
                             : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
@@ -188,7 +190,7 @@ const IngredientList: React.FC<{
                                 display: 'none',
                             },
                         }}
-                        gap={4}
+                        gap={2}
                         mt={2}
                         mb={4}
                     >

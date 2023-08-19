@@ -5,6 +5,8 @@ import { formatDate, formatMoney } from './accountDetails';
 import { useUpdateOrderStatus } from '../lib/firestoreHooks';
 import {CheckCircle, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../lib/products';
+import Image from 'next/image';
+import { imageLoader } from '../pages/_app';
 
 export const OrderItemLine: React.FC<{productWithQty: ProductWithQty, quantity: number, size: string, showIngredients?: boolean}> = ({ productWithQty, quantity, size, showIngredients }) => {
     if (productWithQty.product.type === 'serving') {
