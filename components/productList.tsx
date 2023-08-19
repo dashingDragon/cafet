@@ -183,27 +183,25 @@ const ProductItem: React.FC<{
                     />
                 </Stack>
             </CardContent>
-            {staff?.isAdmin && (
-                <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
-                    {/* Edit button */}
-                    <IconButton>
-                        <EditOutlined
-                            onClick={handleOpenProductDialog}
-                            sx={(theme) => ({
-                                color: theme.colors.main,
-                            })} />
-                    </IconButton>
+            <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
+                {/* Edit button */}
+                <IconButton>
+                    <EditOutlined
+                        onClick={handleOpenProductDialog}
+                        sx={(theme) => ({
+                            color: theme.colors.main,
+                        })} />
+                </IconButton>
 
-                    {/* Delete button */}
-                    <IconButton>
-                        <DeleteOutlined
-                            onClick={handleOpenDeleteDialog}
-                            sx={(theme) => ({
-                                color: theme.colors.main,
-                            })} />
-                    </IconButton>
-                </CardActions>
-            )}
+                {/* Delete button */}
+                <IconButton>
+                    <DeleteOutlined
+                        onClick={handleOpenDeleteDialog}
+                        sx={(theme) => ({
+                            color: theme.colors.main,
+                        })} />
+                </IconButton>
+            </CardActions>
             {/* Delete product dialog */}
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
                 <DialogTitle>

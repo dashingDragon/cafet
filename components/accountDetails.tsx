@@ -59,7 +59,6 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
         <>
             <Button
                 onClick={() => setDialogOpen(true)}
-                disabled={!((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false))}
                 variant="contained"
                 size="large"
                 fullWidth
@@ -142,21 +141,21 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
             icon: <PointOfSale fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'primary',
             text: 'Encaisser',
-            enabled: () => ((staff?.isAvailable ?? false) || (staff?.isAdmin ?? false)) && account.balance > 0,
+            enabled: () => account.balance > 0,
             onClick: () => router.push(`/accounts/${account.id}/pay`),
         },
         {
             icon: <Edit fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'primary',
             text: 'Editer',
-            enabled: () => (staff?.isAvailable ?? false) || (staff?.isAdmin ?? false),
+            enabled: () => true,
             onClick: () => setEditDialogOpen(true),
         },
         {
             icon: <DeleteForever fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'error',
             text: 'Supprimer',
-            enabled: () => staff?.isAdmin ?? false,
+            enabled: () => true,
             onClick: () => setDeleteConfirm1Open(true),
         },
     ] as const;

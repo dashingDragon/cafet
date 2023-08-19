@@ -1,12 +1,12 @@
 import { Add } from '@mui/icons-material';
-import { Box, Card, Fab } from '@mui/material';
+import { Fab } from '@mui/material';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import ProductList from '../components/productList';
 import PageLayout from '../components/pageLayout';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import { useIngredients, useProducts, useStaffUser } from '../lib/firestoreHooks';
-import { useGuardIsConnected } from '../lib/hooks';
+import { useGuardIsAdmin, useGuardIsConnected } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useState } from 'react';
 import PendingDialog from '../components/pendingDialog';
@@ -15,11 +15,9 @@ import { ProductDialog } from '../components/productDialog';
 import { Product } from '../lib/products';
 import IngredientDialog from '../components/ingredientDialog';
 import { Ingredient } from '../lib/ingredients';
-import Image from 'next/image';
-import { imageLoader } from './_app';
 
 const ProductListPage: NextPage = () => {
-    useGuardIsConnected();
+    useGuardIsAdmin();
     const products = useProducts();
     const ingredients = useIngredients();
     const staff = useStaffUser();
@@ -29,6 +27,7 @@ const ProductListPage: NextPage = () => {
     const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false);
     const [ingredient, setIngredient] = useState<Ingredient>();
 
+    if (!staff) return <></>;
     return (
         <>
             <Head>
@@ -53,40 +52,36 @@ const ProductListPage: NextPage = () => {
                                     setIngredientDialogOpen={setIngredientDialogOpen}
                                     setIngredient={setIngredient}
                                 />
-                                {staff?.isAdmin &&
-                                        <Fab
-                                            onClick={() => { setProduct(undefined); setIngredient(undefined); setPendingDialogOpen(true);}}
-                                            color="primary"
-                                            sx={{
-                                                position: 'fixed',
-                                                bottom: 70,
-                                                right: 50,
-                                            }}
-                                        >
-                                            <Add />
-                                        </Fab>
-                                }
-                                {staff?.isAdmin && (
-                                    <>
-                                        <PendingDialog
-                                            open={pendingDialogOpen}
-                                            onClose={() => setPendingDialogOpen(false)}
-                                            setPendingProductDialogOpen={setProductDialogOpen}
-                                            setPendingIngredientDialogOpen={setIngredientDialogOpen}
-                                        />
-                                        <ProductDialog
-                                            open={productDialogOpen}
-                                            setProductDialogOpen={setProductDialogOpen}
-                                            ingredients={ingredients}
-                                            product={product}
-                                        />
-                                        <IngredientDialog
-                                            open={ingredientDialogOpen}
-                                            setIngredientDialogOpen={setIngredientDialogOpen}
-                                            ingredient={ingredient}
-                                        />
-                                    </>
-                                )}
+
+                                <Fab
+                                    onClick={() => { setProduct(undefined); setIngredient(undefined); setPendingDialogOpen(true);}}
+                                    color="primary"
+                                    sx={{
+                                        position: 'fixed',
+                                        bottom: 70,
+                                        right: 50,
+                                    }}
+                                >
+                                    <Add />
+                                </Fab>
+
+                                <PendingDialog
+                                    open={pendingDialogOpen}
+                                    onClose={() => setPendingDialogOpen(false)}
+                                    setPendingProductDialogOpen={setProductDialogOpen}
+                                    setPendingIngredientDialogOpen={setIngredientDialogOpen}
+                                />
+                                <ProductDialog
+                                    open={productDialogOpen}
+                                    setProductDialogOpen={setProductDialogOpen}
+                                    ingredients={ingredients}
+                                    product={product}
+                                />
+                                <IngredientDialog
+                                    open={ingredientDialogOpen}
+                                    setIngredientDialogOpen={setIngredientDialogOpen}
+                                    ingredient={ingredient}
+                                />
                             </>
                         </FullHeightScrollableContainer>
                     )}

@@ -73,7 +73,6 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
     const [total, setTotal] = useState(0);
-    const [nbItems, setNbItems] = useState(0);
 
     useEffect(() => {
         let priceProducts = 0;
@@ -125,7 +124,14 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                     </Button>
                 )}
             </Box>
-            <BasketModal open={basketOpen} setBasketOpen={setBasketOpen} basket={basket} setBasket={setBasket} account={account} priceLimit={account.balance - total} />
+            <BasketModal
+                open={basketOpen}
+                setBasketOpen={setBasketOpen}
+                basket={basket}
+                setBasket={setBasket}
+                account={account}
+                priceLimit={account.balance - total}
+            />
         </>
     );
 };

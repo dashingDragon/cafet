@@ -6,10 +6,10 @@ import LoadingScreen from '../../../components/loading';
 import PageLayout from '../../../components/pageLayout';
 import PayForm from '../../../components/payForm';
 import { useAccount, useStaffUser } from '../../../lib/firestoreHooks';
-import { useGuardIsConnected } from '../../../lib/hooks';
+import { useGuardIsAdmin } from '../../../lib/hooks';
 
 const AccountPayPage: NextPage = () => {
-    useGuardIsConnected();
+    useGuardIsAdmin();
     const router = useRouter();
     const { id } = router.query;
 

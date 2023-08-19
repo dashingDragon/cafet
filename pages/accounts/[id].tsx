@@ -5,10 +5,10 @@ import AccountDetails from '../../components/accountDetails';
 import LoadingScreen from '../../components/loading';
 import PageLayout from '../../components/pageLayout';
 import { useAccount } from '../../lib/firestoreHooks';
-import { useGuardIsConnected } from '../../lib/hooks';
+import { useGuardIsAdmin } from '../../lib/hooks';
 
 const AccountDetailsPage: NextPage = () => {
-    useGuardIsConnected();
+    useGuardIsAdmin();
     const router = useRouter();
     const { id } = router.query;
 

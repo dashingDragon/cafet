@@ -98,8 +98,8 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
                         showLabels
                         color="inherit"
                     >
-                        <BottomNavigationAction value={'/'} label="Comptes" icon={<Groups />} color="inherit" />
-                        <BottomNavigationAction value={'/orders'} label="Commandes" icon={<FormatListBulleted />} color="inherit" />
+                        <BottomNavigationAction value={'/'} label="Commandes" icon={<FormatListBulleted />} color="inherit" />
+                        <BottomNavigationAction value={'/accounts'} label="Comptes" icon={<Groups />} color="inherit" />
                         <BottomNavigationAction value={'/products'} label="Plats" icon={<FoodBank />} color="inherit" />
                         <BottomNavigationAction value={'/stats'} label="Stats" icon={<QueryStats/>} color="inherit" />
                     </BottomNavigation>

@@ -3,8 +3,11 @@ import Head from 'next/head';
 import PageLayout from '../components/pageLayout';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import Stats from '../components/stats';
+import { useGuardIsAdmin } from '../lib/hooks';
 
 const StatsPage: NextPage = () => {
+    const admin = useGuardIsAdmin();
+    if (!admin) return <></>;
     return (
         <>
             <Head>

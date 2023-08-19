@@ -3,23 +3,20 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /accounts/{document=**} {
-      allow read, create, update: if isStaff();
-      allow delete: if isAdmin();
+      allow read, create, update, delete: if isAdmin();
     }
 
     match /transactions/{document=**} {
-      allow read, create, update: if isStaff();
-      allow delete: if isAdmin();
+      allow read: if isStaff();
+      allow create, update, delete: if isAdmin();
     }
 
     match /products/{document=**} {
-      allow read: if isStaff();
-      allow create, update, delete: if isAdmin();
+      allow read, create, update, delete: if isAdmin();
     }
 
     match /ingredients/{document=**} {
-      allow read: if isStaff();
-      allow create, update, delete: if isAdmin();
+      allow read, create, update, delete: if isAdmin();
     }
 
     match /staffs/{document=**} {

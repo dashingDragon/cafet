@@ -118,25 +118,23 @@ const IngredientItem: React.FC<{
                     </CardContent>
                 )}
 
-                {staff?.isAdmin && (
-                    <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
-                        <IconButton>
-                            <EditOutlined
-                                onClick={handleOpenIngredientDialog}
-                                sx={(theme) => ({
-                                    color: theme.colors.main,
-                                })} />
-                        </IconButton>
+                <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
+                    <IconButton>
+                        <EditOutlined
+                            onClick={handleOpenIngredientDialog}
+                            sx={(theme) => ({
+                                color: theme.colors.main,
+                            })} />
+                    </IconButton>
 
-                        <IconButton>
-                            <DeleteOutlined
-                                onClick={handleOpenDeleteDialog}
-                                sx={(theme) => ({
-                                    color: theme.colors.main,
-                                })} />
-                        </IconButton>
-                    </CardActions>
-                )}
+                    <IconButton>
+                        <DeleteOutlined
+                            onClick={handleOpenDeleteDialog}
+                            sx={(theme) => ({
+                                color: theme.colors.main,
+                            })} />
+                    </IconButton>
+                </CardActions>
             </Card>
 
             {/* Delete ingredient dialog */}

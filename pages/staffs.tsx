@@ -9,14 +9,15 @@ import PendingStaffsDialog from '../components/pendingStaffsDialog';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import StaffList from '../components/staffList';
 import { useStaffUser, useStaffs } from '../lib/firestoreHooks';
-import { useGuardIsConnected } from '../lib/hooks';
+import { useGuardIsAdmin } from '../lib/hooks';
 
 const StaffPage: NextPage = () => {
-    useGuardIsConnected();
+    useGuardIsAdmin();
     const staff = useStaffUser();
     const staffs = useStaffs();
     const [pendingDialogOpen, setPendingDialogOpen] = useState(false);
 
+    if (!staff) return <></>;
     return (
         <>
             <Head>
@@ -33,24 +34,20 @@ const StaffPage: NextPage = () => {
                                 <>
                                     <Typography variant="h5" m={1}>Staffs</Typography>
                                     <StaffList staffs={staffs} />
-                                    {staff?.isAdmin &&
-                                        <Fab
-                                            onClick={() => setPendingDialogOpen(true)}
-                                            color="primary"
-                                            sx={{
-                                                position: 'absolute',
-                                                bottom: 16,
-                                                right: 16,
-                                            }}>
-                                            <Add />
-                                        </Fab>
-                                    }
+                                    <Fab
+                                        onClick={() => setPendingDialogOpen(true)}
+                                        color="primary"
+                                        sx={{
+                                            position: 'absolute',
+                                            bottom: 16,
+                                            right: 16,
+                                        }}>
+                                        <Add />
+                                    </Fab>
                                 </>
                             </FullHeightScrollableContainer>
 
-                            {staff?.isAdmin &&
-                                <PendingStaffsDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
-                            }
+                            <PendingStaffsDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
                         </>
                     }
                 </PageLayout>

@@ -34,25 +34,23 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] take allergies into account
 - [x] add sandwich size
 - [x] add custom composition for sandwiches
+- [x] add more icons and colors
 - [ ] compute the number of baguettes needed for a day
 - [ ] make a statistical graph for products
 - [ ] store the global and products' stats somewhere
-- [ ] add more icons and colors
-- [ ] add collapse in products page
 - [ ] make a backup script for the database
 - [ ] add cancel order button
 
 For the customer-side app :
+- [ ] send customers notifications when their order is ready
 - [ ] show current order for user
-- [ ] inform user that the order is ready
 - [ ] add the order page
 - [ ] add the customer profile page
-- [ ] add breakfast menu
 - [ ] add formulas (serving+drink, serving+snack...)
 - [ ] add current orders screen for staffs
-- [ ] send customers notifications when their order is ready
 - [ ] add favorites recommendations
 - [ ] recommend trending foods ?
 - [ ] make a day streak system
 - [ ] make a monthly leaderboard of the longest cumulative sandwich size eaten
 - [ ] let user add a custom message with the order (would have to sanitize user input, may be unsafe)
+- [ ] add breakfast menu
