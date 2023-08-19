@@ -1,5 +1,5 @@
 import type {} from '@mui/x-data-grid-pro/themeAugmentation';
-import { PaletteMode, Theme, createTheme } from '@mui/material';
+import { PaletteMode, createTheme } from '@mui/material';
 import useLocalStorage from '@rehooks/local-storage';
 import { CSSProperties } from 'react';
 

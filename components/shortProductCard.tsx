@@ -1,6 +1,6 @@
 import { Add } from '@mui/icons-material';
 import { Box, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getIngredientPrice } from '../lib/ingredients';
 import { Product, ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';

@@ -1,5 +1,5 @@
-import { Coffee, Cookie, Euro, LunchDining, Savings } from '@mui/icons-material';
-import {  Box, Card, CardContent, CardHeader, Divider, List, Typography } from '@mui/material';
+import { Coffee, Cookie, Euro, LunchDining } from '@mui/icons-material';
+import {  Box, Card, CardContent, Divider, Typography } from '@mui/material';
 import React from 'react';
 import { useCurrentStats } from '../lib/firestoreHooks';
 import { imageLoader } from '../pages/_app';

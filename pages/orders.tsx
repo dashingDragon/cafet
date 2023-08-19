@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import PageLayout from '../components/pageLayout';
-import FullHeightScrollableContainer from '../components/scrollableContainer';
 import { useGuardIsConnected } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useTodaysOrders } from '../lib/firestoreHooks';

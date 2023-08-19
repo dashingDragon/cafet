@@ -2,13 +2,12 @@ import { Add } from '@mui/icons-material';
 import { Fab, Typography } from '@mui/material';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import LoadingScreen from '../components/loading';
 import PageLayout from '../components/pageLayout';
 import PendingStaffsDialog from '../components/pendingStaffsDialog';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import StaffList from '../components/staffList';
-import { useListPendingStaffs } from '../lib/firebaseFunctionHooks';
 import { useStaffUser, useStaffs } from '../lib/firestoreHooks';
 import { useGuardIsConnected } from '../lib/hooks';
 

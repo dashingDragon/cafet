@@ -1,4 +1,4 @@
-import { Autocomplete, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, Divider, FilledInput, FormControl, IconButton, Input, InputAdornment, InputLabel, ListSubheader, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, ListSubheader, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Product, productType } from '../lib/products';
 import { useProductEditor, useProductMaker } from '../lib/firestoreHooks';

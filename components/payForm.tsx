@@ -1,13 +1,11 @@
 import { ChevronRight, ShoppingBasket } from '@mui/icons-material';
-import { Box, Button, Card, CircularProgress, Stack, Typography } from '@mui/material';
-import { useRouter } from 'next/router';
+import { Box, Button, Card, Stack, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
 import { useProducts } from '../lib/firestoreHooks';
-import { Product, ProductWithQty } from '../lib/products';
+import { ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
 import { typeTranslation } from './productList';
-import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { ShortProductCard } from './shortProductCard';
 import BasketModal from './basketModal';
 

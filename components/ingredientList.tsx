@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
-import { Box, Button, Card, CardActions, CardContent, CardHeader, Chip, Dialog, DialogActions, DialogTitle, IconButton,  List, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardActions, CardContent, CardHeader, Chip, Dialog, DialogActions, DialogTitle, IconButton,  Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useIngredientDeleter, useStaffUser } from '../lib/firestoreHooks';
 import { Ingredient } from '../lib/ingredients';
