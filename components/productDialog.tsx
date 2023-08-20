@@ -237,7 +237,7 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
                     {/* Size and price */}
                     <Stack direction="column" width={'100%'} mt={4}>
                         <Typography>
-                            Tailles et prix :
+                            Tailles et prix de base :
                         </Typography>
                         <FormControl fullWidth sx={{ mt: 1 }}>
                             <OutlinedInput

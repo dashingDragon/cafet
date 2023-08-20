@@ -8,7 +8,7 @@ import { useAccount } from '../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../lib/hooks';
 
 const AccountDetailsPage: NextPage = () => {
-    useGuardIsAdmin();
+    const admin = useGuardIsAdmin();
     const router = useRouter();
     const { id } = router.query;
 
@@ -23,7 +23,7 @@ const AccountDetailsPage: NextPage = () => {
 
             <main>
                 <PageLayout title="Details du compte" hideBottomNavigation backTo="/">
-                    {account === undefined
+                    {account === undefined || admin === undefined
                         ? <LoadingScreen />
                         : <AccountDetails account={account} />
                     }

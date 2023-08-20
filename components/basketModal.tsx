@@ -103,7 +103,7 @@ const BasketModal: React.FC<{
                             variant="contained"
                             onClick={makeOrder}
                             disabled={Array.from(basket.values()).length === 0 || loading}
-                            sx={{ width: '128px' }}
+                            sx={{ width: '128px', borderRadius: '10px' }}
                         >
                             {loading ? (
                                 <CircularProgress sx={{ color: 'white' }} size='24.5px' />

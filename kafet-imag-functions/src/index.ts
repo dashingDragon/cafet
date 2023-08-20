@@ -10,6 +10,7 @@ import {MakeTransactionPayload, TransactionType} from '../../lib/transactions';
 import {Account, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
+import {getIngredientPrice} from '../../lib/ingredients';
 
 const staffConverter = externalStaffConverter as unknown as FirestoreDataConverter<Staff>;
 
@@ -126,7 +127,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
             if (productData.stock && productData.stock < quantity) {
                 throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');
             }
-            priceProducts += productData.sizeWithPrices[size] * quantity;
+            priceProducts += (productData.sizeWithPrices[size] + getIngredientPrice(productData.ingredients)) * quantity;
             quantityOrdered[productWithQtySize.product.type] += quantity;
         });
     }

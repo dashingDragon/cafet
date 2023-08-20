@@ -27,7 +27,6 @@ const ProductListPage: NextPage = () => {
     const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false);
     const [ingredient, setIngredient] = useState<Ingredient>();
 
-    if (!staff) return <></>;
     return (
         <>
             <Head>
@@ -37,7 +36,7 @@ const ProductListPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {products === undefined ? (
+                    {products === undefined || staff === undefined ? (
                         <LoadingScreen />
                     ) : (
                         <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>

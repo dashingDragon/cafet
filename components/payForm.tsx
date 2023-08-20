@@ -8,6 +8,7 @@ import { formatMoney } from './accountDetails';
 import { typeTranslation } from './productList';
 import { ShortProductCard } from './shortProductCard';
 import BasketModal from './basketModal';
+import { getIngredientPrice } from '../lib/ingredients';
 
 const ProductShortCardList: React.FC<{
   basket: Map<string, ProductWithQty>,
@@ -82,8 +83,9 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                 Object.keys(productWithQty.sizeWithQuantities).forEach(size => {
                     const priceForSize = productWithQty.product.sizeWithPrices[size];
                     const quantityForSize = productWithQty.sizeWithQuantities[size];
+                    const ingredientsPrice = getIngredientPrice(productWithQty.product.ingredients);
                     if (priceForSize && quantityForSize) {
-                        priceProducts += productWithQty.product.sizeWithPrices[size] * productWithQty.sizeWithQuantities[size];
+                        priceProducts += productWithQty.product.sizeWithPrices[size] * productWithQty.sizeWithQuantities[size] + ingredientsPrice;
                     }
                 }
                 );

@@ -13,7 +13,6 @@ const OrderPage: NextPage = () => {
     const staffUser = useGuardIsStaff();
     const orders = useTodaysOrders();
 
-    if (!staffUser) return <></>;
     return (
         <>
             <Head>
@@ -23,7 +22,7 @@ const OrderPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'} hideBottomNavigation={!staffUser?.isAdmin}>
-                    {orders === undefined
+                    {orders === undefined || staffUser === undefined
                         ? <LoadingScreen />
                         : <>
                             <Stack

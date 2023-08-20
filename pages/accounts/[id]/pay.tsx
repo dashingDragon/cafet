@@ -9,7 +9,7 @@ import { useAccount, useStaffUser } from '../../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../../lib/hooks';
 
 const AccountPayPage: NextPage = () => {
-    useGuardIsAdmin();
+    const admin = useGuardIsAdmin();
     const router = useRouter();
     const { id } = router.query;
 
@@ -33,7 +33,7 @@ const AccountPayPage: NextPage = () => {
             </Head>
 
             <main>
-                {account === undefined
+                {account === undefined || admin === undefined
                     ? <>
                         <PageLayout title="Encaisser ..." hideBottomNavigation backTo={`/accounts/${id}`}>
                             <LoadingScreen />

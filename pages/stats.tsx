@@ -4,6 +4,7 @@ import PageLayout from '../components/pageLayout';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import Stats from '../components/stats';
 import { useGuardIsAdmin } from '../lib/hooks';
+import LoadingScreen from '../components/loading';
 
 const StatsPage: NextPage = () => {
     const admin = useGuardIsAdmin();
@@ -18,7 +19,11 @@ const StatsPage: NextPage = () => {
             <main>
                 <PageLayout title={`Statistiques`}>
                     <FullHeightScrollableContainer>
-                        <Stats />
+                        {admin === undefined ? (
+                            <LoadingScreen />
+                        ) : (
+                            <Stats />
+                        )}
                     </FullHeightScrollableContainer>
                 </PageLayout>
             </main>

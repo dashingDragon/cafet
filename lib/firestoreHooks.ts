@@ -563,7 +563,8 @@ export const useTodaysOrders = () => {
         const transactionQuery = query(
             collection(db, 'transactions'),
             where('createdAt', '>=', startOfDay),
-            where('createdAt', '<', endOfDay)
+            where('createdAt', '<', endOfDay),
+            where('type', '==', TransactionType.Order)
         ).withConverter(transactionConverter);
 
         return onSnapshot(transactionQuery, (snapshot) => {

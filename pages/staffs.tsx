@@ -17,7 +17,6 @@ const StaffPage: NextPage = () => {
     const staffs = useStaffs();
     const [pendingDialogOpen, setPendingDialogOpen] = useState(false);
 
-    if (!staff) return <></>;
     return (
         <>
             <Head>
@@ -27,7 +26,7 @@ const StaffPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {staffs === undefined
+                    {staffs === undefined || staff === undefined
                         ? <LoadingScreen />
                         : <>
                             <FullHeightScrollableContainer sx={{ position: 'relative' }}>

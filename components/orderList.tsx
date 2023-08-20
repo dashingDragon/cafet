@@ -5,6 +5,7 @@ import { formatMoney } from './accountDetails';
 import { useUpdateOrderStatus } from '../lib/firestoreHooks';
 import {CheckCircle, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../lib/products';
+import { getIngredientPrice } from '../lib/ingredients';
 
 export const OrderItemLine: React.FC<{productWithQty: ProductWithQty, quantity: number, size: string, showIngredients?: boolean}> = ({ productWithQty, quantity, size, showIngredients }) => {
     if (productWithQty.product.type === 'serving') {
@@ -14,7 +15,7 @@ export const OrderItemLine: React.FC<{productWithQty: ProductWithQty, quantity: 
                     <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
                         {quantity} x {productWithQty.product.name}: <strong>{size}</strong>
                     </Typography>
-                    <Typography variant="body2">{formatMoney(quantity * productWithQty.product.sizeWithPrices[size])}</Typography>
+                    <Typography variant="body2">{formatMoney(quantity * (productWithQty.product.sizeWithPrices[size] +  getIngredientPrice(productWithQty.product.ingredients)))}</Typography>
                 </Stack>
                 {showIngredients && productWithQty.product.ingredients && productWithQty.product.ingredients.map((ingredient) =>
                     <Stack key={ingredient.name} direction="row" justifyContent={'space-between'} pl={'8px'}>
@@ -30,7 +31,7 @@ export const OrderItemLine: React.FC<{productWithQty: ProductWithQty, quantity: 
                 <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
                     {quantity} x {productWithQty.product.name}: {size}
                 </Typography>
-                <Typography variant="body2">{formatMoney(quantity * productWithQty.product.sizeWithPrices[size])}</Typography>
+                <Typography variant="body2">{formatMoney(quantity * (productWithQty.product.sizeWithPrices[size] +  getIngredientPrice(productWithQty.product.ingredients)))}</Typography>
             </Stack>
         );
     }
