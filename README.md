@@ -35,11 +35,11 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add sandwich size
 - [x] add custom composition for sandwiches
 - [x] add more icons and colors
-- [ ] compute the number of baguettes needed for a day
-- [ ] make a statistical graph for products
+- [x] compute the number of baguettes needed for a day
+- [ ] add cancel order button
 - [ ] store the global and products' stats somewhere
 - [ ] make a backup script for the database
-- [ ] add cancel order button
+- [ ] make a statistical graph for products
 
 For the customer-side app :
 - [ ] send customers notifications when their order is ready

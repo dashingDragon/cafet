@@ -1,6 +1,14 @@
 import { FirestoreDataConverter } from 'firebase/firestore';
+import { TransactionOrder } from './transactions';
 
 export type ingredientCategory = 'meat' | 'cheese' | 'veggie' | 'spice' | 'sauce';
+
+export const baguetteSizes: Record<string, number> = {
+    'Petit': 1/3,
+    'Normal': 1/2,
+    'Moyen': 1/2,
+    'Grand': 2/3,
+};
 
 export type Ingredient = {
     id: string,
@@ -75,4 +83,21 @@ export const getIngredientPrice = (ingredients?: Ingredient[]): number => {
         price += ingredient.price;
     }
     return price;
+};
+
+export const getBaguetteCount = (orders: TransactionOrder[]) => {
+    let baguetteCount = 0;
+    for (const order of orders) {
+        for (const productWithQty of order.productsWithQty) {
+            if (productWithQty.product.name.includes('Sandwich')) {
+                Object.entries(productWithQty.sizeWithQuantities).forEach(([size, quantity]) => {
+                    if (baguetteSizes[size]) {
+                        baguetteCount += baguetteSizes[size] * quantity;
+                    }
+                });
+            }
+        }
+    }
+
+    return Math.ceil(baguetteCount);
 };

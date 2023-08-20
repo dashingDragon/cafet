@@ -551,7 +551,7 @@ export const useTransactionHistory = (account: Account) => {
 
 export const useTodaysOrders = () => {
     const db = getFirestore();
-    const [transactions, setTransactions] = useState([] as Transaction[]);
+    const [transactions, setTransactions] = useState([] as TransactionOrder[]);
 
     const startOfDay = new Date();
     startOfDay.setHours(7, 0, 0, 0);
@@ -571,7 +571,7 @@ export const useTodaysOrders = () => {
             const _transactions = snapshot.docs.map((a) => a.data());
             console.log(_transactions);
             if (_transactions) {
-                setTransactions(_transactions);
+                setTransactions(_transactions as TransactionOrder[]);
             }
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
