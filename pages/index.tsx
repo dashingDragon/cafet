@@ -5,14 +5,15 @@ import { useGuardIsStaff } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useTodaysOrders } from '../lib/firestoreHooks';
 import { OrderList } from '../components/orderList';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Box, Card, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import { imageLoader } from './_app';
-import { getBaguetteCount } from '../lib/ingredients';
+import { countIngredients, ingredientsToCount } from '../lib/ingredients';
 
 const OrderPage: NextPage = () => {
     const staffUser = useGuardIsStaff();
     const orders = useTodaysOrders();
+    const ingredientsQuantities = countIngredients(orders);
 
     return (
         <>
@@ -60,6 +61,7 @@ const OrderPage: NextPage = () => {
                                         />
                                     </Box>
                                 </Card>
+
                                 <Card sx={{
                                     mb: '16px',
                                     borderRadius: '20px',
@@ -70,18 +72,27 @@ const OrderPage: NextPage = () => {
                                     display: 'flex',
                                     flexDirection: 'row',
                                 }}>
-                                    <Image
-                                        loader={imageLoader}
-                                        src={'svg/baguette.png'}
-                                        alt={'Baguettes '}
-                                        height={36}
-                                        width={36}
-                                        className={'icon'}
-                                    />
-                                    <Typography ml={'16px'} fontSize={24} fontWeight={700}>
-                                        {getBaguetteCount(orders)}
-                                    </Typography>
+
+                                    <Stack direction="row" flexWrap={'wrap'} gap={2}>
+                                        {Object.entries(ingredientsQuantities).map(([name, quantity]) => (
+                                            <Box key={name} width='40%' sx={{ display: 'flex' }}>
+                                                <Image
+                                                    loader={imageLoader}
+                                                    src={ingredientsToCount[name]}
+                                                    alt={name}
+                                                    height={36}
+                                                    width={36}
+                                                    className={'icon'}
+                                                />
+                                                <Typography ml={'16px'} fontSize={24} fontWeight={700}>
+                                                    {quantity}
+                                                </Typography>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+
                                 </Card>
+
                                 <OrderList orders={orders} />
                                 {orders.length === 0 && (
                                     <Stack direction="column" justifyContent="center" height="100%">

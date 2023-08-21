@@ -36,8 +36,9 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add custom composition for sandwiches
 - [x] add more icons and colors
 - [x] compute the number of baguettes needed for a day
+- [x] store the global and products' stats somewhere
+- [ ] add snackbars when adding a product to the basket
 - [ ] add cancel order button
-- [ ] store the global and products' stats somewhere
 - [ ] make a backup script for the database
 - [ ] make a statistical graph for products
 
@@ -46,6 +47,7 @@ For the customer-side app :
 - [ ] show current order for user
 - [ ] add the order page
 - [ ] add the customer profile page
+- [ ] add a button to disable orders for a day
 - [ ] add formulas (serving+drink, serving+snack...)
 - [ ] add current orders screen for staffs
 - [ ] add favorites recommendations

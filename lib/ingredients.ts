@@ -85,19 +85,48 @@ export const getIngredientPrice = (ingredients?: Ingredient[]): number => {
     return price;
 };
 
-export const getBaguetteCount = (orders: TransactionOrder[]) => {
-    let baguetteCount = 0;
+export const countIngredients = (orders: TransactionOrder[]): Record<string, number> => {
+    const ingredientsQuantities: Record<string, number> = {};
+    for (const ingredient of Object.keys(ingredientsToCount)) {
+        ingredientsQuantities[ingredient] = 0;
+    }
+
     for (const order of orders) {
         for (const productWithQty of order.productsWithQty) {
-            if (productWithQty.product.name.includes('Sandwich')) {
-                Object.entries(productWithQty.sizeWithQuantities).forEach(([size, quantity]) => {
-                    if (baguetteSizes[size]) {
-                        baguetteCount += baguetteSizes[size] * quantity;
-                    }
-                });
+            if (productWithQty.product.ingredients === undefined) continue;
+            for (const ingredient of productWithQty.product.ingredients) {
+                if (ingredient.name === 'Baguette') {
+                    Object.entries(productWithQty.sizeWithQuantities).forEach(([size, quantity]) => {
+                        if (baguetteSizes[size]) {
+                            ingredientsQuantities[ingredient.name] += baguetteSizes[size] * quantity;
+                        }
+                    });
+                } else if (Object.keys(ingredientsToCount).includes(ingredient.name)) {
+                    Object.entries(productWithQty.sizeWithQuantities).forEach(([size, quantity]) => {
+                        ingredientsQuantities[ingredient.name] += 1;
+                    });
+                }
             }
         }
     }
 
-    return Math.ceil(baguetteCount);
+    // Round the baguette count and add some more just in case
+    ingredientsQuantities['Baguette'] = Math.ceil(ingredientsQuantities['Baguette']) + 3;
+
+    return ingredientsQuantities;
+};
+
+export const ingredientsToCount: Record<string, string> = {
+    'Poulet': '/png/chicken.png',
+    'Jambon': '/png/ham.png',
+    'Thon': '/png/tuna.png',
+    'Chèvre': '/png/goat.png',
+    'Emmental': '/png/cheese.png',
+    'Mozzarella': '/png/mozzarella.png',
+    'Maïs': '/png/corn.png',
+    'Salade': '/png/lettuce.png',
+    'Concombre': '/png/cucumber.png',
+    'Tomate': '/png/tomato.png',
+    'Oignons frits': '/png/onion.png',
+    'Baguette': 'png/baguette.png',
 };

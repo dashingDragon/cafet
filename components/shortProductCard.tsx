@@ -89,7 +89,7 @@ export const ShortProductCard: React.FC<{
                         {(product.isVege || product.isVegan) && product.type === 'serving' && (
                             <Image
                                 loader={imageLoader}
-                                src={'../../svg/leaf.png'}
+                                src={'../../png/leaf.png'}
                                 alt={'Vege'}
                                 height={18}
                                 width={18}

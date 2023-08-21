@@ -67,7 +67,7 @@ const MiniProductCard: React.FC<{
                     {(productWithQty.product.isVege || productWithQty.product.isVegan) && productWithQty.product.type === 'serving' && (
                         <Image
                             loader={imageLoader}
-                            src={'../../svg/leaf.png'}
+                            src={'../../png/leaf.png'}
                             alt={'Vege'}
                             height={36}
                             width={36}
