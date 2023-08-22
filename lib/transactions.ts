@@ -7,7 +7,13 @@ import { Timestamp } from 'firebase/firestore';
 export enum TransactionType {
     Recharge = 0,
     Order = 1,
-};
+}
+
+export enum TransactionState {
+    Preparing = 0,
+    Ready = 1,
+    Delivered = 2,
+}
 
 type TransactionMetadata = {
     type: TransactionType,
@@ -25,7 +31,7 @@ export type TransactionOrder = {
     id: string;
     productsWithQty: ProductWithQty[],
     price: number,
-    isReady: boolean,
+    state: TransactionState,
 } & TransactionMetadata;
 
 export type Transaction = TransactionRecharge | TransactionOrder;
@@ -33,6 +39,12 @@ export type Transaction = TransactionRecharge | TransactionOrder;
 export type MakeTransactionPayload = {
     account: Account,
     productsWithQty: ProductWithQty[],
+    isReady: boolean,
+}
+
+export type Order = {
+    id: number,
+    transaction: TransactionOrder,
 }
 
 export const transactionConverter: FirestoreDataConverter<Transaction> = {
@@ -54,13 +66,13 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
             const {
                 productsWithQty,
                 price,
-                isReady,
+                state,
             } = data as TransactionOrder;
             return {
                 id: snapshot.id,
                 productsWithQty,
                 price,
-                isReady,
+                state,
                 type,
                 customer,
                 staff,
@@ -85,12 +97,12 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
             const {
                 productsWithQty,
                 price,
-                isReady,
+                state,
             } = transaction as TransactionOrder;
             return {
                 productsWithQty,
                 price,
-                isReady,
+                state,
                 type,
                 customer,
                 staff,

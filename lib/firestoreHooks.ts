@@ -1,10 +1,10 @@
-import { DocumentReference, addDoc, collection, deleteDoc, doc, getFirestore, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getFirestore, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Account, School, accountConverter } from './accounts';
 import { useUser } from './hooks';
 import { Staff, staffConverter } from './staffs';
-import { Transaction, TransactionOrder, TransactionRecharge, TransactionType, transactionConverter } from './transactions';
-import { Product, ProductWithQty, productConverter, productType } from './products';
+import { Order, Transaction, TransactionOrder, TransactionState, TransactionType, transactionConverter } from './transactions';
+import { Product, productConverter, productType } from './products';
 import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients } from './ingredients';
 import { Stat, statConverter } from './stats';
 
@@ -551,7 +551,7 @@ export const useTransactionHistory = (account: Account) => {
 
 export const useTodaysOrders = () => {
     const db = getFirestore();
-    const [transactions, setTransactions] = useState([] as TransactionOrder[]);
+    const [transactions, setTransactions] = useState([] as Order[]);
 
     const startOfDay = new Date();
     startOfDay.setHours(7, 0, 0, 0);
@@ -571,7 +571,14 @@ export const useTodaysOrders = () => {
             const _transactions = snapshot.docs.map((a) => a.data());
             console.log(_transactions);
             if (_transactions) {
-                setTransactions(_transactions as TransactionOrder[]);
+                setTransactions(
+                    (_transactions as TransactionOrder[]).sort((a, b) => +a.createdAt - +b.createdAt).map((t, i) =>
+                        ({
+                            id: i,
+                            transaction: t,
+                        } as Order)
+                    )
+                );
             }
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -583,10 +590,10 @@ export const useTodaysOrders = () => {
 export const useUpdateOrderStatus = () => {
     const db = getFirestore();
 
-    return async (transaction: TransactionOrder, isReady: boolean) => {
+    return async (transaction: TransactionOrder, state: TransactionState) => {
         console.log(`Updating transaction ${transaction.id} status`);
         await updateDoc(doc(db, `transactions/${transaction.id}`), {
-            isReady,
+            state,
         });
     };
 };

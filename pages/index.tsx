@@ -5,15 +5,35 @@ import { useGuardIsStaff } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useTodaysOrders } from '../lib/firestoreHooks';
 import { OrderList } from '../components/orderList';
-import { Box, Card, Stack, Typography } from '@mui/material';
+import { Box, ButtonGroup, Card, IconButton, Stack, Typography, styled } from '@mui/material';
 import Image from 'next/image';
 import { imageLoader } from './_app';
 import { countIngredients, ingredientsToCount } from '../lib/ingredients';
+import { FormatListBulleted, Menu, RoomService } from '@mui/icons-material';
+import { useState } from 'react';
+import { TransactionState } from '../lib/transactions';
+
+const StyledTabButton = styled(IconButton)(({ theme }) => ({
+    height: '60px',
+    width: '100px',
+    border: theme.palette.mode === 'light' ? `1px solid hsla(0, 0%, 70%, 1)` : `1px solid hsla(224, 6%, 69%, 1)`,
+    background: theme.palette.mode === 'light' ? 'hsla(0, 0%, 94%, 1)' : 'hsla(224, 6%, 48%, 1)',
+    borderRadius: '10px',
+    '&:hover, &.selected': {
+        cursor: 'pointer',
+        background: 'transparent',
+        border: `1px solid ${theme.colors.main}`,
+    },
+}));
 
 const OrderPage: NextPage = () => {
     const staffUser = useGuardIsStaff();
     const orders = useTodaysOrders();
     const ingredientsQuantities = countIngredients(orders);
+    const [tabIndex, setTabIndex] = useState(0);
+
+    const ordersInPreparation = orders.filter(o => o.transaction.state !== TransactionState.Delivered);
+    const ordersServed = orders.filter(o => o.transaction.state === TransactionState.Delivered);
 
     return (
         <>
@@ -90,23 +110,94 @@ const OrderPage: NextPage = () => {
                                             </Box>
                                         ))}
                                     </Stack>
-
                                 </Card>
 
-                                <OrderList orders={orders} />
-                                {orders.length === 0 && (
-                                    <Stack direction="column" justifyContent="center" height="100%">
-                                        <Typography variant="h3" sx={{ m: '32px' }}>
-                                            {'Aucune commande n\'a été passée.'}
-                                        </Typography>
-                                        <Image
-                                            loader={imageLoader}
-                                            src={'/svg/empty.svg'}
-                                            alt={'Success image'}
-                                            width={120}
-                                            height={120}
-                                        />
-                                    </Stack>
+                                <ButtonGroup sx={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-around',
+                                    mb: '16px',
+                                    borderRadius: '20px',
+                                    overflow: 'visible',
+                                    width: '350px',
+                                    display: 'flex',
+                                    height: '100px',
+                                }}>
+                                    <StyledTabButton onClick={() => setTabIndex(0)} className={tabIndex === 0 ? 'selected' : ''}>
+                                        <Menu />
+                                    </StyledTabButton>
+                                    <StyledTabButton onClick={() => setTabIndex(1)} className={tabIndex === 1 ? 'selected' : ''}>
+                                        <FormatListBulleted />
+                                    </StyledTabButton>
+                                    <StyledTabButton onClick={() => setTabIndex(2)} className={tabIndex === 2 ? 'selected' : ''}>
+                                        <RoomService />
+                                    </StyledTabButton>
+                                </ButtonGroup>
+                                {tabIndex === 0 ? (
+                                    <>
+                                        {ordersInPreparation.length === 0 ? (
+                                            <Stack direction="column" justifyContent="center" height="100%">
+                                                <Typography variant="h3" sx={{ m: '32px' }}>
+                                                    {'Il n\'y a aucune commande en attente.'}
+                                                </Typography>
+                                                <Image
+                                                    loader={imageLoader}
+                                                    src={'/svg/empty.svg'}
+                                                    alt={'Success image'}
+                                                    width={120}
+                                                    height={120}
+                                                />
+                                            </Stack>
+                                        ) : (
+                                            <Typography variant="h5" mb={2}>
+                                                Commandes en attente
+                                            </Typography>
+                                        )}
+                                        <OrderList orders={ordersInPreparation} short />
+                                    </>
+                                ) : tabIndex === 1 ? (
+                                    <>
+                                        {ordersInPreparation.length === 0 ? (
+                                            <Stack direction="column" justifyContent="center" height="100%">
+                                                <Typography variant="h3" sx={{ m: '32px' }}>
+                                                    {'Il n\'y a aucune commande en attente.'}
+                                                </Typography>
+                                                <Image
+                                                    loader={imageLoader}
+                                                    src={'/svg/empty.svg'}
+                                                    alt={'Success image'}
+                                                    width={120}
+                                                    height={120}
+                                                />
+                                            </Stack>
+                                        ) : (
+                                            <Typography variant="h5" mb={2}>
+                                                Commandes en attente
+                                            </Typography>
+                                        )}
+                                        <OrderList orders={ordersInPreparation} />
+                                    </>
+                                ) : (
+                                    <>
+                                        {ordersServed.length === 0 ? (
+                                            <Stack direction="column" justifyContent="center" height="100%">
+                                                <Typography variant="h3" sx={{ m: '32px' }}>
+                                                    {'Aucune commande n\'a été servie aujourd\'hui.'}
+                                                </Typography>
+                                                <Image
+                                                    loader={imageLoader}
+                                                    src={'/svg/empty.svg'}
+                                                    alt={'Success image'}
+                                                    width={120}
+                                                    height={120}
+                                                />
+                                            </Stack>
+                                        ) : (
+                                            <Typography variant="h5" mb={2}>
+                                                Commandes servies
+                                            </Typography>
+                                        )}
+                                        <OrderList orders={ordersServed} />
+                                    </>
                                 )}
                             </Stack>
                         </>

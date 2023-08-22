@@ -1,6 +1,6 @@
-import { Box, Button, CardMedia, CircularProgress, Fab, IconButton, Modal, ModalProps, Stack, Typography } from '@mui/material';
-import { ArrowBack, Favorite, Remove } from '@mui/icons-material';
-import { Product, ProductWithQty } from '../lib/products';
+import { Box, Button, Checkbox, CircularProgress, Fab, FormControlLabel, IconButton, Modal, ModalProps, Stack, Typography } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
+import { ProductWithQty } from '../lib/products';
 import MiniProductCard from './miniProductCard';
 import { useRouter } from 'next/router';
 import { Account } from '../lib/accounts';
@@ -20,6 +20,7 @@ const BasketModal: React.FC<{
     const router = useRouter();
     const makeTransaction = useMakeTransaction();
     const [loading, setLoading] = useState(false);
+    const [ready, setReady] = useState(false);
 
     const makeOrder = async () => {
         if (basket.values().next()) {
@@ -27,6 +28,7 @@ const BasketModal: React.FC<{
                 account: account,
                 productsWithQty: Array.from(basket.values())
                     .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
+                isReady: ready,
             };
             console.log(payload);
             setLoading(true);
@@ -99,6 +101,15 @@ const BasketModal: React.FC<{
                         )}
                     </Box>
                     <Box m={2} display="flex" justifyContent={'flex-end'}>
+                        <FormControlLabel
+                            label="Déjà prête"
+                            control={
+                                <Checkbox
+                                    checked={ready}
+                                    onChange={() => setReady(!ready)}
+                                />
+                            }
+                        />
                         <Button
                             variant="contained"
                             onClick={makeOrder}

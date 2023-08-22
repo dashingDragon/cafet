@@ -6,7 +6,7 @@ import * as admin from 'firebase-admin';
 import {MakeStaffPayload, Staff, staffConverter as externalStaffConverter} from '../../lib/staffs';
 import {ListPendingStaffs} from '../../lib/firebaseFunctionHooks';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
-import {MakeTransactionPayload, TransactionType} from '../../lib/transactions';
+import {MakeTransactionPayload, TransactionState, TransactionType} from '../../lib/transactions';
 import {Account, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
@@ -87,7 +87,7 @@ export const makeStaff = functions.https.onCall(async (data, context) => {
 export const makeTransaction = functions.https.onCall(async (data, context) => {
     checkIfStaff(context.auth?.uid); // TODO change this so that users can order themselves
     const db = admin.firestore();
-    const {account, productsWithQty} = (data as MakeTransactionPayload);
+    const {account, productsWithQty, isReady} = (data as MakeTransactionPayload);
     const accountRef = db.doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
     const accountData = (await accountRef.get()).data();
     if (!accountData) {
@@ -148,7 +148,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         type: TransactionType.Order,
         productsWithQty: productsWithQty,
         price: priceProducts,
-        isReady: false,
+        state: isReady ? TransactionState.Delivered : TransactionState.Preparing,
         customer: account,
         staff: staff.data(),
         createdAt: new Date(),
