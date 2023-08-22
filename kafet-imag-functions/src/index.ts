@@ -87,7 +87,7 @@ export const makeStaff = functions.https.onCall(async (data, context) => {
 export const makeTransaction = functions.https.onCall(async (data, context) => {
     checkIfStaff(context.auth?.uid); // TODO change this so that users can order themselves
     const db = admin.firestore();
-    const {account, productsWithQty, isReady} = (data as MakeTransactionPayload);
+    const {account, productsWithQty, needPreparation} = (data as MakeTransactionPayload);
     const accountRef = db.doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
     const accountData = (await accountRef.get()).data();
     if (!accountData) {
@@ -148,7 +148,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         type: TransactionType.Order,
         productsWithQty: productsWithQty,
         price: priceProducts,
-        state: isReady ? TransactionState.Delivered : TransactionState.Preparing,
+        state: needPreparation ? TransactionState.Preparing : TransactionState.Served,
         customer: account,
         staff: staff.data(),
         createdAt: new Date(),
@@ -169,31 +169,33 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         }
     }
 
-    // Update the global stats
-    const statsRef = db.doc('stats/0').withConverter(statConverter as unknown as FirestoreDataConverter<Stat>);
-    const statsData = (await statsRef.get()).data();
+    if (!needPreparation) {
+        // Update the global stats
+        const statsRef = db.doc('stats/0').withConverter(statConverter as unknown as FirestoreDataConverter<Stat>);
+        const statsData = (await statsRef.get()).data();
 
-    if (!statsData) {
-        throw new functions.https.HttpsError('internal', 'Could not access global stats.');
+        if (!statsData) {
+            throw new functions.https.HttpsError('internal', 'Could not access global stats.');
+        }
+
+        batch.update(statsRef, {
+            totalMoneySpent: statsData.totalMoneySpent += priceProducts,
+            servingsOrdered: statsData.servingsOrdered += quantityOrdered['serving'],
+            drinksOrdered: statsData.drinksOrdered += quantityOrdered['drink'],
+            snacksOrdered: statsData.snacksOrdered += quantityOrdered['snack'],
+        });
+
+        // Update balance.
+        batch.update(accountRef, {
+            balance: account.balance - priceProducts,
+            stats: {
+                totalMoneySpent: account.stats.totalMoneySpent += priceProducts,
+                servingsOrdered: account.stats.servingsOrdered += quantityOrdered['serving'],
+                drinksOrdered: account.stats.drinksOrdered += quantityOrdered['drink'],
+                snacksOrdered: account.stats.snacksOrdered += quantityOrdered['snack'],
+            },
+        });
     }
-
-    batch.update(statsRef, {
-        totalMoneySpent: statsData.totalMoneySpent += priceProducts,
-        servingsOrdered: statsData.servingsOrdered += quantityOrdered['serving'],
-        drinksOrdered: statsData.drinksOrdered += quantityOrdered['drink'],
-        snacksOrdered: statsData.snacksOrdered += quantityOrdered['snack'],
-    });
-
-    // Update balance.
-    batch.update(accountRef, {
-        balance: account.balance - priceProducts,
-        stats: {
-            totalMoneySpent: account.stats.totalMoneySpent += priceProducts,
-            servingsOrdered: account.stats.servingsOrdered += quantityOrdered['serving'],
-            drinksOrdered: account.stats.drinksOrdered += quantityOrdered['drink'],
-            snacksOrdered: account.stats.snacksOrdered += quantityOrdered['snack'],
-        },
-    });
 
     try {
         // Exécutez le batch

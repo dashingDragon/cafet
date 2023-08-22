@@ -10,8 +10,8 @@ import Image from 'next/image';
 import { imageLoader } from './_app';
 import { countIngredients, ingredientsToCount } from '../lib/ingredients';
 import { FormatListBulleted, Menu, RoomService } from '@mui/icons-material';
-import { useState } from 'react';
-import { TransactionState } from '../lib/transactions';
+import { useEffect, useState } from 'react';
+import { Order, TransactionState } from '../lib/transactions';
 
 const StyledTabButton = styled(IconButton)(({ theme }) => ({
     height: '60px',
@@ -29,11 +29,18 @@ const StyledTabButton = styled(IconButton)(({ theme }) => ({
 const OrderPage: NextPage = () => {
     const staffUser = useGuardIsStaff();
     const orders = useTodaysOrders();
-    const ingredientsQuantities = countIngredients(orders);
+    const [ingredientsQuantities, setIngredientsQuantities] = useState<Record<string, number>>({});
+    const [ordersInPreparation, setOrdersInPreparation] = useState([] as Order[]);
+    const [ordersServed, setOrdersServed] = useState([] as Order[]);
+
     const [tabIndex, setTabIndex] = useState(0);
 
-    const ordersInPreparation = orders.filter(o => o.transaction.state !== TransactionState.Delivered);
-    const ordersServed = orders.filter(o => o.transaction.state === TransactionState.Delivered);
+    useEffect(() => {
+        console.log(orders);
+        setIngredientsQuantities(countIngredients(orders));
+        setOrdersInPreparation(orders.filter(o => o.transaction.state !== TransactionState.Served));
+        setOrdersServed(orders.filter(o => o.transaction.state === TransactionState.Served));
+    }, [orders]);
 
     return (
         <>
@@ -93,9 +100,9 @@ const OrderPage: NextPage = () => {
                                     flexDirection: 'row',
                                 }}>
 
-                                    <Stack direction="row" flexWrap={'wrap'} gap={2}>
+                                    <Stack direction="row" flexWrap={'wrap'}>
                                         {Object.entries(ingredientsQuantities).map(([name, quantity]) => (
-                                            <Box key={name} width='40%' sx={{ display: 'flex' }}>
+                                            <Box key={name} width='50%' sx={{ display: 'flex', p: 1 }}>
                                                 <Image
                                                     loader={imageLoader}
                                                     src={ingredientsToCount[name]}

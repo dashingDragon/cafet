@@ -1,5 +1,5 @@
 import { FirestoreDataConverter } from 'firebase/firestore';
-import { Order, TransactionOrder } from './transactions';
+import { Order } from './transactions';
 
 export type ingredientCategory = 'meat' | 'cheese' | 'veggie' | 'spice' | 'sauce';
 
@@ -103,7 +103,7 @@ export const countIngredients = (orders: Order[]): Record<string, number> => {
                     });
                 } else if (Object.keys(ingredientsToCount).includes(ingredient.name)) {
                     Object.entries(productWithQty.sizeWithQuantities).forEach(([size, quantity]) => {
-                        ingredientsQuantities[ingredient.name] += 1;
+                        ingredientsQuantities[ingredient.name] += quantity;
                     });
                 }
             }

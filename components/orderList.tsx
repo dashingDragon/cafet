@@ -2,11 +2,10 @@ import { Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTi
 import { Order, TransactionState } from '../lib/transactions';
 import React, { useState } from 'react';
 import { formatMoney } from './accountDetails';
-import { useStaffUser, useUpdateOrderStatus } from '../lib/firestoreHooks';
+import { cashInTransaction, useStaffUser, useUpdateOrderStatus } from '../lib/firestoreHooks';
 import {CheckCircle, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../lib/products';
 import { getIngredientPrice } from '../lib/ingredients';
-import { useUser } from '../lib/hooks';
 
 export const OrderItemLine: React.FC<{
     productWithQty: ProductWithQty,
@@ -48,11 +47,12 @@ export const OrderItemLine: React.FC<{
     }
 };
 
-const OrderItem: React.FC<{order: Order, number: number, short?: boolean}> = ({order, number, short}) => {
+const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) => {
     const setOrderStatus = useUpdateOrderStatus();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const staff = useStaffUser();
+    const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
 
     const handleOpenMenu = (event: { currentTarget: React.SetStateAction<HTMLElement | null>; }) => {
         if (staff?.isAdmin) {
@@ -69,6 +69,17 @@ const OrderItem: React.FC<{order: Order, number: number, short?: boolean}> = ({o
         await setOrderStatus(order.transaction, state);
     };
 
+    const setStatusDelivered = async () => {
+        const {success, message} = await cashInTransaction(order.transaction);
+        if (success) {
+            await setOrderStatus(order.transaction, TransactionState.Served);
+            // TODO snackbar
+        } else {
+            console.error('Failed to cash in transaction');
+        }
+        setConfirmDialogOpen(false);
+    };
+
     return (
         <Card variant={order.transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
             width: 350,
@@ -81,7 +92,7 @@ const OrderItem: React.FC<{order: Order, number: number, short?: boolean}> = ({o
             <CardContent>
                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={2}>
                     <Typography variant="body1">
-                        <strong>N°{number}</strong> - Pour {order.transaction.customer.firstName} {order.transaction.customer.lastName}
+                        <strong>N°{order.id}</strong> - Pour {order.transaction.customer.firstName} {order.transaction.customer.lastName}
                     </Typography>
                     {!short && (
                         <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
@@ -112,6 +123,7 @@ const OrderItem: React.FC<{order: Order, number: number, short?: boolean}> = ({o
                                 ? 'Prête' : 'Servie'
                         }
                         onClick={handleOpenMenu}
+                        disabled={order.transaction.state === TransactionState.Served}
                     />
                 </Box>
             </CardContent>
@@ -128,10 +140,21 @@ const OrderItem: React.FC<{order: Order, number: number, short?: boolean}> = ({o
                 <MenuItem onClick={() => handleChangeStatus(TransactionState.Ready)} disabled={order.transaction.state === TransactionState.Ready}>
                     Prête
                 </MenuItem>
-                <MenuItem onClick={() => handleChangeStatus(TransactionState.Delivered)} disabled={order.transaction.state === TransactionState.Delivered}>
-                    Livrée
+                <MenuItem onClick={() => setConfirmDialogOpen(true)} disabled={order.transaction.state === TransactionState.Served}>
+                    Servie
                 </MenuItem>
             </Menu>
+
+            <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)}>
+                <DialogTitle>
+                    {'Attention cette action est irréversible. Êtes-vous sûr de vouloir indiquer cette commande comme "livrée" ?'}
+                </DialogTitle>
+
+                <DialogActions>
+                    <Button onClick={() => setConfirmDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
+                    <Button onClick={setStatusDelivered} variant="contained">Confirmer</Button>
+                </DialogActions>
+            </Dialog>
         </Card>
     );
 };
@@ -139,8 +162,8 @@ const OrderItem: React.FC<{order: Order, number: number, short?: boolean}> = ({o
 export const OrderList: React.FC<{orders: Order[], short?: boolean}> = ({orders, short}) => {
     return (
         <Stack direction='column' gap='16px' alignItems={'center'}>
-            {orders.map((order, i) => (
-                <OrderItem order={order} key={order.id} number={i + 1} short={short} />
+            {orders.map((order) => (
+                <OrderItem order={order} key={order.id} short={short} />
             ))}
         </Stack>
     );

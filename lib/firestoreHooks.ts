@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getFirestore, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Account, School, accountConverter } from './accounts';
 import { useUser } from './hooks';
@@ -574,7 +574,7 @@ export const useTodaysOrders = () => {
                 setTransactions(
                     (_transactions as TransactionOrder[]).sort((a, b) => +a.createdAt - +b.createdAt).map((t, i) =>
                         ({
-                            id: i,
+                            id: i + 1,
                             transaction: t,
                         } as Order)
                     )
@@ -596,4 +596,94 @@ export const useUpdateOrderStatus = () => {
             state,
         });
     };
+};
+
+export const cashInTransaction = async (transaction: TransactionOrder): Promise<{
+    success: boolean,
+    message: string,
+}> => {
+    try {
+        const db = getFirestore();
+        const account = transaction.customer;
+
+        // Update the global stats
+        const statsRef = doc(db, 'stats/0').withConverter(statConverter);
+        const statsData = (await getDoc(statsRef)).data();
+        const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
+        const accountData = (await getDoc(accountRef)).data();
+
+        if (!statsData) {
+            return {success: false, message: 'Could not access global stats.'};
+        }
+
+        if (!accountData) {
+            console.error('Could not find account.');
+            return {success: false, message: 'Could not find account.'};
+        }
+
+        if (accountData.balance < transaction.price) {
+            return {success: false, message: 'Account does not have enough provision.'};
+        }
+
+        const quantityOrdered = {
+            'serving': 0,
+            'drink': 0,
+            'snack': 0,
+        };
+        for (let i = 0; i < transaction.productsWithQty.length; i++) {
+            const productWithQtySize = transaction.productsWithQty[i];
+
+            // Do not trust user product price, check with db
+            const productData = (await getDoc(doc(db, `products/${productWithQtySize.product.id}`).withConverter(productConverter))).data();
+            if (!productData) {
+                return {success: false, message: `${productWithQtySize.product.name} not found.`};
+            }
+            if (!productData.isAvailable) {
+                return {success: false, message: `${productWithQtySize.product.name} is not available.`};
+            }
+
+            Object.entries(productWithQtySize.sizeWithQuantities).forEach(([size, quantity]) => {
+                // Check user input.
+                if (quantity < 0) {
+                    return {success: false, message: 'Quantities must be positive.'};
+                }
+                if (!Object.keys(productData.sizeWithPrices).includes(size)) {
+                    return {success: false, message: `Size does not exist for product ${productData.name}.`};
+                }
+                if (productData.stock && productData.stock < quantity) {
+                    return {success: false, message: 'Queried quantity exceeds remaining product stock.'};
+                }
+                quantityOrdered[productWithQtySize.product.type] += quantity;
+            });
+        }
+
+        const batch = writeBatch(db);
+        batch.update(statsRef, {
+            totalMoneySpent: statsData.totalMoneySpent += transaction.price,
+            servingsOrdered: statsData.servingsOrdered += quantityOrdered['serving'],
+            drinksOrdered: statsData.drinksOrdered += quantityOrdered['drink'],
+            snacksOrdered: statsData.snacksOrdered += quantityOrdered['snack'],
+        });
+
+        // Update balance.
+        batch.update(accountRef, {
+            balance: account.balance - transaction.price,
+            stats: {
+                totalMoneySpent: account.stats.totalMoneySpent += transaction.price,
+                servingsOrdered: account.stats.servingsOrdered += quantityOrdered['serving'],
+                drinksOrdered: account.stats.drinksOrdered += quantityOrdered['drink'],
+                snacksOrdered: account.stats.snacksOrdered += quantityOrdered['snack'],
+            },
+        });
+
+        try {
+            await batch.commit();
+            return {success: true, message: 'Order cashed in'};
+        } catch {
+            return {success: false, message: 'Error committing order'};
+        }
+
+    } catch (error) {
+        return {success: false, message: 'Error'};
+    }
 };

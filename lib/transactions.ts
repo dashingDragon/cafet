@@ -12,7 +12,7 @@ export enum TransactionType {
 export enum TransactionState {
     Preparing = 0,
     Ready = 1,
-    Delivered = 2,
+    Served = 2,
 }
 
 type TransactionMetadata = {
@@ -39,7 +39,7 @@ export type Transaction = TransactionRecharge | TransactionOrder;
 export type MakeTransactionPayload = {
     account: Account,
     productsWithQty: ProductWithQty[],
-    isReady: boolean,
+    needPreparation: boolean,
 }
 
 export type Order = {

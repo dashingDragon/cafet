@@ -20,7 +20,7 @@ const BasketModal: React.FC<{
     const router = useRouter();
     const makeTransaction = useMakeTransaction();
     const [loading, setLoading] = useState(false);
-    const [ready, setReady] = useState(false);
+    const [needPreparation, setNeedPreparation] = useState(true);
 
     const makeOrder = async () => {
         if (basket.values().next()) {
@@ -28,7 +28,7 @@ const BasketModal: React.FC<{
                 account: account,
                 productsWithQty: Array.from(basket.values())
                     .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
-                isReady: ready,
+                needPreparation: needPreparation,
             };
             console.log(payload);
             setLoading(true);
@@ -105,8 +105,8 @@ const BasketModal: React.FC<{
                             label="Déjà prête"
                             control={
                                 <Checkbox
-                                    checked={ready}
-                                    onChange={() => setReady(!ready)}
+                                    checked={!needPreparation}
+                                    onChange={() => setNeedPreparation(!needPreparation)}
                                 />
                             }
                         />
