@@ -37,6 +37,7 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add more icons and colors
 - [x] compute the number of baguettes needed for a day
 - [x] store the global and products' stats somewhere
+- [x] cash in the order when serving
 - [ ] add snackbars when adding a product to the basket
 - [ ] add cancel order button
 - [ ] make a backup script for the database

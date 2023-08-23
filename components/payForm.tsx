@@ -1,5 +1,5 @@
 import { ChevronRight, ShoppingBasket } from '@mui/icons-material';
-import { Box, Button, Card, Stack, Typography } from '@mui/material';
+import { Alert, AlertColor, Box, Button, Card, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
 import { useProducts } from '../lib/firestoreHooks';
@@ -14,7 +14,8 @@ const ProductShortCardList: React.FC<{
   basket: Map<string, ProductWithQty>,
   setBasket: (m: Map<string, ProductWithQty>) => void,
   priceLimit: number,
-}> = ({ basket, setBasket, priceLimit }) => {
+  setSnackbarMessage: (message: string, severity: AlertColor) => void,
+}> = ({ basket, setBasket, priceLimit, setSnackbarMessage }) => {
     const products = useProducts();
 
     return (
@@ -59,6 +60,7 @@ const ProductShortCardList: React.FC<{
                                     basket={basket}
                                     setBasket={setBasket}
                                     priceLimit={priceLimit}
+                                    setSnackbarMessage={setSnackbarMessage}
                                 />
                             </Box>
                         ))}
@@ -69,11 +71,26 @@ const ProductShortCardList: React.FC<{
     );
 };
 
+type TransitionProps = Omit<SlideProps, 'direction'>;
+
+const TransitionRight = (props: TransitionProps) => {
+    return <Slide {...props} direction="right" />;
+};
+
 const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     // State
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
     const [total, setTotal] = useState(0);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [message, setMessage] = useState('');
+    const [severity, setSeverity] = useState<AlertColor>('success');
+
+    const setSnackbarMessage = (message: string, severity: AlertColor) => {
+        setMessage(message);
+        setSeverity(severity);
+        setSnackbarOpen(true);
+    };
 
     useEffect(() => {
         let priceProducts = 0;
@@ -103,7 +120,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     return (
         <>
             <Box m={'8px'} pb='64px'>
-                <ProductShortCardList basket={basket} setBasket={setBasket} priceLimit={account.balance - total} />
+                <ProductShortCardList basket={basket} setBasket={setBasket} priceLimit={account.balance - total} setSnackbarMessage={setSnackbarMessage} />
             </Box>
             <Box m={'8px'}>
                 {total > 0 && (
@@ -126,6 +143,17 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                     </Button>
                 )}
             </Box>
+            <Snackbar
+                open={snackbarOpen}
+                onClose={() => setSnackbarOpen(false)}
+                TransitionComponent={TransitionRight}
+                key={'transition'}
+                autoHideDuration={6000}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
             <BasketModal
                 open={basketOpen}
                 setBasketOpen={setBasketOpen}

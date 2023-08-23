@@ -1,5 +1,5 @@
 import { Add } from '@mui/icons-material';
-import { Box, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { AlertColor, Box, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { useState } from 'react';
 import { getIngredientPrice } from '../lib/ingredients';
 import { Product, ProductWithQty } from '../lib/products';
@@ -12,7 +12,8 @@ export const ShortProductCard: React.FC<{
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
     priceLimit: number,
-}> = ({ product, basket, setBasket, priceLimit }) => {
+    setSnackbarMessage: (message: string, severity: AlertColor) => void,
+}> = ({ product, basket, setBasket, priceLimit, setSnackbarMessage }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -30,7 +31,7 @@ export const ShortProductCard: React.FC<{
         if (basketItem) {
             basketItem.sizeWithQuantities[chosenSize] += 1;
             setBasket(new Map(basket.set(product.id, basketItem)));
-            // TODO snackbar to notify user
+            setSnackbarMessage(`${product.name}: ${chosenSize} a été ajouté au panier.`, 'success');
         } else {
             const sizeWithQuantities: Record<string, number> = {};
             for (const size of Object.keys(product.sizeWithPrices)) {

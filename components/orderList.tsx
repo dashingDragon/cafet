@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { Alert, AlertColor, Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, Menu, MenuItem, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
 import { Order, TransactionState } from '../lib/transactions';
 import React, { useState } from 'react';
 import { formatMoney } from './accountDetails';
@@ -47,7 +47,7 @@ export const OrderItemLine: React.FC<{
     }
 };
 
-const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) => {
+const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, severity: AlertColor) => void, short?: boolean}> = ({order, setSnackbarMessage, short}) => {
     const setOrderStatus = useUpdateOrderStatus();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -73,9 +73,10 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
         const {success, message} = await cashInTransaction(order.transaction);
         if (success) {
             await setOrderStatus(order.transaction, TransactionState.Served);
-            // TODO snackbar
+            setSnackbarMessage(message, 'success');
         } else {
             console.error('Failed to cash in transaction');
+            setSnackbarMessage(message, 'error');
         }
         setConfirmDialogOpen(false);
     };
@@ -159,12 +160,39 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
     );
 };
 
+type TransitionProps = Omit<SlideProps, 'direction'>;
+
+const TransitionRight = (props: TransitionProps) => {
+    return <Slide {...props} direction="right" />;
+};
+
 export const OrderList: React.FC<{orders: Order[], short?: boolean}> = ({orders, short}) => {
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [message, setMessage] = useState('');
+    const [severity, setSeverity] = useState<AlertColor>('success');
+
+    const setSnackbarMessage = (message: string, severity: AlertColor) => {
+        setMessage(message);
+        setSeverity(severity);
+        setSnackbarOpen(true);
+    };
+
     return (
         <Stack direction='column' gap='16px' alignItems={'center'}>
             {orders.map((order) => (
-                <OrderItem order={order} key={order.id} short={short} />
+                <OrderItem order={order} setSnackbarMessage={setSnackbarMessage} key={order.id} short={short} />
             ))}
+            <Snackbar
+                open={snackbarOpen}
+                onClose={() => setSnackbarOpen(false)}
+                TransitionComponent={TransitionRight}
+                key={'transition'}
+                autoHideDuration={6000}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
         </Stack>
     );
 };
