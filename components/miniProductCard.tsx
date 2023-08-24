@@ -16,7 +16,9 @@ const MiniProductCard: React.FC<{
     const theme = useTheme();
 
     const addQuantity = (size: string) => {
+        console.log('add quantity');
         const basketItem = basket.get(productWithQty.product.id);
+        console.log(basketItem);
         if (basketItem) {
             basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] + 1,
             setBasket(new Map(basket.set(basketItem.product.id, basketItem)));
@@ -24,6 +26,7 @@ const MiniProductCard: React.FC<{
     };
 
     const removeQuantity = (size: string) => {
+        console.log('remove quantity');
         const basketItem = basket.get(productWithQty.product.id);
         if (basketItem) {
             basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] - 1,

@@ -4,7 +4,7 @@ import { Account, School, accountConverter } from './accounts';
 import { useUser } from './hooks';
 import { Staff, staffConverter } from './staffs';
 import { Order, Transaction, TransactionOrder, TransactionState, TransactionType, transactionConverter } from './transactions';
-import { Product, productConverter, productType } from './products';
+import { Product, ProductWithQty, productConverter, productType } from './products';
 import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients } from './ingredients';
 import { Stat, statConverter } from './stats';
 
@@ -686,4 +686,54 @@ export const cashInTransaction = async (transaction: TransactionOrder): Promise<
     } catch (error) {
         return {success: false, message: 'Error'};
     }
+};
+
+type OrderPayload = {
+    order: TransactionOrder,
+    productsWithQty: ProductWithQty[],
+    price: number,
+    needPreparation: boolean
+}
+
+export const useOrderEditor = () => {
+    const db = getFirestore();
+
+    return async ({order, productsWithQty, price, needPreparation }: OrderPayload): Promise<{ success: boolean; message: string; }> => {
+        console.log(`Updating order ${order.id}`);
+        // check if account has enough provision
+        const accountData = (await getDoc(doc(db, `accounts/${order.customer.id}`).withConverter(accountConverter))).data();
+        if (!accountData) {
+            return {success: false, message: `Customer ${order.customer.lastName} not found.`};
+        }
+        if (accountData.balance < price) {
+            return {success: false, message: 'Customer does not have enough provision.'};
+        }
+
+        try {
+            await updateDoc(doc(db, `transactions/${order.id}`).withConverter(transactionConverter), {
+                productsWithQty,
+                price,
+                state: needPreparation ? order.state : TransactionState.Served,
+                type: order.type,
+                customer: order.customer,
+                staff: order.staff,
+                createdAt: order.createdAt,
+            });
+
+            // if the order is served now, update customer balance
+            if (!needPreparation) {
+                await updateDoc(doc(db, `accounts/${accountData.id}`), {
+                    balance: accountData.balance - price,
+                });
+
+                return {success: true, message: 'Order succesfully cashed in.'};
+            }
+
+            return {success: true, message: 'Order succesfully updated.'};
+        } catch {
+            return {success: false, message: 'An error occured'};
+        }
+
+
+    };
 };

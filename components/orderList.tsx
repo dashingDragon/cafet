@@ -1,11 +1,12 @@
-import { Alert, AlertColor, Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, Menu, MenuItem, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, AlertColor, Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, IconButton, Menu, MenuItem, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
 import { Order, TransactionState } from '../lib/transactions';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { formatMoney } from './accountDetails';
-import { cashInTransaction, useStaffUser, useUpdateOrderStatus } from '../lib/firestoreHooks';
-import {CheckCircle, Timelapse} from '@mui/icons-material';
+import { cashInTransaction, useOrderEditor, useStaffUser, useUpdateOrderStatus } from '../lib/firestoreHooks';
+import {CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../lib/products';
 import { getIngredientPrice } from '../lib/ingredients';
+import BasketModal from './basketModal';
 
 export const OrderItemLine: React.FC<{
     productWithQty: ProductWithQty,
@@ -48,11 +49,16 @@ export const OrderItemLine: React.FC<{
 };
 
 const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, severity: AlertColor) => void, short?: boolean}> = ({order, setSnackbarMessage, short}) => {
-    const setOrderStatus = useUpdateOrderStatus();
+    const staff = useStaffUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
-    const staff = useStaffUser();
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
+    const [basketOpen, setBasketOpen] = useState(false);
+    const [basketPrice, setBasketPrice] = useState(0);
+
+    const setOrderStatus = useUpdateOrderStatus();
+    const updateTransaction = useOrderEditor();
 
     const handleOpenMenu = (event: { currentTarget: React.SetStateAction<HTMLElement | null>; }) => {
         if (staff?.isAdmin) {
@@ -80,6 +86,61 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
         }
         setConfirmDialogOpen(false);
     };
+
+    const handleEditOrder = () => {
+        setBasketOpen(true);
+    };
+
+    const editOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
+        if (basket.values().next()) {
+            const payload = {
+                order: order.transaction,
+                productsWithQty: Array.from(basket.values())
+                    .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
+                price: basketPrice,
+                needPreparation: needPreparation,
+            };
+            console.log(payload);
+            setLoading(true);
+            const {success, message} = await updateTransaction(payload);
+            if (success) {
+                setSnackbarMessage(message, 'success');
+            } else {
+                setSnackbarMessage(message, 'error');
+            }
+            setBasketOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        console.log('compute price');
+        let priceProducts = 0;
+
+        for (const productWithQty of basket.values()) {
+            if (productWithQty.product.sizeWithPrices && productWithQty.sizeWithQuantities) {
+                Object.keys(productWithQty.sizeWithQuantities).forEach(size => {
+                    const priceForSize = productWithQty.product.sizeWithPrices[size];
+                    const quantityForSize = productWithQty.sizeWithQuantities[size];
+                    const ingredientsPrice = getIngredientPrice(productWithQty.product.ingredients);
+                    if (priceForSize && quantityForSize) {
+                        priceProducts += productWithQty.product.sizeWithPrices[size] * productWithQty.sizeWithQuantities[size] + ingredientsPrice;
+                    }
+                }
+                );
+            }
+        }
+
+        setBasketPrice(priceProducts);
+    }, [basket]);
+
+    useEffect(() => {
+        console.log('update basket');
+        order.transaction.productsWithQty.forEach(productWithQty => {
+            basket.set(productWithQty.product.id, productWithQty);
+        });
+        setBasket(new Map(basket));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [order]);
 
     return (
         <Card variant={order.transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
@@ -109,7 +170,20 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
                     }
                 </Box>
 
-                <Box display="flex" justifyContent="flex-end" flexDirection={'row'}>
+                <Box display="flex" justifyContent="flex-end" flexDirection={'row'} alignItems={'center'}>
+                    {staff?.isAdmin && order.transaction.state !== TransactionState.Served && (
+                        <>
+                            {/* Edit button */}
+                            <IconButton>
+                                <EditOutlined
+                                    onClick={handleEditOrder}
+                                    sx={(theme) => ({
+                                        color: theme.colors.main,
+                                    })} />
+                            </IconButton>
+                        </>
+                    )}
+
                     <Chip
                         variant="outlined"
                         color={order.transaction.state === TransactionState.Preparing ? 'warning' : 'success'}
@@ -156,6 +230,16 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
                     <Button onClick={setStatusDelivered} variant="contained">Confirmer</Button>
                 </DialogActions>
             </Dialog>
+
+            <BasketModal
+                open={basketOpen}
+                setBasketOpen={setBasketOpen}
+                basket={basket}
+                setBasket={setBasket}
+                account={order.transaction.customer}
+                basketPrice={basketPrice}
+                actionCallback={editOrder}
+            />
         </Card>
     );
 };

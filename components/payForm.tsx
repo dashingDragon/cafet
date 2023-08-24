@@ -9,6 +9,8 @@ import { typeTranslation } from './productList';
 import { ShortProductCard } from './shortProductCard';
 import BasketModal from './basketModal';
 import { getIngredientPrice } from '../lib/ingredients';
+import { useRouter } from 'next/router';
+import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 
 const ProductShortCardList: React.FC<{
   basket: Map<string, ProductWithQty>,
@@ -81,15 +83,37 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     // State
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
-    const [total, setTotal] = useState(0);
+    const [basketPrice, setBasketPrice] = useState(0);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState<AlertColor>('success');
+    const router = useRouter();
+    const makeTransaction = useMakeTransaction();
 
     const setSnackbarMessage = (message: string, severity: AlertColor) => {
         setMessage(message);
         setSeverity(severity);
         setSnackbarOpen(true);
+    };
+
+    const makeOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
+        if (basket.values().next()) {
+            const payload = {
+                account: account,
+                productsWithQty: Array.from(basket.values())
+                    .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
+                needPreparation: needPreparation,
+            };
+            console.log(payload);
+            setLoading(true);
+            const result = await makeTransaction(payload);
+            console.log(result);
+            if (result.data.success) {
+                router.push(`/success/${account.id}`);
+            } else {
+                router.push(`/error/${account.id}`);
+            }
+        }
     };
 
     useEffect(() => {
@@ -109,21 +133,21 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
             }
         }
 
-        setTotal(priceProducts);
+        setBasketPrice(priceProducts);
     }, [basket]);
 
     // Compute money stuff
     const canBeCompleted = () => {
-        return total <= account.balance;
+        return basketPrice <= account.balance;
     };
 
     return (
         <>
             <Box m={'8px'} pb='64px'>
-                <ProductShortCardList basket={basket} setBasket={setBasket} priceLimit={account.balance - total} setSnackbarMessage={setSnackbarMessage} />
+                <ProductShortCardList basket={basket} setBasket={setBasket} priceLimit={account.balance - basketPrice} setSnackbarMessage={setSnackbarMessage} />
             </Box>
             <Box m={'8px'}>
-                {total > 0 && (
+                {basketPrice > 0 && (
                     <Button
                         disabled={!canBeCompleted()}
                         onClick={() => setBasketOpen(true)}
@@ -137,7 +161,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                     >
                         <Box width="100%" display="flex" justifyContent="space-between" alignItems="center" title="Payer">
                             <ShoppingBasket />
-                            <Typography variant="h6">Panier: <strong>{formatMoney(total)}</strong></Typography>
+                            <Typography variant="h6">Panier: <strong>{formatMoney(basketPrice)}</strong></Typography>
                             <ChevronRight fontSize="large" sx={{ height: '40px', width: '40px' }} />
                         </Box>
                     </Button>
@@ -160,7 +184,8 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                 basket={basket}
                 setBasket={setBasket}
                 account={account}
-                priceLimit={account.balance - total}
+                basketPrice={basketPrice}
+                actionCallback={makeOrder}
             />
         </>
     );

@@ -2,9 +2,7 @@ import { Box, Button, Checkbox, CircularProgress, Fab, FormControlLabel, IconBut
 import { ArrowBack } from '@mui/icons-material';
 import { ProductWithQty } from '../lib/products';
 import MiniProductCard from './miniProductCard';
-import { useRouter } from 'next/router';
 import { Account } from '../lib/accounts';
-import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { useState } from 'react';
 import { OrderItemLine } from './orderList';
 import { formatMoney } from './accountDetails';
@@ -15,32 +13,11 @@ const BasketModal: React.FC<{
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
     account: Account,
-    priceLimit: number,
-}> = ({open, setBasketOpen, basket, setBasket, account, priceLimit }) => {
-    const router = useRouter();
-    const makeTransaction = useMakeTransaction();
+    basketPrice: number,
+    actionCallback: (b: boolean, setLoading: (b: boolean) => void) => void,
+}> = ({open, setBasketOpen, basket, setBasket, account, basketPrice, actionCallback }) => {
     const [loading, setLoading] = useState(false);
     const [needPreparation, setNeedPreparation] = useState(true);
-
-    const makeOrder = async () => {
-        if (basket.values().next()) {
-            const payload = {
-                account: account,
-                productsWithQty: Array.from(basket.values())
-                    .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
-                needPreparation: needPreparation,
-            };
-            console.log(payload);
-            setLoading(true);
-            const result = await makeTransaction(payload);
-            console.log(result);
-            if (result.data.success) {
-                router.push(`/success/${account.id}`);
-            } else {
-                router.push(`/error/${account.id}`);
-            }
-        }
-    };
 
     return (
         <Modal
@@ -78,7 +55,7 @@ const BasketModal: React.FC<{
                                 productWithQty={productWithQty}
                                 basket={basket}
                                 setBasket={setBasket}
-                                priceLimit={priceLimit}
+                                priceLimit={account.balance - basketPrice}
                             />
                         ))}
                     </Stack>
@@ -96,7 +73,7 @@ const BasketModal: React.FC<{
                                 <Typography fontWeight='bold' variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
                                     Total
                                 </Typography>
-                                <Typography variant="body2">{formatMoney(account.balance - priceLimit)}</Typography>
+                                <Typography variant="body2">{formatMoney(basketPrice)}</Typography>
                             </Stack>
                         )}
                     </Box>
@@ -112,7 +89,7 @@ const BasketModal: React.FC<{
                         />
                         <Button
                             variant="contained"
-                            onClick={makeOrder}
+                            onClick={() => actionCallback(needPreparation, setLoading)}
                             disabled={Array.from(basket.values()).length === 0 || loading}
                             sx={{ width: '128px', borderRadius: '10px' }}
                         >
