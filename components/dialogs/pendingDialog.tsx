@@ -1,7 +1,7 @@
 import { Box, Dialog, DialogContent, DialogTitle, Stack, Typography } from '@mui/material';
 import React, { Dispatch, SetStateAction } from 'react';
 import Image from 'next/image';
-import { imageLoader } from '../pages/_app';
+import { imageLoader } from '../../pages/_app';
 
 // TODO add errors when fields are empty
 export const PendingDialog: React.FC<{

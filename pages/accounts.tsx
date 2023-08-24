@@ -1,7 +1,7 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import PageLayout from '../components/pageLayout';
-import AccountList from '../components/accountList';
+import AccountList from '../components/lists/accountList';
 import { useGuardIsAdmin } from '../lib/hooks';
 import { Box, Card, Typography } from '@mui/material';
 import { imageLoader } from './_app';

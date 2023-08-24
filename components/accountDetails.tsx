@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account, MAX_MONEY_PER_ACCOUNT, School } from '../lib/accounts';
 import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useRechargeTransactionMaker, useStaffUser, useTransactionHistory } from '../lib/firestoreHooks';
-import AccountEditDialog from './accountEditDialog';
+import AccountEditDialog from './dialogs/accountEditDialog';
 import { TransactionOrder, TransactionRecharge, TransactionType } from '../lib/transactions';
 
 const schoolToImage = (school: School) => {

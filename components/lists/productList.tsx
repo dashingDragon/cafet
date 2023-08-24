@@ -1,12 +1,12 @@
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Dialog, DialogActions, DialogTitle, IconButton, List, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useProductDeleter, useStaffUser } from '../lib/firestoreHooks';
-import { Product } from '../lib/products';
-import { formatMoney } from './accountDetails';
-import { imageLoader } from '../pages/_app';
+import { useProductDeleter, useStaffUser } from '../../lib/firestoreHooks';
+import { Product } from '../../lib/products';
+import { formatMoney } from '../accountDetails';
+import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
-import { getIngredientPrice } from '../lib/ingredients';
+import { getIngredientPrice } from '../../lib/ingredients';
 
 export const typeTranslation: Record<string, string> = { 'serving': 'Plat', 'drink': 'Boisson', 'snack': 'Snack'};
 

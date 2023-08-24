@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Account, School } from '../lib/accounts';
+import { Account, School } from '../../lib/accounts';
 
 const AccountEditDialog: React.FC<{
   account: Account | null,

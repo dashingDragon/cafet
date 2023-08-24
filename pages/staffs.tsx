@@ -5,9 +5,9 @@ import Head from 'next/head';
 import { useState } from 'react';
 import LoadingScreen from '../components/loading';
 import PageLayout from '../components/pageLayout';
-import PendingStaffsDialog from '../components/pendingStaffsDialog';
+import PendingStaffsDialog from '../components/dialogs/pendingStaffsDialog';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
-import StaffList from '../components/staffList';
+import StaffList from '../components/lists/staffList';
 import { useStaffUser, useStaffs } from '../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../lib/hooks';
 

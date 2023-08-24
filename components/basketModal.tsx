@@ -1,10 +1,10 @@
 import { Box, Button, Checkbox, CircularProgress, Fab, FormControlLabel, IconButton, Modal, ModalProps, Stack, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { ProductWithQty } from '../lib/products';
-import MiniProductCard from './miniProductCard';
+import MiniProductCard from './cards/miniProductCard';
 import { Account } from '../lib/accounts';
 import { useState } from 'react';
-import { OrderItemLine } from './orderList';
+import { OrderItemLine } from './lists/orderList';
 import { formatMoney } from './accountDetails';
 
 const BasketModal: React.FC<{

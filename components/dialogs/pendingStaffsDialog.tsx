@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { PendingStaff, useMakeStaff, usePendingStaffs } from '../lib/firebaseFunctionHooks';
+import { PendingStaff, useMakeStaff, usePendingStaffs } from '../../lib/firebaseFunctionHooks';
 
 export const PendingStaffsDialog: React.FC<{
   open: boolean,

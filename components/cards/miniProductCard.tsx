@@ -1,10 +1,10 @@
 import { Add, Clear, Remove } from '@mui/icons-material';
 import { Box, Button, ButtonGroup, CardMedia, Dialog, DialogActions, DialogTitle, IconButton, Stack, Typography, useTheme } from '@mui/material';
-import { ProductWithQty } from '../lib/products';
+import { ProductWithQty } from '../../lib/products';
 import React, { useState } from 'react';
-import { getIngredientPrice } from '../lib/ingredients';
-import { formatMoney } from './accountDetails';
-import { imageLoader } from '../pages/_app';
+import { getIngredientPrice } from '../../lib/ingredients';
+import { formatMoney } from '../accountDetails';
+import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
 
 const MiniProductCard: React.FC<{

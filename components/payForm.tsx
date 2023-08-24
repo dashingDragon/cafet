@@ -1,77 +1,14 @@
 import { ChevronRight, ShoppingBasket } from '@mui/icons-material';
-import { Alert, AlertColor, Box, Button, Card, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, AlertColor, Box, Button, Slide, SlideProps, Snackbar, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
-import { useProducts } from '../lib/firestoreHooks';
 import { ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
-import { typeTranslation } from './productList';
-import { ShortProductCard } from './shortProductCard';
 import BasketModal from './basketModal';
 import { getIngredientPrice } from '../lib/ingredients';
 import { useRouter } from 'next/router';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
-
-const ProductShortCardList: React.FC<{
-  basket: Map<string, ProductWithQty>,
-  setBasket: (m: Map<string, ProductWithQty>) => void,
-  priceLimit: number,
-  setSnackbarMessage: (message: string, severity: AlertColor) => void,
-}> = ({ basket, setBasket, priceLimit, setSnackbarMessage }) => {
-    const products = useProducts();
-
-    return (
-        <>
-            {Object.keys(typeTranslation).map((type) => (
-                <React.Fragment key={type}>
-                    <Card sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        my: '16px',
-                        borderRadius: '20px',
-                        overflow: 'visible',
-                        px: '32px',
-                        height: '40px',
-                        background: theme => theme.palette.mode === 'light'
-                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
-                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
-                    }}>
-                        <Typography variant="h5">{typeTranslation[type]}</Typography>
-                    </Card>
-                    <Stack
-                        direction={'row'}
-                        justifyContent={'flex-start'}
-                        sx={{
-                            overflowX: 'auto',
-                            scrollbarWidth: 'none',
-                            '&::-webkit-scrollbar': {
-                                display: 'none',
-                            },
-                            '&-ms-overflow-style:': {
-                                display: 'none',
-                            },
-                        }}
-                        gap={2}
-                        mb={4}
-                    >
-                        {products.filter(p => p.type === type).map((product) => (
-                            <Box key={product.name}>
-                                <ShortProductCard
-                                    product={product}
-                                    basket={basket}
-                                    setBasket={setBasket}
-                                    priceLimit={priceLimit}
-                                    setSnackbarMessage={setSnackbarMessage}
-                                />
-                            </Box>
-                        ))}
-                    </Stack>
-                </React.Fragment>
-            ))}
-        </>
-    );
-};
+import { ProductShortCardList } from './lists/productShortCardList';
 
 type TransitionProps = Omit<SlideProps, 'direction'>;
 

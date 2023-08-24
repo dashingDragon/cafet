@@ -1,7 +1,7 @@
 import { Avatar, Box, Button, Dialog, DialogActions, DialogTitle, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useSetStaffAvailability, useStaffUser } from '../lib/firestoreHooks';
-import { Staff } from '../lib/staffs';
+import { useSetStaffAvailability, useStaffUser } from '../../lib/firestoreHooks';
+import { Staff } from '../../lib/staffs';
 
 const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
     const staffMe = useStaffUser();

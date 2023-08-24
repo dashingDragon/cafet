@@ -3,9 +3,9 @@ import { Box, Fab, TextField } from '@mui/material';
 import { DataGridPro, GridColDef } from '@mui/x-data-grid-pro';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useAccountList, useAccountMaker } from '../lib/firestoreHooks';
-import AccountEditDialog from './accountEditDialog';
-import { School } from '../lib/accounts';
+import { useAccountList, useAccountMaker } from '../../lib/firestoreHooks';
+import AccountEditDialog from '../dialogs/accountEditDialog';
+import { School } from '../../lib/accounts';
 
 const AccountList = () => {
     const router = useRouter();

@@ -4,7 +4,7 @@ import PageLayout from '../components/pageLayout';
 import { useGuardIsStaff } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useTodaysOrders } from '../lib/firestoreHooks';
-import { OrderList } from '../components/orderList';
+import { OrderList } from '../components/lists/orderList';
 import { Box, ButtonGroup, Card, IconButton, Stack, Typography, styled } from '@mui/material';
 import Image from 'next/image';
 import { imageLoader } from './_app';

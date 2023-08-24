@@ -2,18 +2,18 @@ import { Add } from '@mui/icons-material';
 import { Fab } from '@mui/material';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import ProductList from '../components/productList';
+import ProductList from '../components/lists/productList';
 import PageLayout from '../components/pageLayout';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import { useIngredients, useProducts, useStaffUser } from '../lib/firestoreHooks';
 import { useGuardIsAdmin, useGuardIsConnected } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useState } from 'react';
-import PendingDialog from '../components/pendingDialog';
-import IngredientList from '../components/ingredientList';
-import { ProductDialog } from '../components/productDialog';
+import PendingDialog from '../components/dialogs/pendingDialog';
+import IngredientList from '../components/lists/ingredientList';
+import { ProductDialog } from '../components/dialogs/productDialog';
 import { Product } from '../lib/products';
-import IngredientDialog from '../components/ingredientDialog';
+import IngredientDialog from '../components/dialogs/ingredientDialog';
 import { Ingredient } from '../lib/ingredients';
 
 const ProductListPage: NextPage = () => {

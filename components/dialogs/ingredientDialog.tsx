@@ -1,9 +1,9 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FilledInput, FormControl, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Stack } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useIngredientEditor, useIngredientMaker } from '../lib/firestoreHooks';
+import { useIngredientEditor, useIngredientMaker } from '../../lib/firestoreHooks';
 import { SelectChangeEvent } from '@mui/material/Select/SelectInput';
-import { Ingredient, ingredientCategory } from '../lib/ingredients';
-import { categoryTranslation } from './ingredientList';
+import { Ingredient, ingredientCategory } from '../../lib/ingredients';
+import { categoryTranslation } from '../lists/ingredientList';
 
 interface IIngredientDialog extends DialogProps {
     setIngredientDialogOpen: (b: boolean) => void;

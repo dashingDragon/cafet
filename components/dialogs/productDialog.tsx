@@ -1,12 +1,12 @@
 import { Autocomplete, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, ListSubheader, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Product, productType } from '../lib/products';
-import { useProductEditor, useProductMaker } from '../lib/firestoreHooks';
-import { typeTranslation } from './productList';
+import { Product, productType } from '../../lib/products';
+import { useProductEditor, useProductMaker } from '../../lib/firestoreHooks';
+import { typeTranslation } from '../lists/productList';
 import { Add, CheckBox, CheckBoxOutlineBlank, Clear } from '@mui/icons-material';
-import { Ingredient } from '../lib/ingredients';
-import { categoryTranslation } from './ingredientList';
-import { formatMoney } from './accountDetails';
+import { Ingredient } from '../../lib/ingredients';
+import { categoryTranslation } from '../lists/ingredientList';
+import { formatMoney } from '../accountDetails';
 
 const icon = <CheckBoxOutlineBlank fontSize="small" />;
 const checkedIcon = <CheckBox fontSize="small" />;
