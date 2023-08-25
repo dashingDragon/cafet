@@ -5,24 +5,35 @@ import { useGuardIsStaff } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useTodaysOrders } from '../lib/firestoreHooks';
 import { OrderList } from '../components/lists/orderList';
-import { Box, ButtonGroup, Card, IconButton, Stack, Typography, styled } from '@mui/material';
+import { Box, Card, IconButton, Stack, Typography, styled } from '@mui/material';
 import Image from 'next/image';
 import { imageLoader } from './_app';
 import { countIngredients, ingredientsToCount } from '../lib/ingredients';
-import { FormatListBulleted, Menu, RoomService } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { Order, TransactionState } from '../lib/transactions';
 
-const StyledTabButton = styled(IconButton)(({ theme }) => ({
-    height: '60px',
-    width: '100px',
-    border: theme.palette.mode === 'light' ? `1px solid hsla(0, 0%, 70%, 1)` : `1px solid hsla(224, 6%, 69%, 1)`,
-    background: theme.palette.mode === 'light' ? 'hsla(0, 0%, 94%, 1)' : 'hsla(224, 6%, 48%, 1)',
-    borderRadius: '10px',
+const TabItem = styled(Box)(({ theme }) => ({
+    flexGrow: 1,
+    flexShrink: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
     '&:hover, &.selected': {
         cursor: 'pointer',
-        background: 'transparent',
-        border: `1px solid ${theme.colors.main}`,
+    },
+}));
+
+const TabImage = styled(Box)(({ theme }) => ({
+    borderRadius: '50%',
+    background: theme.palette.background.paper,
+    width: '64px',
+    height: '64px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '8px',
+    '&.selected': {
+        background: theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
     },
 }));
 
@@ -119,7 +130,7 @@ const OrderPage: NextPage = () => {
                                     </Stack>
                                 </Card>
 
-                                <ButtonGroup sx={{
+                                <Stack sx={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-around',
                                     mb: '16px',
@@ -129,16 +140,68 @@ const OrderPage: NextPage = () => {
                                     display: 'flex',
                                     height: '100px',
                                 }}>
-                                    <StyledTabButton onClick={() => setTabIndex(0)} className={tabIndex === 0 ? 'selected' : ''}>
-                                        <Menu />
-                                    </StyledTabButton>
-                                    <StyledTabButton onClick={() => setTabIndex(1)} className={tabIndex === 1 ? 'selected' : ''}>
-                                        <FormatListBulleted />
-                                    </StyledTabButton>
-                                    <StyledTabButton onClick={() => setTabIndex(2)} className={tabIndex === 2 ? 'selected' : ''}>
-                                        <RoomService />
-                                    </StyledTabButton>
-                                </ButtonGroup>
+                                    <TabItem onClick={() => setTabIndex(0)}>
+                                        <TabImage className={tabIndex === 0 ? 'selected' : ''}>
+                                            <Image
+                                                loader={imageLoader}
+                                                src={'/png/order.png'}
+                                                alt={'Success image'}
+                                                width={48}
+                                                height={48}
+                                            />
+                                        </TabImage>
+                                        <Typography fontSize={10} sx={{
+                                            ...(tabIndex === 0 && ({
+                                                fontWeight: 700,
+                                                fontSize: '12px',
+                                                color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
+                                            })),
+                                        }}>
+                                            Commandes
+                                        </Typography>
+                                    </TabItem>
+                                    <TabItem onClick={() => setTabIndex(1)}>
+                                        <TabImage className={tabIndex === 1 ? 'selected' : ''}>
+                                            <Image
+                                                loader={imageLoader}
+                                                src={'/png/info.png'}
+                                                alt={'Success image'}
+                                                width={48}
+                                                height={48}
+                                            />
+                                        </TabImage>
+                                        <Typography fontSize={10} sx={{
+                                            ...(tabIndex === 1 && ({
+                                                fontWeight: 700,
+                                                fontSize: '12px',
+                                                color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
+                                            })),
+                                        }}>
+                                            Détails
+                                        </Typography>
+                                    </TabItem>
+                                    <TabItem onClick={() => setTabIndex(2)}>
+                                        <TabImage className={tabIndex === 2 ? 'selected' : ''}>
+                                            <Image
+                                                loader={imageLoader}
+                                                src={'/png/service.png'}
+                                                alt={'Success image'}
+                                                width={48}
+                                                height={48}
+                                            />
+                                        </TabImage>
+
+                                        <Typography fontSize={10} sx={{
+                                            ...(tabIndex === 2 && ({
+                                                fontWeight: 700,
+                                                fontSize: '12px',
+                                                color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
+                                            })),
+                                        }}>
+                                            Service
+                                        </Typography>
+                                    </TabItem>
+                                </Stack>
                                 {tabIndex === 0 ? (
                                     <>
                                         {ordersInPreparation.length === 0 ? (

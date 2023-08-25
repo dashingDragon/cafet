@@ -17,6 +17,10 @@ export const ShortProductCard: React.FC<{
 }> = ({ product, basket, setBasket, priceLimit, servingCount, setSnackbarMessage }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    const basketItem = basket.get(product.id);
+    const basketQuantity = basketItem !== undefined ? Object.values(basketItem.sizeWithQuantities).reduce((a, b) => a + b) : 0;
+    const enoughStock = product.stock !== undefined ? product.stock - basketQuantity > 0 : true;
+    const isReallyAvailable = product.isAvailable && enoughStock;
 
     const handleOpenMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -32,7 +36,6 @@ export const ShortProductCard: React.FC<{
         if (basketItem) {
             basketItem.sizeWithQuantities[chosenSize] += 1;
             setBasket(new Map(basket.set(product.id, basketItem)));
-            setSnackbarMessage(`${product.name}: ${chosenSize} a été ajouté au panier.`, 'success');
         } else {
             const sizeWithQuantities: Record<string, number> = {};
             for (const size of Object.keys(product.sizeWithPrices)) {
@@ -44,12 +47,9 @@ export const ShortProductCard: React.FC<{
             } as ProductWithQty;
             setBasket(new Map(basket.set(product.id, basketItem)));
         }
+        setSnackbarMessage(`${product.name}: ${chosenSize} a été ajouté au panier.`, 'success');
         handleCloseMenu();
     };
-
-    const isOutOfStock = product.stock === 0;
-
-    const isReallyAvailable = product.isAvailable && !isOutOfStock;
 
     return (
         <Card variant={isReallyAvailable ? 'elevation' : 'outlined'} sx={{
@@ -125,6 +125,8 @@ export const ShortProductCard: React.FC<{
                     },
                 })}
             />
+
+            {/* Description */}
             {product.description !== undefined && (
                 <CardContent sx={{ px: '24px', pt: '8px' }} >
 
@@ -134,7 +136,6 @@ export const ShortProductCard: React.FC<{
                 </CardContent>
             )}
 
-            {/* Add and remove buttons */}
             <CardActions sx={{
                 justifyContent: 'flex-start',
                 maxWidth: '100%',
@@ -149,6 +150,7 @@ export const ShortProductCard: React.FC<{
                     ml: 0,
                 },
             }}>
+                {/* Allergen info*/}
                 {product.allergen  && (
                     <Chip
                         variant='outlined'
@@ -160,6 +162,8 @@ export const ShortProductCard: React.FC<{
                         }}
                     />
                 )}
+
+                {/* Vege and vegan info */}
                 {product.isVegan ? (
                     <Chip
                         variant='outlined'
@@ -182,11 +186,12 @@ export const ShortProductCard: React.FC<{
                     />
                 )}
 
+                {/* Stock and availability */}
                 <Chip
                     variant='outlined'
                     color={product.stock
                         ? 'success'
-                        : isOutOfStock
+                        : !enoughStock
                             ? 'error'
                             : product.isAvailable
                                 ? 'success'
@@ -194,7 +199,7 @@ export const ShortProductCard: React.FC<{
                     }
                     label={product.stock ? (
                         `${product.stock} ${product.stock > 1 ? 'restants' : 'restant'}`
-                    ) : isOutOfStock ? (
+                    ) : !enoughStock ? (
                         'Stock épuisé'
                     ) : product.isAvailable ? (
                         'Disponible'
@@ -206,6 +211,8 @@ export const ShortProductCard: React.FC<{
                         fontWeight: 700,
                     }}
                 />
+
+                {/* Add button */}
                 <IconButton disabled={!isReallyAvailable || (product.type === 'serving' && servingCount >= 2)} sx={{
                     background: 'hsla(145, 28%, 43%, 1)',
                     color: 'white',
@@ -213,6 +220,8 @@ export const ShortProductCard: React.FC<{
                 }} onClick={handleOpenMenu}>
                     <Add />
                 </IconButton>
+
+                {/* Size Menu */}
                 <Menu
                     id="add-size-menu"
                     anchorEl={anchorEl}

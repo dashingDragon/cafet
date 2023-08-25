@@ -6,6 +6,7 @@ import { getIngredientPrice } from '../../lib/ingredients';
 import { formatMoney } from '../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
+import { useProducts } from '../../lib/firestoreHooks';
 
 const MiniProductCard: React.FC<{
     productWithQty: ProductWithQty,
@@ -16,6 +17,10 @@ const MiniProductCard: React.FC<{
 }> = ({ productWithQty, basket, setBasket, priceLimit, servingCount }) => {
     const theme = useTheme();
     const product = productWithQty.product;
+    const products = useProducts();
+    const productStock = products.filter(p => p.id === productWithQty.product.id).length > 0
+        ? products.filter(p => p.id === productWithQty.product.id)[0].stock
+        : undefined;
 
     const addQuantity = (size: string) => {
         console.log('add quantity');
@@ -108,7 +113,7 @@ const MiniProductCard: React.FC<{
                                 // TODO sync this with database
                                 disabled={
                                     price > priceLimit
-                                    || (product.stock !== undefined && productWithQty.sizeWithQuantities[size] >= product.stock)
+                                    || (productStock !== undefined && productWithQty.sizeWithQuantities[size] >= productStock)
                                     || (product.type === 'serving' && servingCount >= 2)
                                 }
                             >
