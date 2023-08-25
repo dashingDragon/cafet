@@ -168,7 +168,7 @@ const ProductItem: React.FC<{
                                     : 'error'
                         }
                         label={product.stock ? (
-                            `${product.stock} restant${product.stock > 1 && 's'}`
+                            `${product.stock} ${product.stock > 1 ? 'restants' : 'restant'}`
                         ) : isOutOfStock ? (
                             'Stock épuisé'
                         ) : product.isAvailable ? (

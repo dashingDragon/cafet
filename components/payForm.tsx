@@ -21,6 +21,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);
+    const [servingCount, setServingCount] = useState(0);
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [severity, setSeverity] = useState<AlertColor>('success');
@@ -55,6 +56,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
 
     useEffect(() => {
         let priceProducts = 0;
+        let nbServings = 0;
 
         for (const productWithQty of basket.values()) {
             if (productWithQty.product.sizeWithPrices && productWithQty.sizeWithQuantities) {
@@ -65,12 +67,16 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                     if (priceForSize && quantityForSize) {
                         priceProducts += productWithQty.product.sizeWithPrices[size] * productWithQty.sizeWithQuantities[size] + ingredientsPrice;
                     }
-                }
-                );
+
+                    if (productWithQty.product.type === 'serving') {
+                        nbServings += productWithQty.sizeWithQuantities[size];
+                    }
+                });
             }
         }
 
         setBasketPrice(priceProducts);
+        setServingCount(nbServings);
     }, [basket]);
 
     // Compute money stuff
@@ -81,7 +87,13 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     return (
         <>
             <Box m={'8px'} pb='64px'>
-                <ProductShortCardList basket={basket} setBasket={setBasket} priceLimit={account.balance - basketPrice} setSnackbarMessage={setSnackbarMessage} />
+                <ProductShortCardList
+                    basket={basket}
+                    setBasket={setBasket}
+                    priceLimit={account.balance - basketPrice}
+                    servingCount={servingCount}
+                    setSnackbarMessage={setSnackbarMessage}
+                />
             </Box>
             <Box m={'8px'}>
                 {basketPrice > 0 && (
@@ -122,6 +134,7 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
                 setBasket={setBasket}
                 account={account}
                 basketPrice={basketPrice}
+                servingCount={servingCount}
                 actionCallback={makeOrder}
             />
         </>

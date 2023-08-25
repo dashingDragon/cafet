@@ -12,10 +12,11 @@ const BasketModal: React.FC<{
     setBasketOpen: (b: boolean) => void,
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
-    account: Account,
     basketPrice: number,
+    servingCount: number,
     actionCallback: (b: boolean, setLoading: (b: boolean) => void) => void,
-}> = ({open, setBasketOpen, basket, setBasket, account, basketPrice, actionCallback }) => {
+    account: Account,
+}> = ({open, setBasketOpen, basket, setBasket, account, basketPrice, servingCount, actionCallback }) => {
     const [loading, setLoading] = useState(false);
     const [needPreparation, setNeedPreparation] = useState(true);
 
@@ -56,6 +57,7 @@ const BasketModal: React.FC<{
                                 basket={basket}
                                 setBasket={setBasket}
                                 priceLimit={account.balance - basketPrice}
+                                servingCount={servingCount}
                             />
                         ))}
                     </Stack>

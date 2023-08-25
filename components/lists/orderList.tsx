@@ -56,9 +56,10 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);
+    const [servingCount, setServingCount] = useState(0);
 
     const setOrderStatus = useUpdateOrderStatus();
-    const updateTransaction = useOrderEditor();
+    const editOrder = useOrderEditor();
 
     const handleOpenMenu = (event: { currentTarget: React.SetStateAction<HTMLElement | null>; }) => {
         if (staff?.isAdmin) {
@@ -75,7 +76,7 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
         await setOrderStatus(order.transaction, state);
     };
 
-    const setStatusDelivered = async () => {
+    const setStatusServed = async () => {
         const {success, message} = await cashInTransaction(order.transaction);
         if (success) {
             await setOrderStatus(order.transaction, TransactionState.Served);
@@ -87,11 +88,13 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
         setConfirmDialogOpen(false);
     };
 
-    const handleEditOrder = () => {
+    const openBasketModal = () => {
+        console.log('edit order');
+        console.log(order.transaction);
         setBasketOpen(true);
     };
 
-    const editOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
+    const handleEditOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
         if (basket.values().next()) {
             const payload = {
                 order: order.transaction,
@@ -102,45 +105,48 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
             };
             console.log(payload);
             setLoading(true);
-            const {success, message} = await updateTransaction(payload);
+            const {success, message} = await editOrder(payload);
             if (success) {
                 setSnackbarMessage(message, 'success');
             } else {
                 setSnackbarMessage(message, 'error');
             }
             setBasketOpen(false);
+            setLoading(false);
         }
     };
 
     useEffect(() => {
-        console.log('compute price');
         let priceProducts = 0;
+        let nbServings = 0;
 
         for (const productWithQty of basket.values()) {
             if (productWithQty.product.sizeWithPrices && productWithQty.sizeWithQuantities) {
-                Object.keys(productWithQty.sizeWithQuantities).forEach(size => {
+                for (const [size, quantity] of Object.entries(productWithQty.sizeWithQuantities)) {
                     const priceForSize = productWithQty.product.sizeWithPrices[size];
-                    const quantityForSize = productWithQty.sizeWithQuantities[size];
                     const ingredientsPrice = getIngredientPrice(productWithQty.product.ingredients);
-                    if (priceForSize && quantityForSize) {
-                        priceProducts += productWithQty.product.sizeWithPrices[size] * productWithQty.sizeWithQuantities[size] + ingredientsPrice;
+                    if (priceForSize && quantity) {
+                        priceProducts += productWithQty.product.sizeWithPrices[size] * quantity + ingredientsPrice;
+                    }
+
+                    if (productWithQty.product.type === 'serving') {
+                        nbServings += quantity;
                     }
                 }
-                );
             }
         }
 
         setBasketPrice(priceProducts);
+        setServingCount(nbServings);
     }, [basket]);
 
     useEffect(() => {
-        console.log('update basket');
-        order.transaction.productsWithQty.forEach(productWithQty => {
-            basket.set(productWithQty.product.id, productWithQty);
-        });
+        for (const productWithQty of order.transaction.productsWithQty) {
+            basket.set(productWithQty.product.id, JSON.parse(JSON.stringify(productWithQty)));
+        }
         setBasket(new Map(basket));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [order]);
+    }, []);
 
     return (
         <Card variant={order.transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
@@ -171,12 +177,14 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
                 </Box>
 
                 <Box display="flex" justifyContent="flex-end" flexDirection={'row'} alignItems={'center'}>
+
                     {staff?.isAdmin && order.transaction.state !== TransactionState.Served && (
                         <>
+                            {/* // TODO add cancel button */}
                             {/* Edit button */}
                             <IconButton>
                                 <EditOutlined
-                                    onClick={handleEditOrder}
+                                    onClick={openBasketModal}
                                     sx={(theme) => ({
                                         color: theme.colors.main,
                                     })} />
@@ -222,12 +230,12 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
 
             <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)}>
                 <DialogTitle>
-                    {'Attention cette action est irréversible. Êtes-vous sûr de vouloir indiquer cette commande comme "livrée" ?'}
+                    {'Attention cette action est irréversible. Êtes-vous sûr de vouloir indiquer cette commande comme "Servie" ?'}
                 </DialogTitle>
 
                 <DialogActions>
                     <Button onClick={() => setConfirmDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
-                    <Button onClick={setStatusDelivered} variant="contained">Confirmer</Button>
+                    <Button onClick={setStatusServed} variant="contained">Confirmer</Button>
                 </DialogActions>
             </Dialog>
 
@@ -238,7 +246,8 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
                 setBasket={setBasket}
                 account={order.transaction.customer}
                 basketPrice={basketPrice}
-                actionCallback={editOrder}
+                servingCount={servingCount}
+                actionCallback={handleEditOrder}
             />
         </Card>
     );

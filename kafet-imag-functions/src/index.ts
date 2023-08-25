@@ -136,11 +136,15 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('permission-denied', 'You do not have enough provision on your account.');
     }
 
+    if (quantityOrdered['serving'] > 2) {
+        throw new functions.https.HttpsError('permission-denied', 'You cannot order more than two servings.');
+    }
+
     // Write the transaction.
     const transactionRef = db.collection('transactions').doc();
     const staff = await db.doc(`staffs/${context.auth?.uid}`).withConverter(staffConverter).get();
 
-    // TODO add time limit when users can order
+    // TODO allow orders between 00:00 and 11:30, deny other orders
 
     const batch = db.batch();
     batch.create(transactionRef, {

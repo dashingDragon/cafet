@@ -9,8 +9,9 @@ export const ProductShortCardList: React.FC<{
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
     priceLimit: number,
+    servingCount: number,
     setSnackbarMessage: (message: string, severity: AlertColor) => void,
-  }> = ({ basket, setBasket, priceLimit, setSnackbarMessage }) => {
+  }> = ({ basket, setBasket, priceLimit, servingCount, setSnackbarMessage }) => {
       const products = useProducts();
 
       return (
@@ -55,6 +56,7 @@ export const ProductShortCardList: React.FC<{
                                       basket={basket}
                                       setBasket={setBasket}
                                       priceLimit={priceLimit}
+                                      servingCount={servingCount}
                                       setSnackbarMessage={setSnackbarMessage}
                                   />
                               </Box>

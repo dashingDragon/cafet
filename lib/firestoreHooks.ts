@@ -700,6 +700,8 @@ export const useOrderEditor = () => {
 
     return async ({order, productsWithQty, price, needPreparation }: OrderPayload): Promise<{ success: boolean; message: string; }> => {
         console.log(`Updating order ${order.id}`);
+        console.log(order);
+        console.log(productsWithQty);
         // check if account has enough provision
         const accountData = (await getDoc(doc(db, `accounts/${order.customer.id}`).withConverter(accountConverter))).data();
         if (!accountData) {
@@ -710,7 +712,60 @@ export const useOrderEditor = () => {
         }
 
         try {
-            await updateDoc(doc(db, `transactions/${order.id}`).withConverter(transactionConverter), {
+            const batch = writeBatch(db);
+
+            // Update the products stocks.
+            for (const productWithQty of productsWithQty) {
+                const prevProductWithQty = order.productsWithQty.filter(p => p.product.id === productWithQty.product.id)[0];
+                console.log(`prev product`);
+                console.log(prevProductWithQty);
+                console.log(`product`);
+                console.log(productWithQty);
+                const productRef = doc(db, `products/${productWithQty.product.id}`).withConverter(productConverter);
+                const productData = (await getDoc(productRef)).data();
+                if (!productData) {
+                    return {success: false, message: `Product ${productWithQty.product.name} not found.`};
+                }
+                console.log(`productData`);
+                console.log(productData);
+                if (productData.stock !== undefined) {
+                    const newStock = productData.stock
+                    + Object.values(prevProductWithQty.sizeWithQuantities).reduce((a, b) => a + b)
+                    - Object.values(productWithQty.sizeWithQuantities).reduce((a, b) => a + b);
+
+                    if (newStock < 0) {
+                        return {success: false, message: `Product ${productWithQty.product.name} is out of stock.`};
+                    }
+                    console.log(`new stock: ${newStock}`);
+                    batch.update(productRef, {
+                        stock: newStock,
+                    });
+                }
+            }
+
+            // Restore the stocks for removed products
+            for (const productWithQty of order.productsWithQty) {
+                if (!productsWithQty.map(p => p.product.id).includes(productWithQty.product.id)) {
+                    console.log(`${productWithQty.product.name} was removed from the order.`);
+                    const productRef = doc(db, `products/${productWithQty.product.id}`).withConverter(productConverter);
+                    const productData = (await getDoc(productRef)).data();
+                    if (!productData) {
+                        return {success: false, message: `Product ${productWithQty.product.name} not found.`};
+                    }
+                    if (productData.stock !== undefined) {
+                        console.log(`update stock of ${productWithQty.product.name}`);
+                        const newStock = productData.stock
+                        + Object.values(productWithQty.sizeWithQuantities).reduce((a, b) => a + b);
+
+                        batch.update(productRef, {
+                            stock: newStock,
+                        });
+                    }
+                }
+            }
+
+            // update transaction
+            batch.update(doc(db, `transactions/${order.id}`).withConverter(transactionConverter), {
                 productsWithQty,
                 price,
                 state: needPreparation ? order.state : TransactionState.Served,
@@ -722,18 +777,18 @@ export const useOrderEditor = () => {
 
             // if the order is served now, update customer balance
             if (!needPreparation) {
-                await updateDoc(doc(db, `accounts/${accountData.id}`), {
+                batch.update(doc(db, `accounts/${accountData.id}`), {
                     balance: accountData.balance - price,
                 });
 
+                await batch.commit();
                 return {success: true, message: 'Order succesfully cashed in.'};
             }
 
+            await batch.commit();
             return {success: true, message: 'Order succesfully updated.'};
         } catch {
             return {success: false, message: 'An error occured'};
         }
-
-
     };
 };

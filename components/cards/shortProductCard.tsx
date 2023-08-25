@@ -12,8 +12,9 @@ export const ShortProductCard: React.FC<{
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
     priceLimit: number,
+    servingCount: number,
     setSnackbarMessage: (message: string, severity: AlertColor) => void,
-}> = ({ product, basket, setBasket, priceLimit, setSnackbarMessage }) => {
+}> = ({ product, basket, setBasket, priceLimit, servingCount, setSnackbarMessage }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -192,7 +193,7 @@ export const ShortProductCard: React.FC<{
                                 : 'error'
                     }
                     label={product.stock ? (
-                        `${product.stock} restant${product.stock > 1 && 's'}`
+                        `${product.stock} ${product.stock > 1 ? 'restants' : 'restant'}`
                     ) : isOutOfStock ? (
                         'Stock épuisé'
                     ) : product.isAvailable ? (
@@ -205,7 +206,7 @@ export const ShortProductCard: React.FC<{
                         fontWeight: 700,
                     }}
                 />
-                <IconButton disabled={!isReallyAvailable} sx={{
+                <IconButton disabled={!isReallyAvailable || (product.type === 'serving' && servingCount >= 2)} sx={{
                     background: 'hsla(145, 28%, 43%, 1)',
                     color: 'white',
                     ml: 'auto',

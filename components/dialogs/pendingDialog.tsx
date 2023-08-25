@@ -10,8 +10,6 @@ export const PendingDialog: React.FC<{
   setPendingProductDialogOpen: Dispatch<SetStateAction<boolean>>,
   setPendingIngredientDialogOpen: Dispatch<SetStateAction<boolean>>
 }> = ({ open, onClose, setPendingProductDialogOpen, setPendingIngredientDialogOpen }) => {
-
-
     return (
         <>
             <Dialog open={open} onClose={onClose}>

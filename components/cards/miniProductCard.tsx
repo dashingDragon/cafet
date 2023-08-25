@@ -12,12 +12,14 @@ const MiniProductCard: React.FC<{
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
     priceLimit: number,
-}> = ({ productWithQty, basket, setBasket, priceLimit }) => {
+    servingCount: number,
+}> = ({ productWithQty, basket, setBasket, priceLimit, servingCount }) => {
     const theme = useTheme();
+    const product = productWithQty.product;
 
     const addQuantity = (size: string) => {
         console.log('add quantity');
-        const basketItem = basket.get(productWithQty.product.id);
+        const basketItem = basket.get(product.id);
         console.log(basketItem);
         if (basketItem) {
             basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] + 1,
@@ -27,7 +29,7 @@ const MiniProductCard: React.FC<{
 
     const removeQuantity = (size: string) => {
         console.log('remove quantity');
-        const basketItem = basket.get(productWithQty.product.id);
+        const basketItem = basket.get(product.id);
         if (basketItem) {
             basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] - 1,
             setBasket(new Map(basket.set(basketItem.product.id, basketItem)));
@@ -37,7 +39,7 @@ const MiniProductCard: React.FC<{
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
     const handleDeleteBasketItem = async () => {
-        basket.delete(productWithQty.product.id);
+        basket.delete(product.id);
         setBasket(new Map(basket));
         setDeleteDialogOpen(false);
     };
@@ -58,16 +60,16 @@ const MiniProductCard: React.FC<{
                 <CardMedia
                     component="img"
                     height="96"
-                    image={productWithQty.product.image}
-                    alt={`Image de ${productWithQty.product.name}`}
+                    image={product.image}
+                    alt={`Image de ${product.name}`}
                 />
             </Box>
             <Stack direction="column">
                 <Stack direction="row" spacing={'16px'} width='100%' justifyContent={'space-between'}>
                     <Typography variant="h5" >
-                        {productWithQty.product.name}
+                        {product.name}
                     </Typography>
-                    {(productWithQty.product.isVege || productWithQty.product.isVegan) && productWithQty.product.type === 'serving' && (
+                    {(product.isVege || product.isVegan) && product.type === 'serving' && (
                         <Image
                             loader={imageLoader}
                             src={'../../png/leaf.png'}
@@ -82,16 +84,16 @@ const MiniProductCard: React.FC<{
                     </IconButton>
                 </Stack>
 
-                {Object.entries(productWithQty.product.sizeWithPrices).map(([size, price]) => (
+                {Object.entries(product.sizeWithPrices).map(([size, price]) => (
                     <Stack direction="row" m={'8px'} key={size} justifyContent={'space-between'} width="100%">
                         <Typography>
-                            {size}: <strong>{formatMoney(price + getIngredientPrice(productWithQty.product.ingredients))}</strong>
+                            {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))}</strong>
                         </Typography>
                         <ButtonGroup variant={theme.palette.mode === 'light' ? 'outlined' : 'contained'} sx={{ borderRadius: '10px', overflow: 'hidden' }}>
                             <Button
                                 sx={{ borderRadius: '10px'}}
                                 onClick={() => removeQuantity(size)}
-                                disabled={!productWithQty.product.isAvailable || !productWithQty.sizeWithQuantities[size]}
+                                disabled={!product.isAvailable || !productWithQty.sizeWithQuantities[size]}
                                 title="Retirer du panier"
                             >
                                 <Remove />
@@ -103,8 +105,11 @@ const MiniProductCard: React.FC<{
                                 sx={{ borderRadius: '10px'}}
                                 onClick={() => addQuantity(size)}
                                 title="Ajouter au panier"
-                                disabled={price > priceLimit
-                                    || (productWithQty.product.stock !== undefined && productWithQty.sizeWithQuantities[size] >= productWithQty.product.stock)
+                                // TODO sync this with database
+                                disabled={
+                                    price > priceLimit
+                                    || (product.stock !== undefined && productWithQty.sizeWithQuantities[size] >= product.stock)
+                                    || (product.type === 'serving' && servingCount >= 2)
                                 }
                             >
                                 <Add />
