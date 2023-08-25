@@ -33,7 +33,9 @@ const TabImage = styled(Box)(({ theme }) => ({
     alignItems: 'center',
     marginBottom: '8px',
     '&.selected': {
-        background: theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
+        background: theme.palette.mode === 'light'
+            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
+            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
     },
 }));
 

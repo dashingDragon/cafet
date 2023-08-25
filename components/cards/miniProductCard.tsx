@@ -69,8 +69,9 @@ const MiniProductCard: React.FC<{
                     alt={`Image de ${product.name}`}
                 />
             </Box>
-            <Stack direction="column">
-                <Stack direction="row" spacing={'16px'} width='100%' justifyContent={'space-between'}>
+            <Stack direction="column" flexGrow='1'>
+                {/* Title and clear icon */}
+                <Stack direction="row" width='100%' alignItems={'center'}>
                     <Typography variant="h5" >
                         {product.name}
                     </Typography>
@@ -84,13 +85,14 @@ const MiniProductCard: React.FC<{
                             className={'icon'}
                         />
                     )}
-                    <IconButton color='primary' onClick={handleOpenDeleteDialog}>
+                    <IconButton color='primary' onClick={handleOpenDeleteDialog} sx={{ marginLeft: 'auto' }}>
                         <Clear />
                     </IconButton>
                 </Stack>
 
+                {/* Sizes and quantities */}
                 {Object.entries(product.sizeWithPrices).map(([size, price]) => (
-                    <Stack direction="row" m={'8px'} key={size} justifyContent={'space-between'} width="100%">
+                    <Stack direction="row" m={'8px'} key={size} justifyContent={'space-between'} alignItems={'center'} width="100%">
                         <Typography>
                             {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))}</strong>
                         </Typography>

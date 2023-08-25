@@ -39,6 +39,11 @@ const BasketModal: React.FC<{
                         position: 'absolute',
                         top: '16px',
                         left: '16px',
+                        height: '48px',
+                        width: '48px',
+                        background: theme => theme.palette.mode === 'light'
+                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
+                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
                     }}>
                         <ArrowBack />
                     </Fab>

@@ -173,7 +173,9 @@ const IngredientList: React.FC<{
                             ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
                             : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
                     }}>
-                        <Typography variant="h5">{categoryTranslation[category]}</Typography>
+                        <Typography variant="h5" sx={{
+                            color: theme => theme.palette.mode === 'light' ? 'hsla(326, 100%, 20%, 1)' : 'hsla(326, 100%, 90%, 1)',
+                        }}>{categoryTranslation[category]}</Typography>
                     </Card>
                     <Stack
                         direction={'row'}
