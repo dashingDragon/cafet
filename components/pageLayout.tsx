@@ -4,7 +4,8 @@ import { ReactElement } from 'react';
 import { invertTheme, useAppTheme } from '../lib/theme';
 import { useRouter } from 'next/router';
 import { getAuth, signOut } from 'firebase/auth';
-import { useStaffUser } from '../lib/firestoreHooks';
+import { useGuardIsConnected } from '../lib/hooks';
+import { useFirestoreUser } from '../lib/firestoreHooks';
 
 type PageLayoutProps = {
   children: ReactElement,
@@ -33,7 +34,7 @@ const ToggleThemeButton = () => {
 
 const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayoutProps) => {
     const router = useRouter();
-    const staff = useStaffUser();
+    const user = useFirestoreUser();
     const handleLogout = async () => {
         await signOut(getAuth());
     };
@@ -63,7 +64,7 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
                         <Typography variant="h6" sx={{ flexGrow: 1 }}>
                             {title}
                         </Typography>
-                        {staff?.isAdmin && (
+                        {user?.isAdmin && (
                             <IconButton
                                 onClick={() => router.push('/staffs')}
                                 size="large"

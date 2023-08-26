@@ -5,15 +5,14 @@ import Head from 'next/head';
 import { useState } from 'react';
 import LoadingScreen from '../components/loading';
 import PageLayout from '../components/pageLayout';
-import PendingStaffsDialog from '../components/dialogs/pendingStaffsDialog';
+import CustomerDialog from '../components/dialogs/customerDialog';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
 import StaffList from '../components/lists/staffList';
-import { useStaffUser, useStaffs } from '../lib/firestoreHooks';
+import { useStaffs } from '../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../lib/hooks';
 
 const StaffPage: NextPage = () => {
-    useGuardIsAdmin();
-    const staff = useStaffUser();
+    const admin = useGuardIsAdmin();
     const staffs = useStaffs();
     const [pendingDialogOpen, setPendingDialogOpen] = useState(false);
 
@@ -26,7 +25,7 @@ const StaffPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {staffs === undefined || staff === undefined
+                    {staffs === undefined || admin === undefined
                         ? <LoadingScreen />
                         : <>
                             <FullHeightScrollableContainer sx={{ position: 'relative' }}>
@@ -46,7 +45,7 @@ const StaffPage: NextPage = () => {
                                 </>
                             </FullHeightScrollableContainer>
 
-                            <PendingStaffsDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
+                            <CustomerDialog open={pendingDialogOpen} onClose={() => setPendingDialogOpen(false)} />
                         </>
                     }
                 </PageLayout>

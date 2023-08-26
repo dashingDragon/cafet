@@ -5,8 +5,8 @@ import Head from 'next/head';
 import ProductList from '../components/lists/productList';
 import PageLayout from '../components/pageLayout';
 import FullHeightScrollableContainer from '../components/scrollableContainer';
-import { useIngredients, useProducts, useStaffUser } from '../lib/firestoreHooks';
-import { useGuardIsAdmin, useGuardIsConnected } from '../lib/hooks';
+import { useIngredients, useProducts } from '../lib/firestoreHooks';
+import { useGuardIsAdmin } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
 import { useState } from 'react';
 import PendingDialog from '../components/dialogs/pendingDialog';
@@ -17,10 +17,9 @@ import IngredientDialog from '../components/dialogs/ingredientDialog';
 import { Ingredient } from '../lib/ingredients';
 
 const ProductListPage: NextPage = () => {
-    useGuardIsAdmin();
+    const admin = useGuardIsAdmin();
     const products = useProducts();
     const ingredients = useIngredients();
-    const staff = useStaffUser();
     const [pendingDialogOpen, setPendingDialogOpen] = useState(false);
     const [productDialogOpen, setProductDialogOpen] = useState(false);
     const [product, setProduct] = useState<Product>();
@@ -36,7 +35,7 @@ const ProductListPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {products === undefined || staff === undefined ? (
+                    {products === undefined || admin === undefined ? (
                         <LoadingScreen />
                     ) : (
                         <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>

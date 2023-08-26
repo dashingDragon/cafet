@@ -1,47 +1,47 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { Account, School, allSchools } from '../../lib/accounts';
+import { Box, Button, Container, FormControl, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
+import { MakeAccountPayload, School, allSchools } from '../lib/accounts';
+import { useMakeAccount } from '../lib/firebaseFunctionHooks';
+import { useState } from 'react';
 
-const AccountEditDialog: React.FC<{
-  account: Account | null,
-  open: boolean,
-  onClose: () => void,
-  onSubmit: (firstName: string, lastName: string, school: School, phone: string, email: string) => void
-}> = ({ account, open, onClose, onSubmit }) => {
+const Register: React.FC = () => {
+    const router = useRouter();
+    const makeAccount = useMakeAccount();
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [school, setSchool] = useState(School.Unknown);
+    const [phone, setPhone] = useState('');
+    const [email, setEmail] = useState('');
     const [submitting, setSubmitting] = useState(false);
-    const [firstName, setFirstName] = useState(account?.firstName ?? '');
-    const [lastName, setLastName] = useState(account?.lastName ?? '');
-    const [school, setSchool] = useState(account?.school ?? School.Unknown);
-    const [phone, setPhone] = useState(account?.phone ?? '');
-    const [email, setEmail] = useState(account?.email ?? '');
 
-    useEffect(() => {
-        console.log('Reset form');
-
-        setSubmitting(false);
-        setFirstName(account?.firstName ?? '');
-        setLastName(account?.lastName ?? '');
-        setSchool(account?.school ?? School.Unknown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
-
-
-    const handleSubmit = () => {
-        if (firstName.length === 0 || lastName.length === 0) {
-            alert('Pas de noms vides !');
-            return;
+    const handleSignUp = async () => {
+        setSubmitting(true);
+        const payload = {
+            firstName: firstName,
+            lastName: lastName,
+            school: school,
+            phone: phone,
+            email: email,
+        } as MakeAccountPayload;
+        const result = await makeAccount(payload);
+        if (result.data.success) {
+            // TODO snackbar
+            router.replace('/');
+        } else {
+            console.error('An error occured. Please try again.');
         }
-
-        onSubmit(firstName, lastName, school, phone, email);
-        onClose();
+        setSubmitting(false);
     };
 
     return (
-        <Dialog open={open} onClose={onClose}>
-            <DialogTitle>
-                {account !== null ? 'Editer le compte' : 'Créer un compte'}
-            </DialogTitle>
-            <DialogContent>
+        <Container maxWidth="md" disableGutters>
+            <Box
+                height="100vh"
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+            >
                 <TextField
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -92,13 +92,16 @@ const AccountEditDialog: React.FC<{
                     fullWidth
                     sx={{ my: 1 }}
                 />
-            </DialogContent>
-            <DialogActions>
-                <Button onClick={onClose} sx={{ color: (theme) => theme.colors.main }}>Annuler</Button>
-                <Button onClick={handleSubmit} variant="contained">Ok</Button>
-            </DialogActions>
-        </Dialog>
+                <Button
+                    onClick={handleSignUp}
+                    variant="contained"
+                    sx={{ mt: 3, mb: 10 }}
+                >
+                    Créer un compte
+                </Button>
+            </Box>
+        </Container>
     );
 };
 
-export default AccountEditDialog;
+export default Register;

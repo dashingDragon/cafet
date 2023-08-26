@@ -3,9 +3,10 @@ import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActi
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account, MAX_MONEY_PER_ACCOUNT, School } from '../lib/accounts';
-import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useRechargeTransactionMaker, useStaffUser, useTransactionHistory } from '../lib/firestoreHooks';
+import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useRechargeTransactionMaker, useTransactionHistory } from '../lib/firestoreHooks';
 import AccountEditDialog from './dialogs/accountEditDialog';
 import { TransactionOrder, TransactionRecharge, TransactionType } from '../lib/transactions';
+import { useGuardIsAdmin } from '../lib/hooks';
 
 const schoolToImage = (school: School) => {
     return `/schools/${School[school].toLowerCase()}.png`;
@@ -37,7 +38,7 @@ const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
 };
 
 const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) => {
-    const staff = useStaffUser();
+    const admin = useGuardIsAdmin();
     const recharge = useRechargeTransactionMaker();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [rechargeAmount, setRechargeAmount] = useState(null as number | null);
@@ -112,14 +113,14 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
     const [deleteConfirm2Open, setDeleteConfirm2Open] = useState(false);
 
     const router = useRouter();
-    const staff = useStaffUser();
+    const admin = useGuardIsAdmin();
     const accountEditor = useAccountEditor();
     const accountDeleter = useAccountDeleter();
 
-    const handleAccountEdit = async (firstName: string, lastName: string, school: School) => {
+    const handleAccountEdit = async (firstName: string, lastName: string, school: School, phone: string, email: string) => {
         try {
             setEditDialogOpen(false);
-            await accountEditor(account,firstName, lastName, school);
+            await accountEditor(account,firstName, lastName, school, phone, email);
         } catch (e: any) {
             alert(`Failed to edit account: ${e}`);
         }
@@ -292,9 +293,9 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     <Typography variant="body1">
                                         {formatDate(transaction.createdAt)}
                                     </Typography>
-                                    {transaction.staff? (
+                                    {transaction.admin ? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                            Passée par {transaction.staff.name}
+                                            Passée par {transaction.admin.firstName}
                                         </Typography>
                                     ) : null
                                     }
@@ -316,9 +317,9 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     <Typography variant="body1">
                                         {formatDate(transaction.createdAt)}
                                     </Typography>
-                                    {transaction.staff? (
+                                    {transaction.admin ? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                            Passée par {transaction.staff.name}
+                                            Passée par {transaction.admin.firstName}
                                         </Typography>
                                     ) : null
                                     }

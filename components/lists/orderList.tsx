@@ -2,7 +2,7 @@ import { Alert, AlertColor, Box, Button, Card, CardContent,  Chip,  Dialog, Dial
 import { Order, TransactionState } from '../../lib/transactions';
 import React, { useEffect, useState } from 'react';
 import { formatMoney } from '../accountDetails';
-import { cashInTransaction, useOrderEditor, useStaffUser, useUpdateOrderStatus } from '../../lib/firestoreHooks';
+import { cashInTransaction, useFirestoreUser, useOrderEditor, useUpdateOrderStatus } from '../../lib/firestoreHooks';
 import {CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
 import { getIngredientPrice } from '../../lib/ingredients';
@@ -49,7 +49,7 @@ export const OrderItemLine: React.FC<{
 };
 
 const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, severity: AlertColor) => void, short?: boolean}> = ({order, setSnackbarMessage, short}) => {
-    const staff = useStaffUser();
+    const user = useFirestoreUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -62,7 +62,7 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
     const editOrder = useOrderEditor();
 
     const handleOpenMenu = (event: { currentTarget: React.SetStateAction<HTMLElement | null>; }) => {
-        if (staff?.isAdmin) {
+        if (user?.isAdmin) {
             setAnchorEl(event.currentTarget);
         }
     };
@@ -178,7 +178,7 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
 
                 <Box display="flex" justifyContent="flex-end" flexDirection={'row'} alignItems={'center'}>
 
-                    {staff?.isAdmin && order.transaction.state !== TransactionState.Served && (
+                    {user?.isAdmin && order.transaction.state !== TransactionState.Served && (
                         <>
                             {/* // TODO add cancel button */}
                             {/* Edit button */}

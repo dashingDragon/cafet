@@ -1,11 +1,10 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 import LoadingScreen from '../../../components/loading';
 import PageLayout from '../../../components/pageLayout';
 import PayForm from '../../../components/payForm';
-import { useAccount, useStaffUser } from '../../../lib/firestoreHooks';
+import { useAccount } from '../../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../../lib/hooks';
 
 const AccountPayPage: NextPage = () => {
@@ -14,16 +13,6 @@ const AccountPayPage: NextPage = () => {
     const { id } = router.query;
 
     const account = useAccount(id as string);
-    const staff = useStaffUser();
-
-    useEffect(() => {
-        if (staff) {
-            if (!staff.isAvailable && !staff.isAdmin) {
-                router.push('/');
-            }
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [staff]);
 
     return (
         <>

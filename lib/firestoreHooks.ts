@@ -6,6 +6,7 @@ import { Order, Transaction, TransactionOrder, TransactionState, TransactionType
 import { Product, ProductWithQty, productConverter, productType } from './products';
 import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients } from './ingredients';
 import { Stat, statConverter } from './stats';
+import { useRouter } from 'next/router';
 
 // =================== Staff stuff ===================
 /**
@@ -15,6 +16,7 @@ import { Stat, statConverter } from './stats';
  */
 export const useFirestoreUser = () => {
     const db = getFirestore();
+    const router = useRouter();
     const user = useGuardIsConnected();
     const [firestoreUser, setFirestoreUser] = useState<Account | undefined>(undefined);
 
@@ -24,10 +26,12 @@ export const useFirestoreUser = () => {
             const firestoreUserData = snapshot.data();
             if (!firestoreUserData) {
                 console.error('Failed to fetch firestore user data.');
+                router.replace('/register');
             } else {
                 setFirestoreUser(firestoreUserData);
             }
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [db, user]);
 
     return firestoreUser;
@@ -237,7 +241,7 @@ export const useAccount = (id: string) => {
 export const useAccountMaker = () => {
     const db = getFirestore();
 
-    return async (firstName: string, lastName: string, school: School, phone: string) => {
+    return async (firstName: string, lastName: string, school: School, phone: string, email: string) => {
         console.log(`Create account for ${firstName} ${lastName} ${school}`);
         return await addDoc(collection(db, 'accounts').withConverter(accountConverter), {
             id: '',
@@ -247,6 +251,7 @@ export const useAccountMaker = () => {
             isAdmin: false,
             isAvailable: false,
             phone,
+            email,
             school,
             balance: 0,
             stats: {
@@ -267,9 +272,9 @@ export const useAccountMaker = () => {
 export const useAccountEditor = () => {
     const db = getFirestore();
 
-    return async (account: Account, firstName: string, lastName: string, school: School, phone: string) => {
+    return async (account: Account, firstName: string, lastName: string, school: School, phone: string, email: string) => {
         console.log(`Updating ${firstName} ${lastName}`);
-        await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { firstName, lastName, school, phone });
+        await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { firstName, lastName, school, phone, email });
     };
 };
 

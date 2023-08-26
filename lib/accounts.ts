@@ -15,6 +15,19 @@ export enum School {
     Unknown = 9,
 }
 
+export const allSchools = [
+    { value: School.Ensimag, name: School[School.Ensimag] },
+    { value: School.Phelma, name: School[School.Phelma] },
+    { value: School.E3, name: School[School.E3] },
+    { value: School.Papet, name: School[School.Papet] },
+    { value: School.Gi, name: School[School.Gi] },
+    { value: School.Polytech, name: School[School.Polytech] },
+    { value: School.Esisar, name: School[School.Esisar] },
+    { value: School.Iae, name: School[School.Iae] },
+    { value: School.Uga, name: School[School.Uga] },
+    { value: School.Unknown, name: School[School.Unknown] },
+];
+
 export type AccountStats = {
     totalMoneySpent: number;
     servingsOrdered: number;
@@ -30,6 +43,7 @@ export type Account = {
     isAdmin: boolean;
     isAvailable: boolean;
     phone: string;
+    email: string;
     school: School;
     balance: number;
     stats: AccountStats;
@@ -39,6 +53,7 @@ export type MakeAccountPayload = {
     firstName: string;
     lastName: string;
     phone: string;
+    email: string;
     school: School;
 }
 
@@ -52,6 +67,7 @@ export const accountConverter: FirestoreDataConverter<Account> = {
             isAdmin,
             isAvailable,
             phone,
+            email,
             school,
             balance,
             stats: {
@@ -69,6 +85,7 @@ export const accountConverter: FirestoreDataConverter<Account> = {
             isAdmin,
             isAvailable,
             phone,
+            email,
             school,
             balance,
             stats: {
@@ -80,11 +97,11 @@ export const accountConverter: FirestoreDataConverter<Account> = {
         };
     },
     toFirestore: (account) => {
-        const { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, school, balance, stats } = account;
+        const { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, balance, stats } = account;
 
         if (id) {
-            return { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, school, balance, stats };
+            return { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, balance, stats };
         }
-        return { firstName, lastName, isStaff, isAdmin, isAvailable, phone, school, balance, stats };
+        return { firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, balance, stats };
     },
 };

@@ -1,39 +1,38 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { PendingStaff, useMakeStaff, useCustomers } from '../../lib/firebaseFunctionHooks';
+import { useCustomers } from '../../lib/firebaseFunctionHooks';
+import { useMakeStaff } from '../../lib/firestoreHooks';
+import { Account } from '../../lib/accounts';
 
-export const PendingStaffsDialog: React.FC<{
+export const CustomerDialog: React.FC<{
   open: boolean,
   onClose: () => void,
 }> = ({ open, onClose }) => {
-    const [pendingStaffs, refreshPendingStaffs] = useCustomers();
     const makeStaff = useMakeStaff();
-
+    const [customers, refreshCustomers] = useCustomers();
     const [confirmOpen, setConfirmOpen] = useState(false);
-    const [choosenStaff, setChoosenStaff] = useState(null as PendingStaff | null);
+    const [newStaff, setNewStaff] = useState<Account | undefined>(undefined);
 
     useEffect(() => {
         if (open) {
-            refreshPendingStaffs().catch(console.error);
+            refreshCustomers().catch(console.error);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [open]);
 
-    const handleClickUser = async (user: PendingStaff) => {
-        setChoosenStaff(user);
+    const handleClickUser = async (user: Account) => {
+        setNewStaff(user);
         setConfirmOpen(true);
     };
 
     const handleMakeStaff = async () => {
-        if (!choosenStaff) {
-            alert('wtf');
+        if (!newStaff) {
+            alert('Error: no staff has been chosen');
             return;
         }
-        const staff = choosenStaff!;
-
         setConfirmOpen(false);
         onClose();
-        await makeStaff({ uid: staff.uid, name: staff.name });
+        await makeStaff(newStaff, true);
     };
 
     return (
@@ -44,11 +43,11 @@ export const PendingStaffsDialog: React.FC<{
                 </DialogTitle>
                 <DialogContent>
                     <List>
-                        {pendingStaffs.map((user) => (
-                            <ListItem key={user.uid} disablePadding>
+                        {customers.map((user) => (
+                            <ListItem key={user.id} disablePadding>
                                 <ListItemButton onClick={() => handleClickUser(user)}>
                                     <ListItemText
-                                        primary={user.name}
+                                        primary={`${user.firstName} ${user.lastName}`}
                                         secondary={user.email}
                                     />
                                 </ListItemButton>
@@ -60,7 +59,7 @@ export const PendingStaffsDialog: React.FC<{
 
             <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
                 <DialogTitle>
-                     Voulez vous vraiment rendre {choosenStaff?.name} staff ?
+                     Voulez vous vraiment rendre {newStaff?.firstName} {newStaff?.lastName} staff ?
                 </DialogTitle>
                 <DialogActions>
                     <Button onClick={() => setConfirmOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
@@ -71,4 +70,4 @@ export const PendingStaffsDialog: React.FC<{
     );
 };
 
-export default PendingStaffsDialog;
+export default CustomerDialog;

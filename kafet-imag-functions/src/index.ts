@@ -54,7 +54,7 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated to make an account.');
     }
 
-    const {firstName, lastName, phone, school} = data as MakeAccountPayload;
+    const {firstName, lastName, phone, school, email} = data as MakeAccountPayload;
     const googleUid = context.auth.uid;
 
     const firestoreUser = (await admin.firestore().doc(`accounts/${googleUid}`)
@@ -70,6 +70,7 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
         id: '',
         firstName,
         lastName,
+        email: email ? email: context.auth.token.email ?? '',
         phone: phone ? phone : context.auth.token.phone_number ?? '',
         school,
         isStaff: false,
