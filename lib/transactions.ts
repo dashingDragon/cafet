@@ -1,7 +1,6 @@
 import type { FirestoreDataConverter } from 'firebase/firestore';
 import { Account } from './accounts';
 import { ProductWithQty } from './products';
-import { Staff } from './staffs';
 import { Timestamp } from 'firebase/firestore';
 
 export enum TransactionType {
@@ -18,7 +17,7 @@ export enum TransactionState {
 type TransactionMetadata = {
     type: TransactionType,
     customer: Account,
-    staff: Staff,
+    admin: Account | undefined,
     createdAt: Date,
 }
 
@@ -50,7 +49,7 @@ export type Order = {
 export const transactionConverter: FirestoreDataConverter<Transaction> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        const { type, customer, staff, createdAt } = data;
+        const { type, customer, admin, createdAt } = data;
         const createdAtDate = new Date((createdAt as Timestamp).toDate());
         if (type === TransactionType.Recharge) {
             const { amount } = data as TransactionRecharge;
@@ -59,7 +58,7 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
                 amount,
                 type,
                 customer,
-                staff,
+                admin,
                 createdAt: createdAtDate,
             } as TransactionRecharge;
         } else if (type === TransactionType.Order) {
@@ -75,7 +74,7 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
                 state,
                 type,
                 customer,
-                staff,
+                admin,
                 createdAt: createdAtDate,
             } as TransactionOrder;
         } else {
@@ -83,14 +82,14 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
         }
     },
     toFirestore: (transaction) => {
-        const { type, customer, staff, createdAt } = transaction;
+        const { type, customer, admin, createdAt } = transaction;
         if (type === TransactionType.Recharge) {
             const { amount } = transaction as TransactionRecharge;
             return {
                 amount,
                 type,
                 customer,
-                staff,
+                admin,
                 createdAt,
             };
         } else if (type === TransactionType.Order) {
@@ -105,7 +104,7 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
                 state,
                 type,
                 customer,
-                staff,
+                admin,
                 createdAt,
             };
         } else {

@@ -1,55 +1,54 @@
 import { HttpsCallableResult, getFunctions, httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
-import { MakeStaffPayload } from './staffs';
 import { MakeTransactionPayload } from './transactions';
+import { Account, MakeAccountPayload } from './accounts';
 
-export type PendingStaff = {
-  uid: string,
-  name: string,
-  email: string,
-};
-
-export type ListPendingStaffs = {
-  users: PendingStaff[],
-};
-
-export const useListPendingStaffs = () => {
+export const useMakeAccount = () => {
     const functions = getFunctions();
-    const fun = httpsCallable(functions, 'listPendingStaffs');
+    const fun = httpsCallable(functions, 'makeAccount') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
 
-    return async () => {
-        console.log('Called function listPendingStaffs');
-        return (await fun({})).data as ListPendingStaffs;
+    return async (payload: MakeAccountPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
+        console.log('Called function makeAccount');
+        try {
+            return await fun(payload);
+        } catch (e) {
+            console.error('makeAccount failed : '  + e);
+            return { data: { success: false } };
+        }
     };
 };
 
-export const usePendingStaffs: () => [PendingStaff[], () => Promise<void>] = () => {
-    const listPendingStaffs = useListPendingStaffs();
-    const [pending, setPending] = useState([] as PendingStaff[]);
+/**
+ * Get the list of non-staff users.
+ *
+ * @returns a google cloud function to get the list of non-staff users.
+ */
+export const useListCustomers = () => {
+    const functions = getFunctions();
+    const fun = httpsCallable(functions, 'listNonStaffUsers');
+
+    return async () => {
+        console.log('Called function listNonStaffUsers');
+        return (await fun({})).data as Account[];
+    };
+};
+
+export const useCustomers: () => [Account[], () => Promise<void>] = () => {
+    const customerList = useListCustomers();
+    const [pending, setPending] = useState<Account[]>([]);
 
     const refresh = async () => {
-        setPending((await listPendingStaffs()).users);
+        setPending((await customerList()));
     };
 
     return [pending, refresh];
 };
 
-export const useMakeStaff = () => {
-    const functions = getFunctions();
-    const fun = httpsCallable(functions, 'makeStaff');
-
-    return async (payload: MakeStaffPayload) => {
-        console.log('Called function makeStaff');
-        await fun(payload);
-    };
-};
-
-
 /**
  * Write a transaction for the exchange and update
  * the account's balance and stats.
  *
- * @returns a function to make the transation
+ * @returns a google cloud function to make the transation
  */
 export const useMakeTransaction = () => {
     const functions = getFunctions();

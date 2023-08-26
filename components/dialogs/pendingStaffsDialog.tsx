@@ -1,12 +1,12 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { PendingStaff, useMakeStaff, usePendingStaffs } from '../../lib/firebaseFunctionHooks';
+import { PendingStaff, useMakeStaff, useCustomers } from '../../lib/firebaseFunctionHooks';
 
 export const PendingStaffsDialog: React.FC<{
   open: boolean,
   onClose: () => void,
 }> = ({ open, onClose }) => {
-    const [pendingStaffs, refreshPendingStaffs] = usePendingStaffs();
+    const [pendingStaffs, refreshPendingStaffs] = useCustomers();
     const makeStaff = useMakeStaff();
 
     const [confirmOpen, setConfirmOpen] = useState(false);

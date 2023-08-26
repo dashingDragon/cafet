@@ -1,4 +1,4 @@
-rules_version = '2';
+rules_version = '3';
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -19,12 +19,6 @@ service cloud.firestore {
       allow read, create, update, delete: if isAdmin();
     }
 
-    match /staffs/{document=**} {
-      allow read: if isStaff();
-      allow create, update: if isAdmin();
-      allow delete: if false;
-    }
-
     match /stats/{document=**} {
       allow read, create, update, delete: if isAdmin();
     }
@@ -34,11 +28,11 @@ service cloud.firestore {
     }
 
     function isStaff() {
-      return isLoggedIn() && exists(/databases/$(database)/documents/staffs/$(request.auth.uid));
+      return isLoggedIn() && get(/databases/$(database)/documents/account/$(request.auth.uid)).data.isStaff == true;
     }
 
     function isAdmin() {
-      return isStaff() && get(/databases/$(database)/documents/staffs/$(request.auth.uid)).data.isAdmin == true;
+      return isStaff() && get(/databases/$(database)/documents/accounts/$(request.auth.uid)).data.isAdmin == true;
     }
   }
 }

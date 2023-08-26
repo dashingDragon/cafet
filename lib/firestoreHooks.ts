@@ -1,57 +1,59 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, limit, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
-import { Account, School, accountConverter } from './accounts';
-import { useUser } from './hooks';
-import { Staff, staffConverter } from './staffs';
+import { Account, AccountStats, School, accountConverter } from './accounts';
+import { useGuardIsAdmin, useGuardIsConnected } from './hooks';
 import { Order, Transaction, TransactionOrder, TransactionState, TransactionType, transactionConverter } from './transactions';
 import { Product, ProductWithQty, productConverter, productType } from './products';
 import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients } from './ingredients';
 import { Stat, statConverter } from './stats';
 
-// =================== Staff stuff
+// =================== Staff stuff ===================
 /**
- * Check if the user is a staff in the database.
+ * Get the current user info from the database.
  *
- * @returns the currently logged in user as a Staff type
+ * @returns the currently logged in user Account.
  */
-export const useStaffUser = () => {
+export const useFirestoreUser = () => {
     const db = getFirestore();
-    const user = useUser();
-    const [staffUser, setStaffUser] = useState(undefined as Staff | undefined);
+    const user = useGuardIsConnected();
+    const [firestoreUser, setFirestoreUser] = useState<Account | undefined>(undefined);
 
     useEffect(() => {
-        const q = doc(db, `staffs/${user?.uid}`).withConverter(staffConverter);
+        const q = doc(db, `accounts/${user?.uid}`).withConverter(accountConverter);
         return onSnapshot(q, (snapshot) => {
-            const staff = snapshot.data();
-            if (!staff) {
-                alert('Failed to query staff !');
+            const firestoreUserData = snapshot.data();
+            if (!firestoreUserData) {
+                console.error('Failed to fetch firestore user data.');
             } else {
-                setStaffUser(staff);
+                setFirestoreUser(firestoreUserData);
             }
         });
     }, [db, user]);
 
-    return staffUser;
+    return firestoreUser;
 };
 
 /**
  * Fetch the list of staff users in the database.
  *
- * @returns an array of staff types
+ * @returns the staff array.
  */
 export const useStaffs = () => {
     const db = getFirestore();
-    const user = useStaffUser();
-    const [staffs, setStaffs] = useState([] as Staff[]);
+    const [staffs, setStaffs] = useState<Account[]>([]);
 
     useEffect(() => {
-        const q = collection(db, 'staffs').withConverter(staffConverter);
+        const q = query(
+            collection(db, 'accounts'),
+            where('isStaff', '==', true)
+        ).withConverter(accountConverter);
+
         return onSnapshot(q, (snapshot) => {
             const staffs = snapshot.docs.map((a) => a.data());
 
-            setStaffs(staffs.sort((a, b) => a.name < b.name ? -1 : 1));
+            setStaffs(staffs.sort((a, b) => a.firstName < b.firstName ? -1 : 1));
         });
-    }, [db, user]);
+    }, [db]);
 
     return staffs;
 };
@@ -59,24 +61,34 @@ export const useStaffs = () => {
 /**
  * Update the availabilty status of a staff.
  *
- * @returns an function to change staffs availability
+ * @returns a function to change staffs availability.
  */
 export const useSetStaffAvailability = () => {
     const db = getFirestore();
-    const user = useStaffUser();
 
-    if (!user) return () => alert('Not connected !');
-
-    if (!user.isAdmin) return () => alert('Vous n\'avez pas les permissions !');
-
-    return async (staff: Staff, isAvailable: boolean) => {
-        await updateDoc(doc(db, `staffs/${staff.id}`).withConverter(staffConverter), {
+    return async (account: Account, isAvailable: boolean) => {
+        await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), {
             isAvailable,
         });
     };
 };
 
-// =================== Stats stuff
+/**
+ * Update the staff status of an account.
+ *
+ * @returns a function to change an account staff status
+ */
+export const useMakeStaff = () => {
+    const db = getFirestore();
+
+    return async (account: Account, isStaff: boolean) => {
+        await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), {
+            isStaff,
+        });
+    };
+};
+
+// =================== Stats stuff ===================
 /**
  * Return the profits and quantity of products, drinks and snacks sold.
  * Also return the amount of money recharged.
@@ -108,16 +120,10 @@ export const useCurrentStats = () => {
 
 /**
  * Return the money spent and quantity of products, drinks and snacks bought by a single account.
- * Also return the amount of money recharged.
  */
 export const useCurrentStatsForAccount = (account: Account) => {
     const db = getFirestore();
-    const [stats, setStats] = useState<{
-        totalMoneySpent: number;
-        servingsOrdered: number;
-        drinksOrdered: number;
-        snacksOrdered: number;
-    }>({
+    const [stats, setStats] = useState<AccountStats>({
         totalMoneySpent: 0,
         servingsOrdered: 0,
         drinksOrdered: 0,
@@ -182,15 +188,14 @@ export const useCurrentStatsForAccount = (account: Account) => {
 //     return [Array.from(productsStats.values())];
 // };
 
-// =================== Accounts stuff
+// =================== Accounts stuff ===================
 /**
  * Fetch the accounts list in the database.
  *
- * @returns an array of Account types
+ * @returns the accounts array.
  */
 export const useAccountList = () => {
     const db = getFirestore();
-    const user = useUser();
     const [accounts, setAccounts] = useState([] as Account[]);
 
     useEffect(() => {
@@ -199,7 +204,7 @@ export const useAccountList = () => {
         return onSnapshot(q, (snapshot) => {
             setAccounts(snapshot.docs.map((a) => a.data()));
         });
-    }, [db, user]);
+    }, [db]);
 
     return accounts;
 };
@@ -208,11 +213,10 @@ export const useAccountList = () => {
  * Fetch the account's information from the database.
  *
  * @param id account's id
- * @returns the account matching the specified id
+ * @returns the account corresponding to the id
  */
 export const useAccount = (id: string) => {
     const db = getFirestore();
-    const user = useUser();
     const [account, setAccount] = useState(undefined as Account | undefined);
 
     useEffect(() => {
@@ -220,7 +224,7 @@ export const useAccount = (id: string) => {
         return onSnapshot(q, (snapshot) => {
             setAccount(snapshot.data());
         });
-    }, [db, id, user]);
+    }, [db, id]);
 
     return account;
 };
@@ -233,12 +237,16 @@ export const useAccount = (id: string) => {
 export const useAccountMaker = () => {
     const db = getFirestore();
 
-    return async (firstName: string, lastName: string, school: School) => {
+    return async (firstName: string, lastName: string, school: School, phone: string) => {
         console.log(`Create account for ${firstName} ${lastName} ${school}`);
         return await addDoc(collection(db, 'accounts').withConverter(accountConverter), {
-            id: '0',
+            id: '',
             firstName,
             lastName,
+            isStaff: false,
+            isAdmin: false,
+            isAvailable: false,
+            phone,
             school,
             balance: 0,
             stats: {
@@ -259,9 +267,9 @@ export const useAccountMaker = () => {
 export const useAccountEditor = () => {
     const db = getFirestore();
 
-    return async (account: Account, firstName: string, lastName: string, school: School) => {
+    return async (account: Account, firstName: string, lastName: string, school: School, phone: string) => {
         console.log(`Updating ${firstName} ${lastName}`);
-        await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { firstName, lastName, school });
+        await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { firstName, lastName, school, phone });
     };
 };
 
@@ -279,12 +287,9 @@ export const useAccountDeleter = () => {
     };
 };
 
-// =================== Product stuff
+// =================== Product stuff ===================
 export const useProductMaker = () => {
     const db = getFirestore();
-    const staff = useStaffUser();
-
-    if (!staff) return () => alert('Not connected !');
 
     return async (
         id: string,
@@ -333,7 +338,6 @@ export const useProductMaker = () => {
  */
 export const useProducts = () => {
     const db = getFirestore();
-    const user = useUser();
     const [products, setProducts] = useState([] as Product[]);
 
     useEffect(() => {
@@ -341,7 +345,7 @@ export const useProducts = () => {
         return onSnapshot(q, (snapshot) => {
             setProducts(snapshot.docs.map((b) => b.data()));
         });
-    }, [db, user]);
+    }, [db]);
 
     return products;
 };
@@ -406,12 +410,9 @@ export const useProductDeleter = () => {
     };
 };
 
-// =================== Ingredients stuff
+// =================== Ingredients stuff ===================
 export const useIngredientMaker = () => {
     const db = getFirestore();
-    const staff = useStaffUser();
-
-    if (!staff) return () => alert('Not connected !');
 
     return async ({ id, name, category, isVege, isVegan, price, allergen }: Ingredient) => {
         console.log('Create ingredient');
@@ -434,7 +435,6 @@ export const useIngredientMaker = () => {
  */
 export const useIngredients = () => {
     const db = getFirestore();
-    const user = useUser();
     const [ingredients, setIngredients] = useState([] as Ingredient[]);
 
     useEffect(() => {
@@ -442,7 +442,7 @@ export const useIngredients = () => {
         return onSnapshot(q, (snapshot) => {
             setIngredients(snapshot.docs.map((b) => b.data()));
         });
-    }, [db, user]);
+    }, [db]);
 
     return ingredients;
 };
@@ -490,7 +490,7 @@ export const useIngredientDeleter = () => {
     };
 };
 
-// =================== Transactions stuff
+// =================== Transactions stuff ===================
 /**
  * Recharge an account with a given amount.
  *
@@ -498,9 +498,9 @@ export const useIngredientDeleter = () => {
  */
 export const useRechargeTransactionMaker = () => {
     const db = getFirestore();
-    const staff = useStaffUser();
+    const firestoreAdminUser = useGuardIsAdmin();
 
-    if (!staff) return () => alert('Not connected !');
+    if (!firestoreAdminUser) return () => alert('Please wait until we confirm that you are an admin.');
 
     return async (account: Account, amount: number) => {
         const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
@@ -513,7 +513,7 @@ export const useRechargeTransactionMaker = () => {
             type: TransactionType.Recharge,
             amount: amount,
             customer: account,
-            staff: staff,
+            admin: firestoreAdminUser,
             createdAt: new Date(),
         });
         batch.update(accountRef, {
@@ -524,6 +524,12 @@ export const useRechargeTransactionMaker = () => {
     };
 };
 
+/**
+ * Get the transaction history of given user.
+ *
+ * @param account User account
+ * @returns the array of user's transactions
+ */
 export const useTransactionHistory = (account: Account) => {
     const db = getFirestore();
     const products = useProducts();
@@ -549,15 +555,20 @@ export const useTransactionHistory = (account: Account) => {
     return transactions;
 };
 
+/**
+ * Get the list of today's orders in chronological order.
+ *
+ * @returns the array of today's orders
+ */
 export const useTodaysOrders = () => {
     const db = getFirestore();
     const [transactions, setTransactions] = useState([] as Order[]);
 
     const startOfDay = new Date();
-    startOfDay.setHours(7, 0, 0, 0);
+    startOfDay.setHours(0, 0, 0, 0);
 
     const endOfDay = new Date();
-    endOfDay.setHours(23, 30, 0, 0);
+    endOfDay.setHours(23, 59, 59, 0);
 
     useEffect(() => {
         const transactionQuery = query(
@@ -587,6 +598,11 @@ export const useTodaysOrders = () => {
     return transactions;
 };
 
+/**
+ * Update the transaction state.
+ *
+ * @returns a function to update order state
+ */
 export const useUpdateOrderStatus = () => {
     const db = getFirestore();
 
@@ -598,6 +614,13 @@ export const useUpdateOrderStatus = () => {
     };
 };
 
+/**
+ * Cash in a transaction.
+ * Stocks and customer provision need to be enough.
+ *
+ * @param transaction transaction to cash in
+ * @returns the success or error message
+ */
 export const cashInTransaction = async (transaction: TransactionOrder): Promise<{
     success: boolean,
     message: string,
@@ -695,8 +718,16 @@ type OrderPayload = {
     needPreparation: boolean
 }
 
+/**
+ * Edit order products with quantities and sizes.
+ *
+ * Updates order price and state blindly.
+ *
+ * @returns a function to edit an order
+ */
 export const useOrderEditor = () => {
     const db = getFirestore();
+    const admin = useGuardIsAdmin();
 
     return async ({order, productsWithQty, price, needPreparation }: OrderPayload): Promise<{ success: boolean; message: string; }> => {
         console.log(`Updating order ${order.id}`);
@@ -769,10 +800,7 @@ export const useOrderEditor = () => {
                 productsWithQty,
                 price,
                 state: needPreparation ? order.state : TransactionState.Served,
-                type: order.type,
-                customer: order.customer,
-                staff: order.staff,
-                createdAt: order.createdAt,
+                admin: admin,
             });
 
             // if the order is served now, update customer balance

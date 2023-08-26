@@ -3,16 +3,13 @@
 import type { } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import {MakeStaffPayload, Staff, staffConverter as externalStaffConverter} from '../../lib/staffs';
-import {ListPendingStaffs} from '../../lib/firebaseFunctionHooks';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
 import {MakeTransactionPayload, TransactionState, TransactionType} from '../../lib/transactions';
-import {Account, accountConverter} from '../../lib/accounts';
+import {Account, MakeAccountPayload, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
 import {getIngredientPrice} from '../../lib/ingredients';
-
-const staffConverter = externalStaffConverter as unknown as FirestoreDataConverter<Staff>;
+import {DateTime} from 'luxon';
 
 admin.initializeApp();
 
@@ -22,70 +19,105 @@ const checkIfConnected = async (uid: string | undefined) => {
     }
 };
 
-const checkIfStaff = async (uid: string | undefined) => {
+const checkIfUser = async (uid: string | undefined) => {
     await checkIfConnected(uid);
+    const firestoreUser = (await admin.firestore().doc(`accounts/${uid}`)
+        .withConverter(accountConverter as unknown as FirestoreDataConverter<Account>)
+        .get()
+    ).data();
+    if (!firestoreUser) {
+        throw new functions.https.HttpsError('not-found', 'User not found.');
+    }
+    return firestoreUser;
+};
 
-    const staff = await admin.firestore().doc(`staffs/${uid}`).withConverter(staffConverter).get();
-    if (!staff.exists) {
+const checkIfStaff = async (uid: string | undefined) => {
+    const firestoreStaffUser = await checkIfUser(uid);
+    if (!firestoreStaffUser.isStaff) {
         throw new functions.https.HttpsError('permission-denied', 'You are not a staff.');
     }
-
-    return staff;
+    return firestoreStaffUser;
 };
 
 const checkIfAdmin = async (uid: string | undefined) => {
-    const staff = await checkIfStaff(uid);
-    const isAdmin = staff.data()?.isAdmin ?? false;
-    if (!isAdmin) {
+    const firestoreStaffUser = await checkIfStaff(uid);
+    if (!firestoreStaffUser.isAdmin) {
         throw new functions.https.HttpsError('permission-denied', 'You are not an admin.');
     }
 };
 
-export const listPendingStaffs = functions.https.onCall(async (data, context) => {
-    checkIfAdmin(context.auth?.uid);
+/**
+ * Create new account linked to the user's google uid.
+ */
+export const makeAccount = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated to make an account.');
+    }
 
-    // There is always less than 1000 users
-    const users = (await admin.auth().listUsers()).users;
+    const {firstName, lastName, phone, school} = data as MakeAccountPayload;
+    const googleUid = context.auth.uid;
 
-    const staffsId = (await admin.firestore().collection('staffs').withConverter(staffConverter).get())
-        .docs.map((s) => s.data().id);
+    const firestoreUser = (await admin.firestore().doc(`accounts/${googleUid}`)
+        .withConverter(accountConverter as unknown as FirestoreDataConverter<Account>)
+        .get()
+    ).data();
 
-    const pendingUsers = users.filter(({uid}) => !staffsId.includes(uid));
+    if (firestoreUser) {
+        throw new functions.https.HttpsError('permission-denied', 'User with same uid already exists');
+    }
 
-    return {
-        users: pendingUsers.map((u) => ({
-            uid: u.uid,
-            name: u.displayName,
-            email: u.email,
-        })),
-    } as ListPendingStaffs;
+    const userDocument: Account = {
+        id: '',
+        firstName,
+        lastName,
+        phone: phone ? phone : context.auth.token.phone_number ?? '',
+        school,
+        isStaff: false,
+        isAdmin: false,
+        isAvailable: false,
+        balance: 0,
+        stats: {
+            totalMoneySpent: 0,
+            servingsOrdered: 0,
+            drinksOrdered: 0,
+            snacksOrdered: 0,
+        },
+    };
+
+    try {
+        await admin.firestore().collection('accounts').doc(googleUid).set(userDocument);
+        return {success: true};
+    } catch {
+        return {success: false};
+    }
 });
 
-export const makeStaff = functions.https.onCall(async (data, context) => {
-    checkIfAdmin(context.auth?.uid);
+/**
+ * List non staff google users, aka customers. Used to pick new staffs.
+ */
+export const listCustomers = functions.https.onCall(async (data, context) => {
+    await checkIfAdmin(context.auth?.uid);
+    // There is always less than 1000 users
+    const googleUsersIds = (await admin.auth().listUsers()).users.map((u) => u.uid);
+    const customers = (await admin.firestore()
+        .collection('accounts')
+        .where('isStaff', '==', false)
+        .withConverter(accountConverter as unknown as FirestoreDataConverter<Account>)
+        .get()
+    ).docs.map((s) => s.data());
 
-    const {uid, name} = (data as MakeStaffPayload);
-    const staffRef = admin.firestore().doc(`staffs/${uid}`).withConverter(staffConverter);
+    const customerGoogleUsers = customers.filter((u) => googleUsersIds.includes(u.id));
 
-    await staffRef.create({
-        id: uid,
-        name,
-        isAvailable: false,
-        isAdmin: false,
-        phone: '1',
-    });
-
-    return {success: true};
+    return customerGoogleUsers;
 });
 
 /**
  * Make a pay transaction.
  * Check if the stock is available and if the user has provision for the payment.
  * Also check if it is still time for an order.
- *
  */
 export const makeTransaction = functions.https.onCall(async (data, context) => {
-    checkIfStaff(context.auth?.uid); // TODO change this so that users can order themselves
+    const user = await checkIfUser(context.auth?.uid);
     const db = admin.firestore();
     const {account, productsWithQty, needPreparation} = (data as MakeTransactionPayload);
     const accountRef = db.doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
@@ -140,11 +172,17 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('permission-denied', 'You cannot order more than two servings.');
     }
 
+    const parisTimeZone = 'Europe/Paris';
+    const currentTimeParis = DateTime.now().setZone(parisTimeZone);
+    const startOfDayParis = currentTimeParis.set({hour: 0, minute: 0, second: 0, millisecond: 1});
+    const endOfDayParis = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
+
+    if (!startOfDayParis.until(endOfDayParis).contains(currentTimeParis)) {
+        throw new functions.https.HttpsError('permission-denied', 'You can only order between 0:00 AM and 11:30 AM Paris time.');
+    }
+
     // Write the transaction.
     const transactionRef = db.collection('transactions').doc();
-    const staff = await db.doc(`staffs/${context.auth?.uid}`).withConverter(staffConverter).get();
-
-    // TODO allow orders between 00:00 and 11:30, deny other orders
 
     const batch = db.batch();
     batch.create(transactionRef, {
@@ -154,7 +192,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         price: priceProducts,
         state: needPreparation ? TransactionState.Preparing : TransactionState.Served,
         customer: account,
-        staff: staff.data(),
+        admin: user.isAdmin ? user : undefined,
         createdAt: new Date(),
     });
 

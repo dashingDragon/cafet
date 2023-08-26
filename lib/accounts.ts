@@ -1,6 +1,6 @@
 import { FirestoreDataConverter } from 'firebase/firestore';
 
-export const MAX_MONEY_PER_ACCOUNT = 100 * 100; // max 100€ at a time on one account
+export const MAX_MONEY_PER_ACCOUNT = 50 * 100; // max 50€ at a time on one account
 
 export enum School {
     Ensimag = 0,
@@ -15,28 +15,60 @@ export enum School {
     Unknown = 9,
 }
 
+export type AccountStats = {
+    totalMoneySpent: number;
+    servingsOrdered: number;
+    drinksOrdered: number;
+    snacksOrdered: number;
+}
+
 export type Account = {
-    id: string | undefined;
+    id: string;
     firstName: string;
     lastName: string;
+    isStaff: boolean;
+    isAdmin: boolean;
+    isAvailable: boolean;
+    phone: string;
     school: School;
     balance: number;
-    stats: {
-        totalMoneySpent: number;
-        servingsOrdered: number;
-        drinksOrdered: number;
-        snacksOrdered: number;
-    }
-};
+    stats: AccountStats;
+}
+
+export type MakeAccountPayload = {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    school: School;
+}
 
 export const accountConverter: FirestoreDataConverter<Account> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        const { firstName, lastName, school, balance, stats: {totalMoneySpent, servingsOrdered, drinksOrdered, snacksOrdered} } = data;
+        const {
+            firstName,
+            lastName,
+            isStaff,
+            isAdmin,
+            isAvailable,
+            phone,
+            school,
+            balance,
+            stats: {
+                totalMoneySpent,
+                servingsOrdered,
+                drinksOrdered,
+                snacksOrdered,
+            },
+        } = data;
         return {
             id: snapshot.id,
             firstName,
             lastName,
+            isStaff,
+            isAdmin,
+            isAvailable,
+            phone,
             school,
             balance,
             stats: {
@@ -48,7 +80,11 @@ export const accountConverter: FirestoreDataConverter<Account> = {
         };
     },
     toFirestore: (account) => {
-        const { firstName, lastName, school, balance, stats } = account;
-        return { firstName, lastName, school, balance, stats };
+        const { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, school, balance, stats } = account;
+
+        if (id) {
+            return { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, school, balance, stats };
+        }
+        return { firstName, lastName, isStaff, isAdmin, isAvailable, phone, school, balance, stats };
     },
 };

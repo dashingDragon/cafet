@@ -1,21 +1,7 @@
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { Staff, staffConverter } from './staffs';
-import { doc, getFirestore, onSnapshot } from 'firebase/firestore';
-
-export const useUser = () => {
-    const auth = getAuth();
-    const [user, setUser] = useState(auth.currentUser);
-
-    useEffect(() => {
-        return onAuthStateChanged(auth, (user) => {
-            setUser(user);
-        });
-    });
-
-    return user;
-};
+import { useFirestoreUser } from './firestoreHooks';
 
 export const useGuardIsConnected = () => {
     const auth = getAuth();
@@ -36,68 +22,35 @@ export const useGuardIsConnected = () => {
 };
 
 export const useGuardIsStaff = () => {
-    const db = getFirestore();
     const router = useRouter();
-    const user = useGuardIsConnected();
-    const [staffUser, setStaffUser] = useState(undefined as Staff | undefined);
+    const firestoreStaffUser = useFirestoreUser();
 
     useEffect(() => {
-        if (user) {
-            const q = doc(db, `staffs/${user?.uid}`).withConverter(staffConverter);
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                try {
-                    const staff = snapshot.data();
-                    if (!staff) {
-                        console.log('Not a staff, redirecting to /error/unauthorized');
-                        router.replace('/error/unauthorized');
-                    } else {
-                        setStaffUser(staff);
-                    }
-                } catch (error) {
-                    console.log('Not a staff, redirecting to /error/unauthorized');
-                    router.replace('/error/unauthorized');
-                }
-            });
-
-            return () => {
-                unsubscribe(); // Unsubscribe when component unmounts
-            };
+        if (firestoreStaffUser) {
+            if (!firestoreStaffUser.isStaff) {
+                console.error('Not a staff, redirecting to /error/unauthorized');
+                router.replace('/error/unauthorized');
+            }
         }
-    }, [db, router, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [firestoreStaffUser]);
 
-    return staffUser;
+    return firestoreStaffUser;
 };
 
-
 export const useGuardIsAdmin = () => {
-    const db = getFirestore();
     const router = useRouter();
-    const user = useGuardIsConnected();
-    const [staffUser, setStaffUser] = useState(undefined as Staff | undefined);
+    const firestoreAdminUser = useFirestoreUser();
 
     useEffect(() => {
-        if (user) {
-            const q = doc(db, `staffs/${user?.uid}`).withConverter(staffConverter);
-            const unsubscribe = onSnapshot(q, (snapshot) => {
-                try {
-                    const staff = snapshot.data();
-                    if (!staff || !staff.isAdmin) {
-                        console.log('Not an admin, redirecting to /error/unauthorized');
-                        router.replace('/error/unauthorized');
-                    } else {
-                        setStaffUser(staff);
-                    }
-                } catch (error) {
-                    console.log('Not an admin, redirecting to /error/unauthorized');
-                    router.replace('/error/unauthorized');
-                }
-            });
-
-            return () => {
-                unsubscribe(); // Unsubscribe when component unmounts
-            };
+        if (firestoreAdminUser) {
+            if (!firestoreAdminUser.isAdmin) {
+                console.error('Not an admin, redirecting to /error/unauthorized');
+                router.replace('/error/unauthorized');
+            }
         }
-    }, [db, router, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [firestoreAdminUser]);
 
-    return staffUser;
+    return firestoreAdminUser;
 };
