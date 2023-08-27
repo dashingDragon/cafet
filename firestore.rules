@@ -28,7 +28,7 @@ service cloud.firestore {
     }
 
     function isStaff() {
-      return isLoggedIn() && get(/databases/$(database)/documents/account/$(request.auth.uid)).data.isStaff == true;
+      return isLoggedIn() && get(/databases/$(database)/documents/accounts/$(request.auth.uid)).data.isStaff == true;
     }
 
     function isAdmin() {

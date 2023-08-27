@@ -39,7 +39,8 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] store the global and products' stats somewhere
 - [x] cash in the order when serving
 - [x] add snackbars when adding a product to the basket
-- [ ] add cancel and modify order button
+- [x] add modify order button
+- [ ] add cancel order button
 - [ ] make a backup script for the database
 - [ ] make a statistical graph for products
 
