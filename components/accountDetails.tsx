@@ -1,9 +1,9 @@
-import { AccountBalanceWallet, Coffee, Cookie, DeleteForever, Edit, Error, Euro, LunchDining, PointOfSale } from '@mui/icons-material';
-import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Divider, TextField, Typography } from '@mui/material';
+import { AccountBalanceWallet, AccountCircle, AddModerator, Coffee, Cookie, DeleteForever, Edit, Error, Euro, LunchDining, PointOfSale } from '@mui/icons-material';
+import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account, MAX_MONEY_PER_ACCOUNT, School } from '../lib/accounts';
-import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useRechargeTransactionMaker, useTransactionHistory } from '../lib/firestoreHooks';
+import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useMakeStaff, useRechargeTransactionMaker, useTransactionHistory } from '../lib/firestoreHooks';
 import AccountEditDialog from './dialogs/accountEditDialog';
 import { TransactionOrder, TransactionRecharge, TransactionType } from '../lib/transactions';
 import { useGuardIsAdmin } from '../lib/hooks';
@@ -29,7 +29,24 @@ const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
                     />
                     <Box display="flex" flexDirection="column" ml={2}>
                         <Typography variant="h5">{account.firstName} {account.lastName.toUpperCase()}</Typography>
-                        <Typography variant="overline" sx={{ textTransform: 'none' }}>{account.id}</Typography>
+                        {account.email !== '' && (
+                            <Typography variant="overline" sx={{ textTransform: 'none' }}>{account.email}</Typography>
+                        )}
+                        {account.phone !== '' && (
+                            <Typography variant="overline" sx={{ textTransform: 'none' }}>{account.phone}</Typography>
+                        )}
+                        {account.isStaff && (
+                            <Chip
+                                variant="outlined"
+                                color={'warning'}
+                                icon={<AccountCircle sx={{ marginLeft: 2 }} />}
+                                label={'Staff'}
+                                sx={{
+                                    width: '100px',
+                                }}
+                            />
+                        )}
+
                     </Box>
                 </Box>
             </CardContent>
@@ -109,6 +126,7 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
 const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
     // Dialog states
     const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [staffDialogOpen, setStaffDialogOpen] = useState(false);
     const [deleteConfirm1Open, setDeleteConfirm1Open] = useState(false);
     const [deleteConfirm2Open, setDeleteConfirm2Open] = useState(false);
 
@@ -116,6 +134,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
     const admin = useGuardIsAdmin();
     const accountEditor = useAccountEditor();
     const accountDeleter = useAccountDeleter();
+    const makeStaff = useMakeStaff();
 
     const handleAccountEdit = async (firstName: string, lastName: string, school: School, phone: string, email: string) => {
         try {
@@ -123,6 +142,13 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
             await accountEditor(account,firstName, lastName, school, phone, email);
         } catch (e: any) {
             alert(`Failed to edit account: ${e}`);
+        }
+    };
+
+    const handleMakeStaff = async (isStaff: boolean) => {
+        setStaffDialogOpen(false);
+        if (isStaff != account.isStaff) {
+            await makeStaff(account, isStaff);
         }
     };
 
@@ -139,21 +165,28 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
 
     const buttons = [
         {
-            icon: <PointOfSale fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
+            icon: <PointOfSale sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'primary',
             text: 'Encaisser',
             enabled: () => account.balance > 0,
             onClick: () => router.push(`/accounts/${account.id}/pay`),
         },
         {
-            icon: <Edit fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
+            icon: <Edit sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'primary',
             text: 'Editer',
             enabled: () => true,
             onClick: () => setEditDialogOpen(true),
         },
         {
-            icon: <DeleteForever fontSize="large" sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
+            icon: <AddModerator sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
+            color: 'primary',
+            text: 'Staff',
+            enabled: () => true,
+            onClick: () => setStaffDialogOpen(true),
+        },
+        {
+            icon: <DeleteForever sx={{ color: 'hsla(220, 27%, 98%, 1)'}} />,
             color: 'error',
             text: 'Supprimer',
             enabled: () => true,
@@ -176,7 +209,7 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
                         >
                             <Box display="flex" flexDirection="column" alignItems="center">
                                 {icon}
-                                <Typography variant="body1" sx={{ color: 'hsla(220, 27%, 98%, 1)' }}>{text}</Typography>
+                                <Typography variant="body2" sx={{ color: 'hsla(220, 27%, 98%, 1)' }}>{text}</Typography>
                             </Box>
                         </Button>
                     )}
@@ -192,21 +225,30 @@ const AccountActions: React.FC<{ account: Account }> = ({ account }) => {
                 onSubmit={handleAccountEdit}
             />
 
+            {/* Staff dialog */}
+            <Dialog open={staffDialogOpen} onClose={() => setStaffDialogOpen(false)}>
+                <DialogTitle>Cette personne est-elle un staff ?</DialogTitle>
+                <DialogActions>
+                    <Button onClick={() => handleMakeStaff(false)} sx={{ color: theme => theme.colors.main }}>Non</Button>
+                    <Button onClick={() => handleMakeStaff(true)} variant="contained">Oui</Button>
+                </DialogActions>
+            </Dialog>
+
             {/* Delete confirm 1 */}
             <Dialog open={deleteConfirm1Open} onClose={() => setDeleteConfirm1Open(false)}>
-                <DialogTitle>Etes vous vraiment sûr de supprimer ce compte ?</DialogTitle>
+                <DialogTitle>Attention cette action est irréversible. Êtes-vous sûr de vouloir supprimer ce compte ?</DialogTitle>
                 <DialogActions>
                     <Button onClick={() => setDeleteConfirm1Open(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
-                    <Button onClick={() => { setDeleteConfirm1Open(false); setDeleteConfirm2Open(true); }} variant="contained">Ok</Button>
+                    <Button onClick={() => { setDeleteConfirm1Open(false); setDeleteConfirm2Open(true); }} variant="contained">Supprimer</Button>
                 </DialogActions>
             </Dialog>
 
             {/* Delete confirm 2 */}
             <Dialog open={deleteConfirm2Open} onClose={() => setDeleteConfirm2Open(false)}>
-                <DialogTitle>Vraiment ????</DialogTitle>
+                <DialogTitle>Le compte sera supprimé pour toujours de la base de données. Continuer ?</DialogTitle>
                 <DialogActions>
                     <Button onClick={() => setDeleteConfirm2Open(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
-                    <Button onClick={handleAccountDelete} variant="contained">Ok</Button>
+                    <Button onClick={handleAccountDelete} variant="contained">Supprimer</Button>
                 </DialogActions>
             </Dialog>
         </>

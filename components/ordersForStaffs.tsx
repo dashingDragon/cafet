@@ -5,8 +5,9 @@ import { OrderList } from './lists/orderList';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { Order, TransactionState } from '../lib/transactions';
+import { useTodaysOrders } from '../lib/firestoreHooks';
 
-const TabItem = styled(Box)(({ theme }) => ({
+const TabItem = styled(Box)(({
     flexGrow: 1,
     flexShrink: 1,
     display: 'flex',
@@ -33,7 +34,8 @@ const TabImage = styled(Box)(({ theme }) => ({
     },
 }));
 
-export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
+export const OrdersForStaffs: React.FC = () => {
+    const orders = useTodaysOrders();
     const [ingredientsQuantities, setIngredientsQuantities] = useState<Record<string, number>>({});
     const [ordersInPreparation, setOrdersInPreparation] = useState([] as Order[]);
     const [ordersServed, setOrdersServed] = useState([] as Order[]);
@@ -96,7 +98,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                 mb: '16px',
                 borderRadius: '20px',
                 overflow: 'visible',
-                width: '350px',
+                width: '320px',
                 display: 'flex',
                 height: '100px',
             }}>
@@ -166,7 +168,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                 <>
                     {ordersInPreparation.length === 0 ? (
                         <Stack direction="column" justifyContent="center" height="100%">
-                            <Typography variant="h3" sx={{ m: '32px' }}>
+                            <Typography variant="h5" sx={{ m: '32px' }}>
                                 {'Il n\'y a aucune commande en attente.'}
                             </Typography>
                             <Image
@@ -188,7 +190,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                 <>
                     {ordersInPreparation.length === 0 ? (
                         <Stack direction="column" justifyContent="center" height="100%">
-                            <Typography variant="h3" sx={{ m: '32px' }}>
+                            <Typography variant="h5" sx={{ m: '32px' }}>
                                 {'Il n\'y a aucune commande en attente.'}
                             </Typography>
                             <Image
@@ -210,7 +212,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                 <>
                     {ordersServed.length === 0 ? (
                         <Stack direction="column" justifyContent="center" height="100%">
-                            <Typography variant="h3" sx={{ m: '32px' }}>
+                            <Typography variant="h5" sx={{ m: '32px' }}>
                                 {'Aucune commande n\'a été servie aujourd\'hui.'}
                             </Typography>
                             <Image

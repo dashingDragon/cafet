@@ -31,21 +31,6 @@ const checkIfUser = async (uid: string | undefined) => {
     return firestoreUser;
 };
 
-const checkIfStaff = async (uid: string | undefined) => {
-    const firestoreStaffUser = await checkIfUser(uid);
-    if (!firestoreStaffUser.isStaff) {
-        throw new functions.https.HttpsError('permission-denied', 'You are not a staff.');
-    }
-    return firestoreStaffUser;
-};
-
-const checkIfAdmin = async (uid: string | undefined) => {
-    const firestoreStaffUser = await checkIfStaff(uid);
-    if (!firestoreStaffUser.isAdmin) {
-        throw new functions.https.HttpsError('permission-denied', 'You are not an admin.');
-    }
-};
-
 /**
  * Create new account linked to the user's google uid.
  */
@@ -107,25 +92,6 @@ export const getFirestoreUser = functions.https.onCall(async (data, context) => 
     } catch {
         return {success: false, account: undefined};
     }
-});
-
-/**
- * List non staff google users, aka customers. Used to pick new staffs.
- */
-export const listCustomers = functions.https.onCall(async (data, context) => {
-    await checkIfAdmin(context.auth?.uid);
-    // There is always less than 1000 users
-    const googleUsersIds = (await admin.auth().listUsers()).users.map((u) => u.uid);
-    const customers = (await admin.firestore()
-        .collection('accounts')
-        .where('isStaff', '==', false)
-        .withConverter(accountConverter as unknown as FirestoreDataConverter<Account>)
-        .get()
-    ).docs.map((s) => s.data());
-
-    const customerGoogleUsers = customers.filter((u) => googleUsersIds.includes(u.id));
-
-    return customerGoogleUsers;
 });
 
 /**
@@ -194,7 +160,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     const startOfDayParis = currentTimeParis.set({hour: 0, minute: 0, second: 0, millisecond: 1});
     const endOfDayParis = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
 
-    if (!startOfDayParis.until(endOfDayParis).contains(currentTimeParis)) {
+    if (!user.isAdmin && !startOfDayParis.until(endOfDayParis).contains(currentTimeParis)) {
         throw new functions.https.HttpsError('permission-denied', 'You can only order between 0:00 AM and 11:30 AM Paris time.');
     }
 

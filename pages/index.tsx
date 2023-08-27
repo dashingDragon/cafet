@@ -4,13 +4,10 @@ import PageLayout from '../components/pageLayout';
 import LoadingScreen from '../components/loading';
 import { useFirestoreUser } from '../lib/firestoreHooks';
 import { OrdersForStaffs } from '../components/ordersForStaffs';
-import { OrdersForCustomers } from '../components/ordersForCustomers';
-import { Order } from '../lib/transactions';
+import { CustomerPage } from '../components/customer';
 
 const OrderPage: NextPage = () => {
     const firestoreUser = useFirestoreUser();
-
-    const orders = [] as Order[]; // useTodaysOrders();
 
     return (
         <>
@@ -20,18 +17,18 @@ const OrderPage: NextPage = () => {
             </Head>
 
             <main>
-                <PageLayout title={'Kafet'} hideBottomNavigation={!firestoreUser?.isAdmin}>
-                    {orders === undefined || !firestoreUser
-                        ? <LoadingScreen />
-                        : <>
-                            {firestoreUser.isStaff ? (
-                                <OrdersForStaffs orders={orders} />
-                            ) : (
-                                <OrdersForCustomers orders={orders} />
-                            )}
-                        </>
-                    }
-                </PageLayout>
+                {!firestoreUser
+                    ? <LoadingScreen />
+                    : <>
+                        {firestoreUser.isStaff ? (
+                            <PageLayout title={'Kafet'} hideBottomNavigation={!firestoreUser?.isAdmin}>
+                                <OrdersForStaffs />
+                            </PageLayout>
+                        ) : (
+                            <CustomerPage />
+                        )}
+                    </>
+                }
             </main>
         </>
     );

@@ -19,32 +19,6 @@ export const useMakeAccount = () => {
 };
 
 /**
- * Get the list of non-staff users.
- *
- * @returns a google cloud function to get the list of non-staff users.
- */
-export const useListCustomers = () => {
-    const functions = getFunctions();
-    const fun = httpsCallable(functions, 'listNonStaffUsers');
-
-    return async () => {
-        console.log('Called function listNonStaffUsers');
-        return (await fun({})).data as Account[];
-    };
-};
-
-export const useCustomers: () => [Account[], () => Promise<void>] = () => {
-    const customerList = useListCustomers();
-    const [pending, setPending] = useState<Account[]>([]);
-
-    const refresh = async () => {
-        setPending((await customerList()));
-    };
-
-    return [pending, refresh];
-};
-
-/**
  * Write a transaction for the exchange and update
  * the account's balance and stats.
  *
