@@ -93,6 +93,22 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
     }
 });
 
+export const getFirestoreUser = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated have a firestore account.');
+    }
+
+    try {
+        const db = admin.firestore();
+        const googleUid = context.auth.uid;
+        const accountRef = db.doc(`accounts/${googleUid}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
+        const accountData = (await accountRef.get()).data();
+        return {success: true, account: accountData};
+    } catch {
+        return {success: false, account: undefined};
+    }
+});
+
 /**
  * List non staff google users, aka customers. Used to pick new staffs.
  */

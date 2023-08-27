@@ -64,3 +64,18 @@ export const useMakeTransaction = () => {
         }
     };
 };
+
+export const useGetFirestoreUser = () => {
+    const functions = getFunctions();
+    const fun = httpsCallable(functions, 'getFirestoreUser') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, account: Account | undefined }>>;
+
+    return async (): Promise<HttpsCallableResult<{ success: boolean, account: Account | undefined }>> => {
+        console.log('Called function getFirestoreUser');
+        try {
+            return await fun();
+        } catch (e) {
+            console.error('getFirestoreUser failed : '  + e);
+            return { data: { success: false, account: undefined } };
+        }
+    };
+};

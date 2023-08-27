@@ -1,10 +1,9 @@
 import { Avatar, Box, Button, Dialog, DialogActions, DialogTitle, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useSetStaffAvailability, useStaffUser } from '../../lib/firestoreHooks';
-import { Staff } from '../../lib/staffs';
+import { useSetStaffAvailability } from '../../lib/firestoreHooks';
+import { Account } from '../../lib/accounts';
 
-const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
-    const staffMe = useStaffUser();
+const StaffItem: React.FC<{ staff: Account }> = ({ staff }) => {
     const setStaffAvailability = useSetStaffAvailability();
     const [availableDialogOpen, setAvailableDialogOpen] = useState(false);
 
@@ -18,7 +17,7 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
     return (
         <>
             <Button
-                onClick={staffMe?.isAdmin ? () => setAvailableDialogOpen(true) : () => {}}
+                onClick={() => setAvailableDialogOpen(true)}
                 variant="contained"
                 color={staff.isAvailable ? 'success' : 'warning'}
                 fullWidth
@@ -29,7 +28,7 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
                         <Typography
                             variant="body1"
                         >
-                            {staff.name.split(' ').map(p => p[0].toUpperCase()).join('')}
+                            {[staff.firstName[0].toUpperCase(), staff.lastName[0].toUpperCase()].join('')}
                         </Typography>
 
                     </Avatar>
@@ -37,7 +36,7 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
                         variant="body1"
                         fontWeight="bold"
                     >
-                        {staff.name}
+                        {staff.firstName} {staff.lastName}
                     </Typography>
                 </Box>
             </Button>
@@ -56,7 +55,7 @@ const StaffItem: React.FC<{ staff: Staff }> = ({ staff }) => {
     );
 };
 
-const StaffList: React.FC<{ staffs: Staff[] }> = ({ staffs }) => {
+const StaffList: React.FC<{ staffs: Account[] }> = ({ staffs }) => {
     return (
         <Box m={1}>
             {staffs.map((staff) =>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useFirestoreUser } from './firestoreHooks';
 
 export const useGuardIsConnected = () => {
+    console.log('useGuardIsConnected');
     const auth = getAuth();
     const router = useRouter();
     const [user, setUser] = useState(auth.currentUser);
@@ -16,7 +17,8 @@ export const useGuardIsConnected = () => {
                 router.replace('/login');
             }
         });
-    }, [auth, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [auth]);
 
     return user;
 };

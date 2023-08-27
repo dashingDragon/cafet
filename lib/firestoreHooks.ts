@@ -7,6 +7,7 @@ import { Product, ProductWithQty, productConverter, productType } from './produc
 import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients } from './ingredients';
 import { Stat, statConverter } from './stats';
 import { useRouter } from 'next/router';
+import { useGetFirestoreUser } from './firebaseFunctionHooks';
 
 // =================== Staff stuff ===================
 /**
@@ -15,24 +16,41 @@ import { useRouter } from 'next/router';
  * @returns the currently logged in user Account.
  */
 export const useFirestoreUser = () => {
+    console.log('useFirestoreUser');
     const db = getFirestore();
     const router = useRouter();
     const user = useGuardIsConnected();
     const [firestoreUser, setFirestoreUser] = useState<Account | undefined>(undefined);
+    const getFirestoreUser = useGetFirestoreUser();
 
     useEffect(() => {
-        const q = doc(db, `accounts/${user?.uid}`).withConverter(accountConverter);
-        return onSnapshot(q, (snapshot) => {
-            const firestoreUserData = snapshot.data();
-            if (!firestoreUserData) {
-                console.error('Failed to fetch firestore user data.');
-                router.replace('/register');
-            } else {
-                setFirestoreUser(firestoreUserData);
-            }
-        });
+        if (user) {
+            console.log(user);
+            const q = doc(db, `accounts/${user.uid}`).withConverter(accountConverter);
+            return onSnapshot(q, (snapshot) => {
+                const firestoreUserData = snapshot.data();
+                console.log(firestoreUserData);
+                if (!firestoreUserData) {
+                    console.error('Failed to fetch firestore user data.');
+                    router.replace('/register');
+                } else {
+                    setFirestoreUser(firestoreUserData);
+                }
+            }, async (error) => {
+                console.error(error);
+                const result = await getFirestoreUser();
+                if (result.data.success) {
+                    if (result.data.account) {
+                        setFirestoreUser(result.data.account);
+                    } else {
+                        console.log('User does not exist');
+                        router.replace('/register');
+                    }
+                }
+            });
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [db, user]);
+    }, [user]);
 
     return firestoreUser;
 };
@@ -801,7 +819,8 @@ export const useOrderEditor = () => {
             }
 
             // update transaction
-            batch.update(doc(db, `transactions/${order.id}`).withConverter(transactionConverter), {
+            const transactionRef = doc(db, `transactions/${order.id}`).withConverter(transactionConverter);
+            batch.update(transactionRef, {
                 productsWithQty,
                 price,
                 state: needPreparation ? order.state : TransactionState.Served,

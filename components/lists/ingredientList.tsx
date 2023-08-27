@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, Chip, Dialog, DialogActions, DialogTitle, IconButton,  Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useIngredientDeleter, useStaffUser } from '../../lib/firestoreHooks';
+import { useIngredientDeleter } from '../../lib/firestoreHooks';
 import { Ingredient } from '../../lib/ingredients';
 import { formatMoney } from '../accountDetails';
 import Image from 'next/image';
@@ -21,7 +21,6 @@ const IngredientItem: React.FC<{
     setIngredientDialogOpen: (b: boolean) => void;
     setIngredient: (i: Ingredient) => void;
 }> = ({ ingredient, setIngredientDialogOpen, setIngredient }) => {
-    const staff = useStaffUser();
     const deleteIngredient = useIngredientDeleter();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 

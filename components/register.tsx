@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import { MakeAccountPayload, School, allSchools } from '../lib/accounts';
 import { useMakeAccount } from '../lib/firebaseFunctionHooks';
 import { useState } from 'react';
+import Image from 'next/image';
+import { imageLoader } from '../pages/_app';
 
 const Register: React.FC = () => {
     const router = useRouter();
@@ -36,12 +38,28 @@ const Register: React.FC = () => {
     return (
         <Container maxWidth="md" disableGutters>
             <Box
-                height="100vh"
                 display="flex"
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
+                m={4}
             >
+                <Typography variant='h3'>
+                    Bienvenue à la Cafet !
+                </Typography>
+                <Box borderRadius='50%' overflow={'hidden'} height={'256px'} mb={8}>
+                    <Image
+                        loader={imageLoader}
+                        src={'/logo_white.jpg'}
+                        alt={'Success image'}
+                        width={256}
+                        height={256}
+                    />
+                </Box>
+
+                <Typography variant='h6'>
+                    Créez votre compte pour commander
+                </Typography>
                 <TextField
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
@@ -95,9 +113,9 @@ const Register: React.FC = () => {
                 <Button
                     onClick={handleSignUp}
                     variant="contained"
-                    sx={{ mt: 3, mb: 10 }}
+                    sx={{ mt: 3 }}
                 >
-                    Créer un compte
+                    Créer mon compte
                 </Button>
             </Box>
         </Container>

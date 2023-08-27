@@ -44,10 +44,10 @@ const AccountList = () => {
         setRows(filtered);
     };
 
-    const handleAddAccount = async (firstName: string, lastName: string, school: School) => {
+    const handleAddAccount = async (firstName: string, lastName: string, school: School, phone: string, email: string) => {
         try {
             setCreateAccountDialogOpen(false);
-            const id = (await accountMaker(firstName, lastName, school)).id;
+            const id = (await accountMaker(firstName, lastName, school, phone, email)).id;
             router.push(`accounts/${id}`);
         } catch (e: any) {
             alert(`Something wrong happened: ${e}`);

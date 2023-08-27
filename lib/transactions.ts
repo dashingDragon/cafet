@@ -15,23 +15,23 @@ export enum TransactionState {
 }
 
 type TransactionMetadata = {
-    type: TransactionType,
-    customer: Account,
-    admin: Account | undefined,
-    createdAt: Date,
+    type: TransactionType;
+    customer: Account;
+    admin: Account | undefined;
+    createdAt: Date;
 }
 
 export type TransactionRecharge = {
-    id: string,
-    amount: number,
+    id: string;
+    amount: number;
 } & TransactionMetadata;
 
 export type TransactionOrder = {
     id: string;
-    productsWithQty: ProductWithQty[],
-    price: number,
-    state: TransactionState,
-} & TransactionMetadata;
+    productsWithQty: ProductWithQty[];
+    price: number;
+    state: TransactionState;
+} & TransactionMetadata & Exclude<keyof any, 'id'>;
 
 export type Transaction = TransactionRecharge | TransactionOrder;
 

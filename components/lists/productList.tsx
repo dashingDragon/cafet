@@ -1,7 +1,7 @@
 import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Dialog, DialogActions, DialogTitle, IconButton, List, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useProductDeleter, useStaffUser } from '../../lib/firestoreHooks';
+import { useProductDeleter } from '../../lib/firestoreHooks';
 import { Product } from '../../lib/products';
 import { formatMoney } from '../accountDetails';
 import { imageLoader } from '../../pages/_app';
@@ -15,7 +15,6 @@ const ProductItem: React.FC<{
     setProductDialogOpen: (b: boolean) => void,
     setProduct: (p: Product) => void
 }> = ({ product, setProductDialogOpen, setProduct }) => {
-    const staff = useStaffUser();
     const deleteProduct = useProductDeleter();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
