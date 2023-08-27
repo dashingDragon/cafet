@@ -98,6 +98,14 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
                         onChange={(e, route) => router.push(route)}
                         showLabels
                         color="inherit"
+                        sx={{
+                            '.MuiBottomNavigationAction-label': {
+                                fontSize: '10px',
+                            },
+                            '.MuiBottomNavigationAction-label.Mui-selected': {
+                                fontSize: '12px',
+                            },
+                        }}
                     >
                         <BottomNavigationAction value={'/'} label="Commandes" icon={<FormatListBulleted />} color="inherit" />
                         <BottomNavigationAction value={'/accounts'} label="Comptes" icon={<Groups />} color="inherit" />

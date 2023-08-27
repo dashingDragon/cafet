@@ -63,16 +63,16 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                 overflow: 'visible',
                 px: '32px',
                 py: '16px',
-                width: '350px',
+                width: '320px',
                 display: 'flex',
                 flexDirection: 'column',
             }}>
                 <Typography variant='h5'>
-                                        Liste de courses
+                    Liste de courses
                 </Typography>
                 <Stack direction="row" flexWrap={'wrap'}>
                     {Object.entries(ingredientsQuantities).map(([name, quantity]) => (
-                        <Box key={name} width='50%' sx={{ display: 'flex', p: 1 }}>
+                        <Box key={name} width='50%' sx={{ display: 'flex', alignItems: 'flex-end', p: 1 }}>
                             <Image
                                 loader={imageLoader}
                                 src={ingredientsToCount[name]}
@@ -81,7 +81,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                                 width={36}
                                 className={'icon'}
                             />
-                            <Typography ml={'16px'} fontSize={24} fontWeight={700}>
+                            <Typography ml={'16px'} fontSize={16} fontWeight={700} sx={{ opacity: quantity ? 1 : 0.7 }}>
                                 {quantity}
                             </Typography>
                         </Box>
@@ -117,7 +117,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                             color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
                         })),
                     }}>
-                                            Commandes
+                        Commandes
                     </Typography>
                 </TabItem>
                 <TabItem onClick={() => setTabIndex(1)}>
@@ -137,7 +137,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                             color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
                         })),
                     }}>
-                                            Détails
+                        Détails
                     </Typography>
                 </TabItem>
                 <TabItem onClick={() => setTabIndex(2)}>
@@ -158,7 +158,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                             color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
                         })),
                     }}>
-                                            Service
+                        Service
                     </Typography>
                 </TabItem>
             </Stack>
@@ -179,7 +179,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                         </Stack>
                     ) : (
                         <Typography variant="h5" mb={2}>
-                                                Commandes en attente
+                            Commandes en attente
                         </Typography>
                     )}
                     <OrderList orders={ordersInPreparation} short />
@@ -201,7 +201,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                         </Stack>
                     ) : (
                         <Typography variant="h5" mb={2}>
-                                                Commandes en attente
+                            Commandes en attente
                         </Typography>
                     )}
                     <OrderList orders={ordersInPreparation} />
@@ -223,7 +223,7 @@ export const OrdersForStaffs: React.FC<{orders: Order[]}> = ({ orders }) => {
                         </Stack>
                     ) : (
                         <Typography variant="h5" mb={2}>
-                                                Commandes servies
+                            Commandes servies
                         </Typography>
                     )}
                     <OrderList orders={ordersServed} />

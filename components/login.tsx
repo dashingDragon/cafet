@@ -2,6 +2,8 @@ import { Google } from '@mui/icons-material';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { GoogleAuthProvider, getAuth, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
+import { imageLoader } from '../pages/_app';
 
 const Login = () => {
     const router = useRouter();
@@ -33,8 +35,15 @@ const Login = () => {
                 justifyContent="center"
                 alignItems="center"
             >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.jpg" alt="Kfet Logo" width="80%" />
+                <Box borderRadius='50%' overflow={'hidden'} height={'256px'} mb={8}>
+                    <Image
+                        loader={imageLoader}
+                        src={'/logo_white.jpg'}
+                        alt={'Success image'}
+                        width={256}
+                        height={256}
+                    />
+                </Box>
                 <Button
                     onClick={handleGoogleSignin}
                     variant="contained"

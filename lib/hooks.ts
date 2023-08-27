@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useFirestoreUser } from './firestoreHooks';
 
 export const useGuardIsConnected = () => {
-    console.log('useGuardIsConnected');
     const auth = getAuth();
     const router = useRouter();
     const [user, setUser] = useState(auth.currentUser);

@@ -16,7 +16,6 @@ import { useGetFirestoreUser } from './firebaseFunctionHooks';
  * @returns the currently logged in user Account.
  */
 export const useFirestoreUser = () => {
-    console.log('useFirestoreUser');
     const db = getFirestore();
     const router = useRouter();
     const user = useGuardIsConnected();
@@ -37,7 +36,6 @@ export const useFirestoreUser = () => {
                     setFirestoreUser(firestoreUserData);
                 }
             }, async (error) => {
-                console.error(error);
                 const result = await getFirestoreUser();
                 if (result.data.success) {
                     if (result.data.account) {
