@@ -6,35 +6,24 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { Order, TransactionState } from '../lib/transactions';
 import { useTodaysOrders } from '../lib/firestoreHooks';
+import { Carousel, CarouselItem } from './carousel';
 
-const TabItem = styled(Box)(({
-    flexGrow: 1,
-    flexShrink: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    '&:hover, &.selected': {
-        cursor: 'pointer',
+const carouselItems = [
+    {
+        label: 'Commandes',
+        icon: '/png/order.png',
     },
-}));
-
-const TabImage = styled(Box)(({ theme }) => ({
-    borderRadius: '50%',
-    background: theme.palette.background.paper,
-    width: '64px',
-    height: '64px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: '8px',
-    '&.selected': {
-        background: theme.palette.mode === 'light'
-            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
-            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
+    {
+        label: 'Détails',
+        icon: '/png/info.png',
     },
-}));
+    {
+        label: 'Service',
+        icon: '/png/service.png',
+    },
+] as CarouselItem[];
 
-export const OrdersForStaffs: React.FC = () => {
+export const StaffView: React.FC = () => {
     const orders = useTodaysOrders();
     const [ingredientsQuantities, setIngredientsQuantities] = useState<Record<string, number>>({});
     const [ordersInPreparation, setOrdersInPreparation] = useState([] as Order[]);
@@ -92,78 +81,7 @@ export const OrdersForStaffs: React.FC = () => {
             </Card>
 
             {/* Menu tabs */}
-            <Stack sx={{
-                flexDirection: 'row',
-                justifyContent: 'space-around',
-                mb: '16px',
-                borderRadius: '20px',
-                overflow: 'visible',
-                width: '320px',
-                display: 'flex',
-                height: '100px',
-            }}>
-                <TabItem onClick={() => setTabIndex(0)}>
-                    <TabImage className={tabIndex === 0 ? 'selected' : ''}>
-                        <Image
-                            loader={imageLoader}
-                            src={'/png/order.png'}
-                            alt={'Success image'}
-                            width={48}
-                            height={48}
-                        />
-                    </TabImage>
-                    <Typography fontSize={10} sx={{
-                        ...(tabIndex === 0 && ({
-                            fontWeight: 700,
-                            fontSize: '12px',
-                            color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
-                        })),
-                    }}>
-                        Commandes
-                    </Typography>
-                </TabItem>
-                <TabItem onClick={() => setTabIndex(1)}>
-                    <TabImage className={tabIndex === 1 ? 'selected' : ''}>
-                        <Image
-                            loader={imageLoader}
-                            src={'/png/info.png'}
-                            alt={'Success image'}
-                            width={48}
-                            height={48}
-                        />
-                    </TabImage>
-                    <Typography fontSize={10} sx={{
-                        ...(tabIndex === 1 && ({
-                            fontWeight: 700,
-                            fontSize: '12px',
-                            color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
-                        })),
-                    }}>
-                        Détails
-                    </Typography>
-                </TabItem>
-                <TabItem onClick={() => setTabIndex(2)}>
-                    <TabImage className={tabIndex === 2 ? 'selected' : ''}>
-                        <Image
-                            loader={imageLoader}
-                            src={'/png/service.png'}
-                            alt={'Success image'}
-                            width={48}
-                            height={48}
-                        />
-                    </TabImage>
-
-                    <Typography fontSize={10} sx={{
-                        ...(tabIndex === 2 && ({
-                            fontWeight: 700,
-                            fontSize: '12px',
-                            color: theme => theme.palette.mode === 'light' ? 'rgba(223,191,209,1)' : 'rgba(126,105,117,1)',
-                        })),
-                    }}>
-                        Service
-                    </Typography>
-                </TabItem>
-            </Stack>
+            <Carousel carouselItems={carouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
             {tabIndex === 0 ? (
                 <>
                     {ordersInPreparation.length === 0 ? (

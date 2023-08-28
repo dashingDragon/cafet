@@ -22,7 +22,7 @@ const AccountDetailsPage: NextPage = () => {
             </Head>
 
             <main>
-                <PageLayout title="Details du compte" hideBottomNavigation backTo="/">
+                <PageLayout title="Details du compte" hideBottomNavigation backTo="/accounts">
                     {account === undefined || admin === undefined
                         ? <LoadingScreen />
                         : <AccountDetails account={account} />

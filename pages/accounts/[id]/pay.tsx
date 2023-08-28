@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import LoadingScreen from '../../../components/loading';
 import PageLayout from '../../../components/pageLayout';
-import PayForm from '../../../components/payForm';
+import ProductMenu from '../../../components/productMenu';
 import { useAccount } from '../../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../../lib/hooks';
 
@@ -30,7 +30,7 @@ const AccountPayPage: NextPage = () => {
                     </>
                     : <>
                         <PageLayout title={`Encaisser ${account.firstName} ${account.lastName}`} hideBottomNavigation backTo={`/accounts/${id}`}>
-                            <PayForm account={account} />
+                            <ProductMenu account={account} />
                         </PageLayout>
                     </>
                 }

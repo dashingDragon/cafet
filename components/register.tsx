@@ -35,6 +35,7 @@ const Register: React.FC = () => {
         setSubmitting(false);
     };
 
+    // TODO require some input validation
     return (
         <Container maxWidth="md" disableGutters>
             <Box
@@ -114,6 +115,7 @@ const Register: React.FC = () => {
                     onClick={handleSignUp}
                     variant="contained"
                     sx={{ mt: 3 }}
+                    disabled={submitting}
                 >
                     Créer mon compte
                 </Button>

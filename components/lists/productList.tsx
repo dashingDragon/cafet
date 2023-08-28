@@ -7,8 +7,24 @@ import { formatMoney } from '../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
 import { getIngredientPrice } from '../../lib/ingredients';
+import { Carousel, CarouselItem } from '../carousel';
 
 export const typeTranslation: Record<string, string> = { 'serving': 'Plat', 'drink': 'Boisson', 'snack': 'Snack'};
+
+const carouselItems = [
+    {
+        label: 'Plats',
+        icon: '/png/serving.png',
+    },
+    {
+        label: 'Boissons',
+        icon: '/png/drink.png',
+    },
+    {
+        label: 'Snacks',
+        icon: '/png/snack.png',
+    },
+] as CarouselItem[];
 
 const ProductItem: React.FC<{
     product: Product,
@@ -220,51 +236,32 @@ const ProductList: React.FC<{
   setProductDialogOpen: (b: boolean) => void;
   setProduct: (p: Product) => void;
 }> = ({ products, setProductDialogOpen, setProduct }) => {
+    const [tabIndex, setTabIndex] = useState(0);
+
     return (
         <Box mx={'16px'}>
-            {Object.keys(typeTranslation).map((type) => (
-                <React.Fragment key={type}>
-                    <Card sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        my: '16px',
-                        borderRadius: '20px',
-                        overflow: 'visible',
-                        px: '32px',
-                        height: '40px',
-                        background: theme => theme.palette.mode === 'light'
-                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
-                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
-                    }}>
-                        <Typography variant="h5" sx={{
-                            color: theme => theme.palette.mode === 'light' ? 'hsla(326, 100%, 20%, 1)' : 'hsla(326, 100%, 90%, 1)',
-                        }}>{typeTranslation[type]}</Typography>
-                    </Card>
-
-                    <Stack
-                        direction={'row'}
-                        justifyContent={'flex-start'}
-                        sx={{
-                            overflowX: 'auto',
-                            scrollbarWidth: 'none',
-                            '&::-webkit-scrollbar': {
-                                display: 'none',
-                            },
-                            '&-ms-overflow-style:': {
-                                display: 'none',
-                            },
-                        }}
-                        gap={2}
-                    >
-                        {products.filter(p => p.type === type).map((product) =>
-                            <Box key={product.id} mb={'8px'}>
-                                <ProductItem product={product} setProductDialogOpen={setProductDialogOpen} setProduct={setProduct} />
-                            </Box>
-                        )}
-                    </Stack>
-                </React.Fragment>
-            ))}
+            <Carousel carouselItems={carouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
+            <Stack
+                direction={'row'}
+                justifyContent={'flex-start'}
+                sx={{
+                    overflowX: 'auto',
+                    scrollbarWidth: 'none',
+                    '&::-webkit-scrollbar': {
+                        display: 'none',
+                    },
+                    '&-ms-overflow-style:': {
+                        display: 'none',
+                    },
+                }}
+                gap={2}
+            >
+                {products.filter(p => p.type === Object.keys(typeTranslation)[tabIndex]).map((product) =>
+                    <Box key={product.id} mb={'8px'}>
+                        <ProductItem product={product} setProductDialogOpen={setProductDialogOpen} setProduct={setProduct} />
+                    </Box>
+                )}
+            </Stack>
         </Box>
     );
 };

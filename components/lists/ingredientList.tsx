@@ -6,6 +6,30 @@ import { Ingredient } from '../../lib/ingredients';
 import { formatMoney } from '../accountDetails';
 import Image from 'next/image';
 import { imageLoader } from '../../pages/_app';
+import { Carousel, CarouselItem } from '../carousel';
+
+const carouselItems = [
+    {
+        label: 'Viandes',
+        icon: '/png/meat.png',
+    },
+    {
+        label: 'Fromages',
+        icon: '/png/cheese.png',
+    },
+    {
+        label: 'Légumes',
+        icon: '/png/lettuce.png',
+    },
+    {
+        label: 'Sauces',
+        icon: '/png/sauce.png',
+    },
+    {
+        label: 'Épices',
+        icon: '/png/spice.png',
+    },
+] as CarouselItem[];
 
 export const categoryTranslation: Record<string, string> = {
     'meat': 'Viandes/Poisson',
@@ -56,7 +80,7 @@ const IngredientItem: React.FC<{
                             {(ingredient.isVege || ingredient.isVegan) && (
                                 <Image
                                     loader={imageLoader}
-                                    src={'svg/leaf.png'}
+                                    src={'png/leaf.png'}
                                     alt={'Vege'}
                                     height={18}
                                     width={18}
@@ -155,52 +179,34 @@ const IngredientList: React.FC<{
   setIngredientDialogOpen: (b: boolean) => void;
   setIngredient: (i: Ingredient) => void;
 }> = ({ ingredients, setIngredientDialogOpen, setIngredient }) => {
+    const [tabIndex, setTabIndex] = useState(0);
+
     return (
         <Box m={'16px'}>
-            {Object.keys(categoryTranslation).map((category) => (
-                <React.Fragment key={category}>
-                    <Card sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        my: '16px',
-                        borderRadius: '20px',
-                        overflow: 'visible',
-                        px: '32px',
-                        height: '40px',
-                        background: theme => theme.palette.mode === 'light'
-                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
-                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
-                    }}>
-                        <Typography variant="h5" sx={{
-                            color: theme => theme.palette.mode === 'light' ? 'hsla(326, 100%, 20%, 1)' : 'hsla(326, 100%, 90%, 1)',
-                        }}>{categoryTranslation[category]}</Typography>
-                    </Card>
-                    <Stack
-                        direction={'row'}
-                        justifyContent={'flex-start'}
-                        sx={{
-                            overflowX: 'auto',
-                            scrollbarWidth: 'none',
-                            '&::-webkit-scrollbar': {
-                                display: 'none',
-                            },
-                            '&-ms-overflow-style:': {
-                                display: 'none',
-                            },
-                        }}
-                        gap={2}
-                        mt={2}
-                        mb={4}
-                    >
-                        {ingredients.filter(p => p.category === category).map((ingredient) =>
-                            <Box key={ingredient.id} mb={'16px'}>
-                                <IngredientItem ingredient={ingredient} setIngredientDialogOpen={setIngredientDialogOpen} setIngredient={setIngredient} />
-                            </Box>
-                        )}
-                    </Stack>
-                </React.Fragment>
-            ))}
+            <Carousel carouselItems={carouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
+            <Stack
+                direction={'row'}
+                justifyContent={'flex-start'}
+                sx={{
+                    overflowX: 'auto',
+                    scrollbarWidth: 'none',
+                    '&::-webkit-scrollbar': {
+                        display: 'none',
+                    },
+                    '&-ms-overflow-style:': {
+                        display: 'none',
+                    },
+                }}
+                gap={2}
+                mt={2}
+                mb={4}
+            >
+                {ingredients.filter(p => p.category === Object.keys(categoryTranslation)[tabIndex]).map((ingredient) =>
+                    <Box key={ingredient.id} mb={'16px'}>
+                        <IngredientItem ingredient={ingredient} setIngredientDialogOpen={setIngredientDialogOpen} setIngredient={setIngredient} />
+                    </Box>
+                )}
+            </Stack>
         </Box>
     );
 };

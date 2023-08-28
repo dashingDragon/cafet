@@ -150,8 +150,7 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
 
     return (
         <Card variant={order.transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
-            width: 350,
-            minWidth: 350,
+            width: '320px',
             position: 'relative',
             borderRadius: '20px',
             display: 'flex',
@@ -172,7 +171,7 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
                 <Box mb={2}>
                     {order.transaction.productsWithQty.map((productWithQty) => (
                         Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
-                            (quantity > 0 && <OrderItemLine productWithQty={productWithQty} quantity={quantity} size={size} showIngredients={!short} short={short} /> ))))
+                            (quantity > 0 && <OrderItemLine key={productWithQty.id} productWithQty={productWithQty} quantity={quantity} size={size} showIngredients={!short} short={short} /> ))))
                     }
                 </Box>
 
@@ -244,10 +243,10 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
                 setBasketOpen={setBasketOpen}
                 basket={basket}
                 setBasket={setBasket}
-                account={order.transaction.customer}
                 basketPrice={basketPrice}
                 servingCount={servingCount}
                 actionCallback={handleEditOrder}
+                account={order.transaction.customer}
             />
         </Card>
     );

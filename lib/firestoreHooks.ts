@@ -748,7 +748,7 @@ type OrderPayload = {
  */
 export const useOrderEditor = () => {
     const db = getFirestore();
-    const admin = useGuardIsAdmin();
+    const admin = useFirestoreUser();
 
     return async ({order, productsWithQty, price, needPreparation }: OrderPayload): Promise<{ success: boolean; message: string; }> => {
         console.log(`Updating order ${order.id}`);

@@ -16,9 +16,9 @@ const TransitionRight = (props: TransitionProps) => {
     return <Slide {...props} direction="right" />;
 };
 
-const PayForm: React.FC<{ account: Account }> = ({ account }) => {
+const ProductMenu: React.FC<{ account: Account, previousBasket?: Map<string, ProductWithQty> }> = ({ account, previousBasket }) => {
     // State
-    const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
+    const [basket, setBasket] = useState(new Map<string, ProductWithQty>(previousBasket));
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);
     const [servingCount, setServingCount] = useState(0);
@@ -141,4 +141,4 @@ const PayForm: React.FC<{ account: Account }> = ({ account }) => {
     );
 };
 
-export default PayForm;
+export default ProductMenu;

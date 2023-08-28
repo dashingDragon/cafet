@@ -129,8 +129,7 @@ export const ShortProductCard: React.FC<{
             {/* Description */}
             {product.description !== undefined && (
                 <CardContent sx={{ px: '24px', pt: '8px' }} >
-
-                    <Typography variant="body1">
+                    <Typography variant="body2">
                         {product.description}
                     </Typography>
                 </CardContent>
@@ -217,8 +216,10 @@ export const ShortProductCard: React.FC<{
                     background: 'hsla(145, 28%, 43%, 1)',
                     color: 'white',
                     ml: 'auto',
+                    width: '32px',
+                    height: '32px',
                 }} onClick={handleOpenMenu}>
-                    <Add />
+                    <Add fontSize='small' />
                 </IconButton>
 
                 {/* Size Menu */}

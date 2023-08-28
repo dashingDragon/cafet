@@ -3,8 +3,8 @@ import Head from 'next/head';
 import PageLayout from '../components/pageLayout';
 import LoadingScreen from '../components/loading';
 import { useFirestoreUser } from '../lib/firestoreHooks';
-import { OrdersForStaffs } from '../components/ordersForStaffs';
-import { CustomerPage } from '../components/customer';
+import { StaffView } from '../components/staffView';
+import { CustomerView } from '../components/customerView';
 
 const OrderPage: NextPage = () => {
     const firestoreUser = useFirestoreUser();
@@ -20,12 +20,12 @@ const OrderPage: NextPage = () => {
                 {!firestoreUser
                     ? <LoadingScreen />
                     : <>
-                        {firestoreUser.isStaff ? (
+                        {firestoreUser.isStaff && firestoreUser.isAvailable ? (
                             <PageLayout title={'Kafet'} hideBottomNavigation={!firestoreUser?.isAdmin}>
-                                <OrdersForStaffs />
+                                <StaffView />
                             </PageLayout>
                         ) : (
-                            <CustomerPage />
+                            <CustomerView account={firestoreUser} />
                         )}
                     </>
                 }
