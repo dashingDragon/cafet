@@ -27,8 +27,8 @@ export const OrderItemLine: React.FC<{
                     )}
                 </Stack>
                 {showIngredients && productWithQty.product.ingredients && productWithQty.product.ingredients.map((ingredient) =>
-                    <Stack key={ingredient.name} direction="row" justifyContent={'space-between'} pl={'8px'}>
-                        <Typography variant="body1">· {ingredient.name}</Typography>
+                    <Stack key={ingredient.name} direction="row" justifyContent={'space-between'}>
+                        <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>· {ingredient.name}</Typography>
                         {ingredient.price > 0 && <Typography variant="body2">+{formatMoney(ingredient.price)}</Typography>}
                     </Stack>
                 )}

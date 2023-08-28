@@ -4,12 +4,52 @@ import type { } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
-import {MakeTransactionPayload, TransactionState, TransactionType} from '../../lib/transactions';
+import {MakeTransactionPayload, TransactionOrder, TransactionState, TransactionType} from '../../lib/transactions';
 import {Account, MakeAccountPayload, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
 import {getIngredientPrice} from '../../lib/ingredients';
 import {DateTime} from 'luxon';
+
+const transactionOrderConverter: FirestoreDataConverter<TransactionOrder> = {
+    fromFirestore: (snapshot) => {
+        const data = snapshot.data();
+        const {type, customer, admin, createdAt} = data;
+        const createdAtDate = new Date((createdAt as admin.firestore.Timestamp).toDate());
+        const {
+            productsWithQty,
+            price,
+            state,
+        } = data as TransactionOrder;
+        return {
+            id: snapshot.id,
+            productsWithQty,
+            price,
+            state,
+            type,
+            customer,
+            admin,
+            createdAt: createdAtDate,
+        } as TransactionOrder;
+    },
+    toFirestore: (transaction) => {
+        const {type, customer, admin, createdAt} = transaction;
+        const {
+            productsWithQty,
+            price,
+            state,
+        } = transaction as TransactionOrder;
+        return {
+            productsWithQty,
+            price,
+            state,
+            type,
+            customer,
+            admin,
+            createdAt,
+        };
+    },
+};
 
 admin.initializeApp();
 
@@ -78,6 +118,9 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
     }
 });
 
+/**
+ * Retrieve the firestore user associated to the user's google account.
+ */
 export const getFirestoreUser = functions.https.onCall(async (data, context) => {
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated have a firestore account.');
@@ -91,6 +134,33 @@ export const getFirestoreUser = functions.https.onCall(async (data, context) => 
         return {success: true, account: accountData};
     } catch {
         return {success: false, account: undefined};
+    }
+});
+
+/**
+ * Retrieve the user's order history.
+ */
+export const getOrderHistory = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated have an order history.');
+    }
+
+    try {
+        const db = admin.firestore();
+        const googleUid = context.auth.uid;
+
+        const transactions = (await db.collection('transactions').withConverter(transactionOrderConverter)
+            .where('customer.id', '==', googleUid)
+            .where('type', '==', TransactionType.Order)
+            .get()
+        ).docs.map((doc) => doc.data());
+        console.log('transactions after modification');
+        console.log(transactions);
+
+        return {success: true, orders: transactions};
+    } catch (error) {
+        console.error(error);
+        return {success: false, orders: undefined};
     }
 });
 

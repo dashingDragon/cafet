@@ -1,6 +1,5 @@
 import { HttpsCallableResult, getFunctions, httpsCallable } from 'firebase/functions';
-import { useState } from 'react';
-import { MakeTransactionPayload } from './transactions';
+import { MakeTransactionPayload, Order, TransactionOrder } from './transactions';
 import { Account, MakeAccountPayload } from './accounts';
 
 export const useMakeAccount = () => {
@@ -50,6 +49,21 @@ export const useGetFirestoreUser = () => {
         } catch (e) {
             console.error('getFirestoreUser failed : '  + e);
             return { data: { success: false, account: undefined } };
+        }
+    };
+};
+
+export const useOrderHistory = () => {
+    const functions = getFunctions();
+    const fun = httpsCallable(functions, 'getOrderHistory') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, orders: TransactionOrder[] | undefined }>>;
+
+    return async (): Promise<HttpsCallableResult<{ success: boolean, orders: TransactionOrder[] | undefined }>> => {
+        console.log('Called function getOrderHistory');
+        try {
+            return await fun();
+        } catch (e) {
+            console.error('getOrderHistory failed : '  + e);
+            return { data: { success: false, orders: undefined } };
         }
     };
 };

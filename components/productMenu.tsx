@@ -86,7 +86,7 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
 
     return (
         <>
-            <Box m={'8px'} pb='64px'>
+            <Box m={'8px'}>
                 <ProductShortCardList
                     basket={basket}
                     setBasket={setBasket}

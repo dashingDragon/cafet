@@ -217,6 +217,7 @@ const ProductItem: React.FC<{
                         })} />
                 </IconButton>
             </CardActions>
+
             {/* Delete product dialog */}
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
                 <DialogTitle>
