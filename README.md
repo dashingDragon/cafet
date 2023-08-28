@@ -40,21 +40,28 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] cash in the order when serving
 - [x] add snackbars when adding a product to the basket
 - [x] add modify order button
+- [ ] check if ingredientPrice is taken into account everywhere
+- [ ] put snackbar in the top level component
 - [ ] add cancel order button
 - [ ] make a backup script for the database
 - [ ] make a statistical graph for products
 
 For the customer-side app :
+- [x] add current orders screen for staffs
+- [x] add the order page
+- [ ] add a current and previous order list
+- [ ] add banner for user if their account money is low
+- [ ] add banner for user if there is maintenance
+- [ ] add banner for user if it is not time to order
+- [ ] use form validation to handle the sign up form
 - [ ] send customers notifications when their order is ready
-- [ ] show current order for user
-- [ ] add the order page
-- [ ] add the customer profile page
 - [ ] add a button to disable orders for a day
+- [ ] add the customer profile page
 - [ ] add formulas (serving+drink, serving+snack...)
-- [ ] add current orders screen for staffs
 - [ ] add favorites recommendations
 - [ ] recommend trending foods ?
 - [ ] make a day streak system
 - [ ] make a monthly leaderboard of the longest cumulative sandwich size eaten
 - [ ] let user add a custom message with the order (would have to sanitize user input, may be unsafe)
 - [ ] add breakfast menu
+
