@@ -6,6 +6,7 @@ import { Account } from '../lib/accounts';
 import { useState } from 'react';
 import { OrderItemLine } from './lists/orderList';
 import { formatMoney } from './accountDetails';
+import { useFirestoreUser } from '../lib/firestoreHooks';
 
 const BasketModal: React.FC<{
     open: boolean,
@@ -19,6 +20,7 @@ const BasketModal: React.FC<{
 }> = ({open, setBasketOpen, basket, setBasket, account, basketPrice, servingCount, actionCallback }) => {
     const [loading, setLoading] = useState(false);
     const [needPreparation, setNeedPreparation] = useState(true);
+    const user = useFirestoreUser();
 
     return (
         <Modal
@@ -47,7 +49,7 @@ const BasketModal: React.FC<{
                     }}>
                         <ArrowBack />
                     </Fab>
-                    <Typography variant="h3" sx={{
+                    <Typography variant="h4" sx={{
                         width: '100%',
                         textAlign: 'center',
                         mt: '16px',
@@ -85,15 +87,17 @@ const BasketModal: React.FC<{
                         )}
                     </Box>
                     <Box m={2} display="flex" justifyContent={'flex-end'}>
-                        <FormControlLabel
-                            label="Déjà prête"
-                            control={
-                                <Checkbox
-                                    checked={!needPreparation}
-                                    onChange={() => setNeedPreparation(!needPreparation)}
-                                />
-                            }
-                        />
+                        {user && user.isAdmin && (
+                            <FormControlLabel
+                                label="Déjà prête"
+                                control={
+                                    <Checkbox
+                                        checked={!needPreparation}
+                                        onChange={() => setNeedPreparation(!needPreparation)}
+                                    />
+                                }
+                            />
+                        )}
                         <Button
                             variant="contained"
                             onClick={() => actionCallback(needPreparation, setLoading)}

@@ -1,14 +1,17 @@
-import { Avatar, Divider, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography } from '@mui/material';
-import { User, getAuth, signOut } from 'firebase/auth';
+import { Avatar, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
+import { getAuth, signOut } from 'firebase/auth';
 import React from 'react';
 import { Account } from '../lib/accounts';
-import { Logout, Settings } from '@mui/icons-material';
+import { DarkMode, LightMode, Logout, Settings } from '@mui/icons-material';
+import ProductMenu from './productMenu';
+import { invertTheme, useAppTheme } from '../lib/theme';
 
 export const CustomerView: React.FC<{
     account: Account,
 }> = ({ account }) => {
     const auth = getAuth();
     const user = auth.currentUser;
+    const [theme, setTheme] = useAppTheme();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -17,6 +20,11 @@ export const CustomerView: React.FC<{
     };
     const handleClose = () => {
         setAnchorEl(null);
+    };
+
+    const handleChangeTheme = () => {
+        setTheme(invertTheme(theme!));
+        handleClose();
     };
 
     const handleSignOut = () => {
@@ -28,9 +36,8 @@ export const CustomerView: React.FC<{
             flexGrow={1}
             direction="column"
             pb={4}
-            overflow='auto'
             maxHeight='100%'
-            alignItems='center'
+            width='100%'
         >
             <Stack sx={{
                 p: 2,
@@ -40,7 +47,7 @@ export const CustomerView: React.FC<{
                 alignItems: 'flex-end',
             }}>
                 <Typography variant="h6">
-                    Bonjour <strong>{account.firstName}</strong>
+                    Bonjour <strong>{account.firstName}</strong> !
                 </Typography>
 
                 <IconButton onClick={handleClick}>
@@ -94,23 +101,29 @@ export const CustomerView: React.FC<{
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                <MenuItem onClick={handleClose}>
+                <MenuItem onClick={handleChangeTheme}>
                     <ListItemIcon>
-                        <Settings fontSize="small" />
+                        {theme === 'dark' ? (
+                            <LightMode fontSize="small" />
+                        ) : (
+                            <DarkMode fontSize="small" />
+                        )}
                     </ListItemIcon>
-                    Settings
+                    Thème
                 </MenuItem>
                 <MenuItem onClick={handleSignOut}>
                     <ListItemIcon>
                         <Logout fontSize="small" />
                     </ListItemIcon>
-                    Logout
+                    Déconnexion
                 </MenuItem>
             </Menu>
 
-            <Typography variant="h5" mb={2}>
-                Ma commande :
+            <Typography variant="body1" px={2}>
+                {'Que voulez-vous manger aujourd\'hui ?'}
             </Typography>
+
+            <ProductMenu account={account} />
         </Stack>
     );
 };

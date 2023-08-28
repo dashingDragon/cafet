@@ -1,10 +1,9 @@
 import { AppBar, Avatar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from '@mui/material';
-import { AdminPanelSettings, ArrowBack, Brightness6, FoodBank, FormatListBulleted, Groups, Logout, QueryStats } from '@mui/icons-material';
+import { AdminPanelSettings, ArrowBack, Brightness6, DarkMode, FoodBank, FormatListBulleted, Groups, LightMode, Logout, QueryStats } from '@mui/icons-material';
 import { ReactElement } from 'react';
 import { invertTheme, useAppTheme } from '../lib/theme';
 import { useRouter } from 'next/router';
 import { getAuth, signOut } from 'firebase/auth';
-import { useGuardIsConnected } from '../lib/hooks';
 import { useFirestoreUser } from '../lib/firestoreHooks';
 
 type PageLayoutProps = {
@@ -26,8 +25,13 @@ const ToggleThemeButton = () => {
         <IconButton
             size="large"
             color="inherit"
-            onClick={() => setTheme(invertTheme(theme!))}>
-            <Brightness6 />
+            onClick={() => setTheme(invertTheme(theme!))}
+        >
+            {theme === 'dark' ? (
+                <LightMode />
+            ) : (
+                <DarkMode />
+            )}
         </IconButton>
     );
 };

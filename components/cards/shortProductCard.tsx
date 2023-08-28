@@ -113,14 +113,15 @@ export const ShortProductCard: React.FC<{
                         : ''
                 }
                 sx={(theme) => ({
-                    px: '24px',
+                    px: '16px',
                     pt: '8px',
+                    pb: 0,
                     '.MuiCardHeader-title': {
-                        fontSize: '16px',
+                        fontSize: '14px',
                         color: theme.colors.main,
                     },
                     '.MuiCardHeader-subheader': {
-                        fontSize: '12px',
+                        fontSize: '10px',
                         color: theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)',
                     },
                 })}
@@ -128,8 +129,8 @@ export const ShortProductCard: React.FC<{
 
             {/* Description */}
             {product.description !== undefined && (
-                <CardContent sx={{ px: '24px', pt: '8px' }} >
-                    <Typography variant="body2">
+                <CardContent sx={{ px: '16px', pt: '8px', pb: 0 }} >
+                    <Typography fontSize={'10px'}>
                         {product.description}
                     </Typography>
                 </CardContent>
@@ -140,7 +141,7 @@ export const ShortProductCard: React.FC<{
                 maxWidth: '100%',
                 flexWrap: 'wrap',
                 spacing: 0,
-                px: '24px',
+                px: '16px',
                 gap: '8px',
                 paddingRight: '16px',
                 paddingBottom: '16px',
@@ -156,8 +157,9 @@ export const ShortProductCard: React.FC<{
                         color={'warning'}
                         label={product.allergen}
                         sx={{
-                            fontSize: '10px',
+                            fontSize: '8px',
                             fontWeight: 700,
+                            height: '24px',
                         }}
                     />
                 )}
@@ -169,8 +171,9 @@ export const ShortProductCard: React.FC<{
                         color={'success'}
                         label={'Végan'}
                         sx={{
-                            fontSize: '10px',
+                            fontSize: '8px',
                             fontWeight: 700,
+                            height: '24px',
                         }}
                     />
                 ) : product.isVege && (
@@ -179,8 +182,9 @@ export const ShortProductCard: React.FC<{
                         color={'success'}
                         label={'Végé'}
                         sx={{
-                            fontSize: '10px',
+                            fontSize: '8px',
                             fontWeight: 700,
+                            height: '24px',
                         }}
                     />
                 )}
@@ -206,8 +210,9 @@ export const ShortProductCard: React.FC<{
                         'Indisponible'
                     )}
                     sx={{
-                        fontSize: '10px',
+                        fontSize: '8px',
                         fontWeight: 700,
+                        height: '24px',
                     }}
                 />
 

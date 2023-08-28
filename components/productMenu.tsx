@@ -16,9 +16,9 @@ const TransitionRight = (props: TransitionProps) => {
     return <Slide {...props} direction="right" />;
 };
 
-const ProductMenu: React.FC<{ account: Account, previousBasket?: Map<string, ProductWithQty> }> = ({ account, previousBasket }) => {
+const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
     // State
-    const [basket, setBasket] = useState(new Map<string, ProductWithQty>(previousBasket));
+    const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);
     const [servingCount, setServingCount] = useState(0);

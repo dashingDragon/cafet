@@ -59,7 +59,7 @@ const MiniProductCard: React.FC<{
             <Box sx={{
                 height: '96px',
                 width: '96px',
-                borderRadius: '10px',
+                borderRadius: '20px',
                 overflow: 'hidden',
             }}>
                 <CardMedia
@@ -72,7 +72,7 @@ const MiniProductCard: React.FC<{
             <Stack direction="column" flexGrow='1'>
                 {/* Title and clear icon */}
                 <Stack direction="row" width='100%' alignItems={'center'}>
-                    <Typography variant="h5" >
+                    <Typography variant="h5" fontSize='14px'>
                         {product.name}
                     </Typography>
                     {(product.isVege || product.isVegan) && product.type === 'serving' && (
@@ -85,41 +85,40 @@ const MiniProductCard: React.FC<{
                             className={'icon'}
                         />
                     )}
-                    <IconButton color='primary' onClick={handleOpenDeleteDialog} sx={{ marginLeft: 'auto' }}>
-                        <Clear />
+                    <IconButton onClick={handleOpenDeleteDialog} sx={{ marginLeft: 'auto' }}>
+                        <Clear fontSize='small' />
                     </IconButton>
                 </Stack>
 
                 {/* Sizes and quantities */}
                 {Object.entries(product.sizeWithPrices).map(([size, price]) => (
                     <Stack direction="row" m={'8px'} key={size} justifyContent={'space-between'} alignItems={'center'} width="100%">
-                        <Typography>
+                        <Typography fontSize='10px'>
                             {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))}</strong>
                         </Typography>
                         <ButtonGroup variant={theme.palette.mode === 'light' ? 'outlined' : 'contained'} sx={{ borderRadius: '10px', overflow: 'hidden' }}>
                             <Button
-                                sx={{ borderRadius: '10px'}}
+                                sx={{ borderRadius: '10px', padding: '4px 12px' }}
                                 onClick={() => removeQuantity(size)}
                                 disabled={!product.isAvailable || !productWithQty.sizeWithQuantities[size]}
                                 title="Retirer du panier"
                             >
-                                <Remove />
+                                <Remove fontSize='small' />
                             </Button>
-                            <Button sx={{ '&:hover': { cursor: 'auto' }}}>
+                            <Button sx={{ '&:hover': { cursor: 'auto' }, padding: '4px 12px', fontSize: '12px', width: '45px' }}>
                                 {productWithQty.sizeWithQuantities[size]}
                             </Button>
                             <Button
-                                sx={{ borderRadius: '10px'}}
+                                sx={{ borderRadius: '10px', padding: '4px 12px' }}
                                 onClick={() => addQuantity(size)}
                                 title="Ajouter au panier"
-                                // TODO sync this with database
                                 disabled={
                                     price > priceLimit
                                     || (productStock !== undefined && productWithQty.sizeWithQuantities[size] >= productStock)
                                     || (product.type === 'serving' && servingCount >= 2)
                                 }
                             >
-                                <Add />
+                                <Add fontSize='small'  />
                             </Button>
                         </ButtonGroup>
                     </Stack>
