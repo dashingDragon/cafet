@@ -50,25 +50,25 @@ const createThemeMode = (mode: PaletteMode) => {
     };
 
     theme.typography.h5 = {
-        fontSize: '18px',
+        fontSize: '14px',
         fontWeight: 700,
         fontFamily: `"Poppins", "sans-serif"`,
     };
 
     theme.typography.h6 = {
-        fontSize: '16px',
+        fontSize: '12px',
         fontWeight: 500,
         fontFamily: `"Poppins", "sans-serif"`,
     };
 
     theme.typography.body1 = {
-        fontSize: '14px',
+        fontSize: '12px',
         color: theme.colors.main,
         fontFamily: `"Poppins", "sans-serif"`,
     };
 
     theme.typography.body2 = {
-        fontSize: '12px',
+        fontSize: '10px',
         color: theme.colors.secondary,
         fontFamily: `"Poppins", "sans-serif"`,
     };

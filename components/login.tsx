@@ -35,13 +35,13 @@ const Login = () => {
                 justifyContent="center"
                 alignItems="center"
             >
-                <Box borderRadius='50%' overflow={'hidden'} height={'256px'} mb={8}>
+                <Box borderRadius='50%' overflow={'hidden'} height={'128px'} mb={8}>
                     <Image
                         loader={imageLoader}
                         src={'/logo_white.jpg'}
                         alt={'Success image'}
-                        width={256}
-                        height={256}
+                        width={128}
+                        height={128}
                     />
                 </Box>
                 <Button

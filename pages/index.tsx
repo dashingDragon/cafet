@@ -5,6 +5,7 @@ import LoadingScreen from '../components/loading';
 import { useFirestoreUser } from '../lib/firestoreHooks';
 import { StaffView } from '../components/staffView';
 import { CustomerView } from '../components/customerView';
+import FullHeightScrollableContainer from '../components/scrollableContainer';
 
 const OrderPage: NextPage = () => {
     const firestoreUser = useFirestoreUser();
@@ -17,18 +18,26 @@ const OrderPage: NextPage = () => {
             </Head>
 
             <main>
+
                 {!firestoreUser
-                    ? <LoadingScreen />
+                    ? (
+                        <FullHeightScrollableContainer>
+                            <LoadingScreen />
+                        </FullHeightScrollableContainer>
+                    )
                     : <>
                         {firestoreUser.isStaff && firestoreUser.isAvailable ? (
                             <PageLayout title={'Kafet'} hideBottomNavigation={!firestoreUser?.isAdmin}>
-                                <StaffView />
+                                <FullHeightScrollableContainer>
+                                    <StaffView />
+                                </FullHeightScrollableContainer>
                             </PageLayout>
                         ) : (
                             <CustomerView account={firestoreUser} />
                         )}
                     </>
                 }
+
             </main>
         </>
     );

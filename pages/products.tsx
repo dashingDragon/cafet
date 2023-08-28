@@ -35,10 +35,10 @@ const ProductListPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {products === undefined || admin === undefined ? (
-                        <LoadingScreen />
-                    ) : (
-                        <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>
+                    <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>
+                        {products === undefined || admin === undefined ? (
+                            <LoadingScreen />
+                        ) : (
                             <>
                                 <ProductList
                                     products={products}
@@ -81,8 +81,8 @@ const ProductListPage: NextPage = () => {
                                     ingredient={ingredient}
                                 />
                             </>
-                        </FullHeightScrollableContainer>
-                    )}
+                        )}
+                    </FullHeightScrollableContainer>
                 </PageLayout>
             </main>
         </>

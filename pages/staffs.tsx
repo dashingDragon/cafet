@@ -21,17 +21,17 @@ const StaffPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {staffs === undefined || admin === undefined
-                        ? <LoadingScreen />
-                        : <>
-                            <FullHeightScrollableContainer sx={{ position: 'relative' }}>
+                    <FullHeightScrollableContainer sx={{ position: 'relative' }}>
+                        {staffs === undefined || admin === undefined
+                            ? <LoadingScreen />
+                            : (
                                 <>
                                     <Typography variant="h5" m={1}>Staffs</Typography>
                                     <StaffList staffs={staffs} />
                                 </>
-                            </FullHeightScrollableContainer>
-                        </>
-                    }
+                            )
+                        }
+                    </FullHeightScrollableContainer>
                 </PageLayout>
             </main>
         </>

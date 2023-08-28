@@ -93,11 +93,11 @@ const IngredientItem: React.FC<{
                     subheader={ingredient.price ? <strong>+{formatMoney(ingredient.price)}</strong> : ''}
                     sx={(theme) => ({
                         '.MuiCardHeader-title': {
-                            fontSize: '16px',
+                            fontSize: '14px',
                             color: theme.colors.main,
                         },
                         '.MuiCardHeader-subheader': {
-                            fontSize: '12px',
+                            fontSize: '10px',
                             color: theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)',
                         },
                     })}
@@ -111,9 +111,9 @@ const IngredientItem: React.FC<{
                                 color={'warning'}
                                 label={ingredient.allergen}
                                 sx={{
-                                    fontSize: '10px',
+                                    fontSize: '8px',
                                     fontWeight: 700,
-                                    mr: '16px',
+                                    height: '24px',
                                 }}
                             />
                         )}
@@ -123,8 +123,9 @@ const IngredientItem: React.FC<{
                                 color={'success'}
                                 label={'Végan'}
                                 sx={{
-                                    fontSize: '10px',
+                                    fontSize: '8px',
                                     fontWeight: 700,
+                                    height: '24px',
                                 }}
                             />
                         ) : ingredient.isVege && (
@@ -133,8 +134,9 @@ const IngredientItem: React.FC<{
                                 color={'success'}
                                 label={'Végé'}
                                 sx={{
-                                    fontSize: '10px',
+                                    fontSize: '8px',
                                     fontWeight: 700,
+                                    height: '24px',
                                 }}
                             />
                         )}
@@ -145,6 +147,7 @@ const IngredientItem: React.FC<{
                     <IconButton>
                         <EditOutlined
                             onClick={handleOpenIngredientDialog}
+                            fontSize='small'
                             sx={(theme) => ({
                                 color: theme.colors.main,
                             })} />
@@ -153,6 +156,7 @@ const IngredientItem: React.FC<{
                     <IconButton>
                         <DeleteOutlined
                             onClick={handleOpenDeleteDialog}
+                            fontSize='small'
                             sx={(theme) => ({
                                 color: theme.colors.main,
                             })} />

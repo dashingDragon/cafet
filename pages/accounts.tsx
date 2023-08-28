@@ -4,6 +4,7 @@ import PageLayout from '../components/pageLayout';
 import AccountList from '../components/lists/accountList';
 import { useGuardIsAdmin } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
+import FullHeightScrollableContainer from '../components/scrollableContainer';
 
 const AccountPage: NextPage = () => {
     const admin = useGuardIsAdmin();
@@ -18,7 +19,9 @@ const AccountPage: NextPage = () => {
             <main>
                 <PageLayout title={'Kafet'}>
                     {admin === undefined ? (
-                        <LoadingScreen />
+                        <FullHeightScrollableContainer>
+                            <LoadingScreen />
+                        </FullHeightScrollableContainer>
                     ) : (
                         <AccountList />
                     )}

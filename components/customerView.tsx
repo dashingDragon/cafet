@@ -9,7 +9,6 @@ import { useOrderHistory } from '../lib/firebaseFunctionHooks';
 import { TransactionOrder, TransactionState } from '../lib/transactions';
 import { formatDate, formatMoney } from './accountDetails';
 import { OrderItemLine } from './lists/orderList';
-import { Timestamp } from '@google-cloud/firestore';
 
 export const CustomerView: React.FC<{
     account: Account,

@@ -118,11 +118,11 @@ const ProductItem: React.FC<{
                     pt: '8px',
                     pb: 0,
                     '.MuiCardHeader-title': {
-                        fontSize: '16px',
+                        fontSize: '14px',
                         color: theme.colors.main,
                     },
                     '.MuiCardHeader-subheader': {
-                        fontSize: '12px',
+                        fontSize: '10px',
                         color: theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)',
                     },
                 })}
@@ -142,9 +142,9 @@ const ProductItem: React.FC<{
                             color={'warning'}
                             label={product.allergen}
                             sx={{
-                                fontSize: '10px',
+                                fontSize: '8px',
                                 fontWeight: 700,
-                                mr: '16px',
+                                height: '24px',
                             }}
                         />
                     )}
@@ -154,9 +154,9 @@ const ProductItem: React.FC<{
                             color={'success'}
                             label={'Végan'}
                             sx={{
-                                fontSize: '10px',
+                                fontSize: '8px',
                                 fontWeight: 700,
-                                mr: '16px',
+                                height: '24px',
                             }}
                         />
                     ) : product.isVege && (
@@ -165,9 +165,9 @@ const ProductItem: React.FC<{
                             color={'success'}
                             label={'Végé'}
                             sx={{
-                                fontSize: '10px',
+                                fontSize: '8px',
                                 fontWeight: 700,
-                                mr: '16px',
+                                height: '24px',
                             }}
                         />
                     )}
@@ -192,8 +192,9 @@ const ProductItem: React.FC<{
                             'Indisponible'
                         )}
                         sx={{
-                            fontSize: '10px',
+                            fontSize: '8px',
                             fontWeight: 700,
+                            height: '24px',
                         }}
                     />
                 </Stack>
@@ -203,6 +204,7 @@ const ProductItem: React.FC<{
                 <IconButton>
                     <EditOutlined
                         onClick={handleOpenProductDialog}
+                        fontSize='small'
                         sx={(theme) => ({
                             color: theme.colors.main,
                         })} />
@@ -212,6 +214,7 @@ const ProductItem: React.FC<{
                 <IconButton>
                     <DeleteOutlined
                         onClick={handleOpenDeleteDialog}
+                        fontSize='small'
                         sx={(theme) => ({
                             color: theme.colors.main,
                         })} />

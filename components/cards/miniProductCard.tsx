@@ -72,7 +72,7 @@ const MiniProductCard: React.FC<{
             <Stack direction="column" flexGrow='1'>
                 {/* Title and clear icon */}
                 <Stack direction="row" width='100%' alignItems={'center'}>
-                    <Typography variant="h5" fontSize='14px'>
+                    <Typography variant="h5">
                         {product.name}
                     </Typography>
                     {(product.isVege || product.isVegan) && product.type === 'serving' && (
@@ -93,12 +93,12 @@ const MiniProductCard: React.FC<{
                 {/* Sizes and quantities */}
                 {Object.entries(product.sizeWithPrices).map(([size, price]) => (
                     <Stack direction="row" m={'8px'} key={size} justifyContent={'space-between'} alignItems={'center'} width="100%">
-                        <Typography fontSize='10px'>
+                        <Typography variant="body2">
                             {size}: <strong>{formatMoney(price + getIngredientPrice(product.ingredients))}</strong>
                         </Typography>
-                        <ButtonGroup variant={theme.palette.mode === 'light' ? 'outlined' : 'contained'} sx={{ borderRadius: '10px', overflow: 'hidden' }}>
+                        <ButtonGroup variant={theme.palette.mode === 'light' ? 'outlined' : 'contained'} sx={{ borderRadius: '20px', overflow: 'hidden' }}>
                             <Button
-                                sx={{ borderRadius: '10px', padding: '4px 12px' }}
+                                sx={{ borderRadius: '20px', padding: '4px 12px' }}
                                 onClick={() => removeQuantity(size)}
                                 disabled={!product.isAvailable || !productWithQty.sizeWithQuantities[size]}
                                 title="Retirer du panier"
@@ -109,7 +109,7 @@ const MiniProductCard: React.FC<{
                                 {productWithQty.sizeWithQuantities[size]}
                             </Button>
                             <Button
-                                sx={{ borderRadius: '10px', padding: '4px 12px' }}
+                                sx={{ borderRadius: '20px', padding: '4px 12px' }}
                                 onClick={() => addQuantity(size)}
                                 title="Ajouter au panier"
                                 disabled={

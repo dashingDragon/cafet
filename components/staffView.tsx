@@ -43,8 +43,6 @@ export const StaffView: React.FC = () => {
             flexGrow={1}
             direction="column"
             pb={4}
-            overflow='auto'
-            maxHeight='100%'
             alignItems='center'
         >
             {/* Shopping list */}
