@@ -4,52 +4,52 @@ import type { } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
-import {MakeTransactionPayload, TransactionOrder, TransactionState, TransactionType} from '../../lib/transactions';
+import {MakeTransactionPayload, Transaction, TransactionState, TransactionType, transactionConverter} from '../../lib/transactions';
 import {Account, MakeAccountPayload, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
 import {getIngredientPrice} from '../../lib/ingredients';
 import {DateTime} from 'luxon';
 
-const transactionOrderConverter: FirestoreDataConverter<TransactionOrder> = {
-    fromFirestore: (snapshot) => {
-        const data = snapshot.data();
-        const {type, customer, admin, createdAt} = data;
-        const createdAtDate = new Date((createdAt as admin.firestore.Timestamp).toDate());
-        const {
-            productsWithQty,
-            price,
-            state,
-        } = data as TransactionOrder;
-        return {
-            id: snapshot.id,
-            productsWithQty,
-            price,
-            state,
-            type,
-            customer,
-            admin,
-            createdAt: createdAtDate,
-        } as TransactionOrder;
-    },
-    toFirestore: (transaction) => {
-        const {type, customer, admin, createdAt} = transaction;
-        const {
-            productsWithQty,
-            price,
-            state,
-        } = transaction as TransactionOrder;
-        return {
-            productsWithQty,
-            price,
-            state,
-            type,
-            customer,
-            admin,
-            createdAt,
-        };
-    },
-};
+// const transactionOrderConverter: FirestoreDataConverter<TransactionOrder> = {
+//     fromFirestore: (snapshot) => {
+//         const data = snapshot.data();
+//         const {type, customer, admin, createdAt} = data;
+//         const createdAtDate = new Date((createdAt as admin.firestore.Timestamp).toDate());
+//         const {
+//             productsWithQty,
+//             price,
+//             state,
+//         } = data as TransactionOrder;
+//         return {
+//             id: snapshot.id,
+//             productsWithQty,
+//             price,
+//             state,
+//             type,
+//             customer,
+//             admin,
+//             createdAt: createdAtDate,
+//         } as TransactionOrder;
+//     },
+//     toFirestore: (transaction) => {
+//         const {type, customer, admin, createdAt} = transaction;
+//         const {
+//             productsWithQty,
+//             price,
+//             state,
+//         } = transaction as TransactionOrder;
+//         return {
+//             productsWithQty,
+//             price,
+//             state,
+//             type,
+//             customer,
+//             admin,
+//             createdAt,
+//         };
+//     },
+// };
 
 admin.initializeApp();
 
@@ -149,11 +149,12 @@ export const getOrderHistory = functions.https.onCall(async (data, context) => {
         const db = admin.firestore();
         const googleUid = context.auth.uid;
 
-        const transactions = (await db.collection('transactions').withConverter(transactionOrderConverter)
+        const transactions = (await db.collection('transactions').withConverter(transactionConverter as unknown as FirestoreDataConverter<Transaction>)
             .where('customer.id', '==', googleUid)
             .where('type', '==', TransactionType.Order)
             .get()
         ).docs.map((doc) => doc.data());
+
         console.log('transactions after modification');
         console.log(transactions);
 
@@ -245,7 +246,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         price: priceProducts,
         state: needPreparation ? TransactionState.Preparing : TransactionState.Served,
         customer: account,
-        admin: user.isAdmin ? user : undefined,
+        admin: user.isAdmin ? user : {},
         createdAt: new Date(),
     });
 

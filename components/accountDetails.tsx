@@ -336,7 +336,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={3}>
                                     <Typography variant="body1">
-                                        {formatDate(transaction.createdAt)}
+                                        {formatDate(transaction.createdAt.toDate())}
                                     </Typography>
                                     {transaction.admin ? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
@@ -360,7 +360,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={3}>
                                     <Typography variant="body1">
-                                        {formatDate(transaction.createdAt)}
+                                        {formatDate(transaction.createdAt.toDate())}
                                     </Typography>
                                     {transaction.admin ? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>

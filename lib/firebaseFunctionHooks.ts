@@ -1,9 +1,10 @@
-import { HttpsCallableResult, getFunctions, httpsCallable } from 'firebase/functions';
+import { HttpsCallableResult, connectFunctionsEmulator, getFunctions, httpsCallable } from 'firebase/functions';
 import { MakeTransactionPayload, Order, TransactionOrder } from './transactions';
 import { Account, MakeAccountPayload } from './accounts';
 
 export const useMakeAccount = () => {
     const functions = getFunctions();
+    // connectFunctionsEmulator(functions, '127.0.0.1', 5001);
     const fun = httpsCallable(functions, 'makeAccount') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
 
     return async (payload: MakeAccountPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
@@ -25,6 +26,7 @@ export const useMakeAccount = () => {
  */
 export const useMakeTransaction = () => {
     const functions = getFunctions();
+    // connectFunctionsEmulator(functions, '127.0.0.1', 5001);
     const fun = httpsCallable(functions, 'makeTransaction') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
 
     return async (payload: MakeTransactionPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
@@ -40,6 +42,7 @@ export const useMakeTransaction = () => {
 
 export const useGetFirestoreUser = () => {
     const functions = getFunctions();
+    // connectFunctionsEmulator(functions, '127.0.0.1', 5001);
     const fun = httpsCallable(functions, 'getFirestoreUser') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, account: Account | undefined }>>;
 
     return async (): Promise<HttpsCallableResult<{ success: boolean, account: Account | undefined }>> => {
@@ -55,6 +58,7 @@ export const useGetFirestoreUser = () => {
 
 export const useOrderHistory = () => {
     const functions = getFunctions();
+    // connectFunctionsEmulator(functions, '127.0.0.1', 5001);
     const fun = httpsCallable(functions, 'getOrderHistory') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, orders: TransactionOrder[] | undefined }>>;
 
     return async (): Promise<HttpsCallableResult<{ success: boolean, orders: TransactionOrder[] | undefined }>> => {

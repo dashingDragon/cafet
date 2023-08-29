@@ -10,14 +10,20 @@ import { TransactionOrder, TransactionState } from '../lib/transactions';
 import { formatDate, formatMoney } from './accountDetails';
 import { OrderItemLine } from './lists/orderList';
 
+const getDateFromBrokenTimestamp = (date: { _seconds: number }): Date => {
+    return new Date(date._seconds * 1000);
+};
+
 export const CustomerView: React.FC<{
     account: Account,
 }> = ({ account }) => {
     const auth = getAuth();
     const user = auth.currentUser;
     const [theme, setTheme] = useAppTheme();
-    const getCurrentOrder = useOrderHistory();
+    const getOrderHistory = useOrderHistory();
     const [orderHistory, setOrderHistory] = useState<TransactionOrder[] | undefined>();
+    const [currentOrders, setCurrentOrders] = useState<TransactionOrder[]>([]);
+    const [pastOrders, setPastOrders] = useState<TransactionOrder[]>([]);
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -39,11 +45,25 @@ export const CustomerView: React.FC<{
 
     useEffect(() => {
         const updateOrderHistory = async () => {
-            const result = await getCurrentOrder();
-            if (result.data.success) {
-                setOrderHistory(result.data.orders);
+            const result = await getOrderHistory();
+
+            if (result.data.success && result.data.orders) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const sortedOrders = result.data.orders.sort(
+                    (a, b) => +getDateFromBrokenTimestamp(b.createdAt as unknown as {_seconds: number})
+                    - +getDateFromBrokenTimestamp(a.createdAt as unknown as {_seconds: number}));
+                setCurrentOrders(sortedOrders.filter(transaction => {
+                    const transactionDate = getDateFromBrokenTimestamp(transaction.createdAt as unknown as {_seconds: number});
+                    transactionDate.setHours(0, 0, 0, 0);
+                    return transactionDate.getTime() === today.getTime() && transaction.state !== TransactionState.Served;
+                }));
+                setPastOrders(sortedOrders.filter(transaction => {
+                    const transactionDate = getDateFromBrokenTimestamp(transaction.createdAt as unknown as {_seconds: number});
+                    transactionDate.setHours(0, 0, 0, 0);
+                    return !(transactionDate.getTime() === today.getTime() && transaction.state !== TransactionState.Served);
+                }));
             }
-            console.log(result.data.orders);
         };
         updateOrderHistory();
 
@@ -138,11 +158,66 @@ export const CustomerView: React.FC<{
                 </MenuItem>
             </Menu>
 
-            {false ? (
+            {currentOrders.length ? (
                 <>
-                    <Typography variant="body1" px={2}>
+                    <Typography variant="body1" px={2} mb={2}>
                         {'Aujourd\'hui'}
                     </Typography>
+                    <Stack direction='column' alignItems={'center'} gap={2} mb={4}>
+                        {currentOrders.map((transaction, i) => (
+                            <Card key={i} variant={transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
+                                width: '320px',
+                                position: 'relative',
+                                borderRadius: '20px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}>
+                                <CardContent>
+                                    <Chip
+                                        variant="outlined"
+                                        color={transaction.state === TransactionState.Preparing ? 'warning' : 'success'}
+                                        icon={transaction.state === TransactionState.Preparing ? (
+                                            <Timelapse sx={{ marginLeft: 2 }} color="warning" />
+                                        ) : (
+                                            <CheckCircle sx={{ marginLeft: 2 }} color="success" />
+                                        )}
+                                        label={transaction.state === TransactionState.Preparing
+                                            ? 'En préparation'
+                                            : transaction.state === TransactionState.Ready
+                                                ? 'Prête' : 'Servie'
+                                        }
+                                        disabled={transaction.state === TransactionState.Served}
+                                        sx={{
+                                            marginBottom: 2,
+                                        }}
+                                    />
+
+                                    <Box mb={2}>
+                                        {transaction.productsWithQty.map((productWithQty) => (
+                                            Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
+                                                (quantity > 0 && <OrderItemLine key={productWithQty.id + size} productWithQty={productWithQty} quantity={quantity} size={size} /> ))))
+                                        }
+                                        <Stack key={'total'} direction="row" justifyContent={'space-between'}>
+                                            <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}><strong>Total</strong></Typography>
+                                            <Typography variant="body2"><strong>{formatMoney(transaction.price)}</strong></Typography>
+                                        </Stack>
+                                    </Box>
+
+                                    <Box display="flex" justifyContent="space-between" flexDirection={'row'}>
+                                        <Typography variant="body1">
+                                            {formatDate(getDateFromBrokenTimestamp(transaction.createdAt as unknown as {_seconds: number}))}
+                                        </Typography>
+                                        {transaction.admin?.firstName ? (
+                                            <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
+                                        Passée par {transaction.admin.firstName}
+                                            </Typography>
+                                        ) : null
+                                        }
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </Stack>
                 </>
             ) : (
                 <>
@@ -154,64 +229,68 @@ export const CustomerView: React.FC<{
                 </>
             )}
 
-            <Typography variant="body1" px={2} mb={2}>
-                {'Commandes passées'}
-            </Typography>
-            <Stack direction='column' alignItems={'center'} gap={2}>
-                {orderHistory && orderHistory.sort((a, b) => +b.createdAt - +a.createdAt).map((transaction, i) => (
-                    <Card key={i} variant={transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
-                        width: '320px',
-                        position: 'relative',
-                        borderRadius: '20px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                    }}>
-                        <CardContent>
-                            <Chip
-                                variant="outlined"
-                                color={transaction.state === TransactionState.Preparing ? 'warning' : 'success'}
-                                icon={transaction.state === TransactionState.Preparing ? (
-                                    <Timelapse sx={{ marginLeft: 2 }} color="warning" />
-                                ) : (
-                                    <CheckCircle sx={{ marginLeft: 2 }} color="success" />
-                                )}
-                                label={transaction.state === TransactionState.Preparing
-                                    ? 'En préparation'
-                                    : transaction.state === TransactionState.Ready
-                                        ? 'Prête' : 'Servie'
-                                }
-                                disabled={transaction.state === TransactionState.Served}
-                                sx={{
-                                    marginBottom: 2,
-                                }}
-                            />
+            {pastOrders.length > 0 && (
+                <>
+                    <Typography variant="body1" px={2} mb={2}>
+                        {'Commandes passées'}
+                    </Typography>
+                    <Stack direction='column' alignItems={'center'} gap={2}>
+                        {pastOrders.map((transaction, i) => (
+                            <Card key={i} variant={transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
+                                width: '320px',
+                                position: 'relative',
+                                borderRadius: '20px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}>
+                                <CardContent>
+                                    <Chip
+                                        variant="outlined"
+                                        color={transaction.state === TransactionState.Preparing ? 'warning' : 'success'}
+                                        icon={transaction.state === TransactionState.Preparing ? (
+                                            <Timelapse sx={{ marginLeft: 2 }} color="warning" />
+                                        ) : (
+                                            <CheckCircle sx={{ marginLeft: 2 }} color="success" />
+                                        )}
+                                        label={transaction.state === TransactionState.Preparing
+                                            ? 'En préparation'
+                                            : transaction.state === TransactionState.Ready
+                                                ? 'Prête' : 'Servie'
+                                        }
+                                        disabled={transaction.state === TransactionState.Served}
+                                        sx={{
+                                            marginBottom: 2,
+                                        }}
+                                    />
 
-                            <Box mb={2}>
-                                {transaction.productsWithQty.map((productWithQty) => (
-                                    Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
-                                        (quantity > 0 && <OrderItemLine key={productWithQty.id} productWithQty={productWithQty} quantity={quantity} size={size} /> ))))
-                                }
-                                <Stack key={'total'} direction="row" justifyContent={'space-between'}>
-                                    <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}><strong>Total</strong></Typography>
-                                    <Typography variant="body2"><strong>{formatMoney(transaction.price)}</strong></Typography>
-                                </Stack>
-                            </Box>
+                                    <Box mb={2}>
+                                        {transaction.productsWithQty.map((productWithQty) => (
+                                            Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
+                                                (quantity > 0 && <OrderItemLine key={productWithQty.id + size} productWithQty={productWithQty} quantity={quantity} size={size} /> ))))
+                                        }
+                                        <Stack key={'total'} direction="row" justifyContent={'space-between'}>
+                                            <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}><strong>Total</strong></Typography>
+                                            <Typography variant="body2"><strong>{formatMoney(transaction.price)}</strong></Typography>
+                                        </Stack>
+                                    </Box>
 
-                            <Box display="flex" justifyContent="space-between" flexDirection={'row'}>
-                                <Typography variant="body1">
-                                    {formatDate(transaction.createdAt)}
-                                </Typography>
-                                {transaction.admin ? (
-                                    <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
+                                    <Box display="flex" justifyContent="space-between" flexDirection={'row'}>
+                                        <Typography variant="body1">
+                                            {formatDate(getDateFromBrokenTimestamp(transaction.createdAt as unknown as {_seconds: number}))}
+                                        </Typography>
+                                        {transaction.admin?.firstName ? (
+                                            <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
                                         Passée par {transaction.admin.firstName}
-                                    </Typography>
-                                ) : null
-                                }
-                            </Box>
-                        </CardContent>
-                    </Card>
-                ))}
-            </Stack>
+                                            </Typography>
+                                        ) : null
+                                        }
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </Stack>
+                </>
+            )}
         </Stack>
     );
 };

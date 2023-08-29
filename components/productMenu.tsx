@@ -86,6 +86,7 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
 
     return (
         <>
+            {/* Menu */}
             <Box m={'8px'}>
                 <ProductShortCardList
                     basket={basket}
@@ -95,6 +96,8 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
                     setSnackbarMessage={setSnackbarMessage}
                 />
             </Box>
+
+            {/* Checkout floating bar */}
             <Box m={'8px'}>
                 {basketPrice > 0 && (
                     <Button
@@ -106,6 +109,7 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
                             bottom: '16px',
                             position: 'fixed',
                             width: 'calc(100% - 16px)',
+                            zIndex: 20,
                         }}
                     >
                         <Box width="100%" display="flex" justifyContent="space-between" alignItems="center" title="Payer">
@@ -127,6 +131,8 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
                     {message}
                 </Alert>
             </Snackbar>
+
+            {/* Basket Modal */}
             <BasketModal
                 open={basketOpen}
                 setBasketOpen={setBasketOpen}

@@ -11,6 +11,7 @@ const LoadingScreen = () => {
             justifyContent: 'center',
             alignItems: 'center',
             width: '100%',
+            overflow: 'hidden',
         }}>
             <Box sx={{
                 width: '128px',

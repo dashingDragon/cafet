@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
+import { Timestamp, addDoc, collection, deleteDoc, doc, getDoc, getFirestore, onSnapshot, orderBy, query, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { Account, AccountStats, School, accountConverter } from './accounts';
 import { useGuardIsAdmin, useGuardIsConnected } from './hooks';
@@ -535,7 +535,7 @@ export const useRechargeTransactionMaker = () => {
             amount: amount,
             customer: account,
             admin: firestoreAdminUser,
-            createdAt: new Date(),
+            createdAt: Timestamp.fromDate(new Date()),
         });
         batch.update(accountRef, {
             balance: account.balance + amount,

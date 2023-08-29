@@ -5,10 +5,12 @@ import PageLayout from '../../components/pageLayout';
 import { Button, Stack, Typography } from '@mui/material';
 import Image from 'next/image';
 import { imageLoader } from '../_app';
+import { useFirestoreUser } from '../../lib/firestoreHooks';
 
 const SuccessPage: NextPage = () => {
     const router = useRouter();
     const { id } = router.query;
+    const user = useFirestoreUser();
 
     return (
         <>
@@ -18,23 +20,21 @@ const SuccessPage: NextPage = () => {
             </Head>
 
             <main>
-                <PageLayout title="Erreur" hideBottomNavigation backTo={`/accounts/${id}`}>
-                    <Stack direction="column" justifyContent="center" height="100%">
-                        <Typography variant="h3" sx={{ m: '32px' }}>
-                            {'Une erreur s\'est produite. Veuillez réessayer.'}
-                        </Typography>
-                        <Image
-                            loader={imageLoader}
-                            src={'/svg/error.svg'}
-                            alt={'Success image'}
-                            width={120}
-                            height={120}
-                        />
-                        <Button color="error" variant="contained" sx={{ m: '32px' }} onClick={() => router.replace(`/accounts/${id}`)}>
-                            Retour
-                        </Button>
-                    </Stack>
-                </PageLayout>
+                <Stack direction="column" justifyContent="center" height="100%" m={4}>
+                    <Typography variant="h5" sx={{ m: '32px' }}>
+                        {'Une erreur s\'est produite. Veuillez réessayer.'}
+                    </Typography>
+                    <Image
+                        loader={imageLoader}
+                        src={'/svg/error.svg'}
+                        alt={'Success image'}
+                        width={120}
+                        height={120}
+                    />
+                    <Button color="error" variant="contained" sx={{ m: '32px' }} onClick={() => router.replace(user?.isAdmin ? `/accounts/${id}` : '/')}>
+                        Retour
+                    </Button>
+                </Stack>
             </main>
         </>
     );

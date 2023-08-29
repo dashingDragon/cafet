@@ -17,23 +17,21 @@ const UnauthorizedPage: NextPage = () => {
             </Head>
 
             <main>
-                <PageLayout title="Erreur" hideBottomNavigation>
-                    <Stack direction="column" justifyContent="center" height="100%">
-                        <Typography variant="h3" sx={{ m: '32px' }}>
-                            {'Vous n\'êtes pas autorisé à consulter cette page.'}
-                        </Typography>
-                        <Image
-                            loader={imageLoader}
-                            src={'/svg/error.svg'}
-                            alt={'Success image'}
-                            width={120}
-                            height={120}
-                        />
-                        <Button color="error" variant="contained" sx={{ m: '32px' }} onClick={() => router.back()}>
-                            Retour
-                        </Button>
-                    </Stack>
-                </PageLayout>
+                <Stack direction="column" justifyContent="center" height="100%" m={4}>
+                    <Typography variant="h5" sx={{ m: '32px' }}>
+                        {'Vous n\'êtes pas autorisé à consulter cette page.'}
+                    </Typography>
+                    <Image
+                        loader={imageLoader}
+                        src={'/svg/error.svg'}
+                        alt={'Success image'}
+                        width={120}
+                        height={120}
+                    />
+                    <Button color="error" variant="contained" sx={{ m: '32px' }} onClick={() => router.back()}>
+                        Retour
+                    </Button>
+                </Stack>
             </main>
         </>
     );

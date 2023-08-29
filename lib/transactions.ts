@@ -18,7 +18,7 @@ type TransactionMetadata = {
     type: TransactionType;
     customer: Account;
     admin: Account | undefined;
-    createdAt: Date;
+    createdAt: Timestamp;
 }
 
 export type TransactionRecharge = {
@@ -50,7 +50,6 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
         const { type, customer, admin, createdAt } = data;
-        const createdAtDate = new Date((createdAt as Timestamp).toDate());
         if (type === TransactionType.Recharge) {
             const { amount } = data as TransactionRecharge;
             return {
@@ -59,7 +58,7 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
                 type,
                 customer,
                 admin,
-                createdAt: createdAtDate,
+                createdAt,
             } as TransactionRecharge;
         } else if (type === TransactionType.Order) {
             const {
@@ -75,7 +74,7 @@ export const transactionConverter: FirestoreDataConverter<Transaction> = {
                 type,
                 customer,
                 admin,
-                createdAt: createdAtDate,
+                createdAt,
             } as TransactionOrder;
         } else {
             throw Error('Unknown transaction type');

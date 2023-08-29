@@ -49,6 +49,7 @@ Here is the TODO-list of the project, for the staff-side app :
 For the customer-side app :
 - [x] add current orders screen for staffs
 - [x] add the order page
+- [x] change error screen for user
 - [ ] add a current and previous order list
 - [ ] add banner for user if their account money is low
 - [ ] add banner for user if there is maintenance
