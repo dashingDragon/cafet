@@ -281,7 +281,7 @@ export const OrderList: React.FC<{orders: Order[], short?: boolean}> = ({orders,
                 key={'transition'}
                 autoHideDuration={6000}
             >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }} variant="filled">
                     {message}
                 </Alert>
             </Snackbar>

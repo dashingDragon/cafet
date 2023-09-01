@@ -38,6 +38,7 @@ export const ProductShortCardList: React.FC<{
                 direction={'row'}
                 justifyContent={'flex-start'}
                 sx={{
+                    flexShrink: 0,
                     overflowX: 'auto',
                     marginRight: '-32px',
                     paddingRight: '32px',

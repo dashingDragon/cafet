@@ -14,7 +14,6 @@ const schoolToImage = (school: School) => {
 
 export const formatMoney = (v: number) => (v / 100).toFixed(2) + ' €';
 export const formatDate = (date: Date) => {
-    console.log(date);
     if (date instanceof Date) {
         return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`;
     }
@@ -49,7 +48,6 @@ const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
                                 }}
                             />
                         )}
-
                     </Box>
                 </Box>
             </CardContent>

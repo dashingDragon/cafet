@@ -11,6 +11,7 @@ type PageLayoutProps = {
   title: string,
   backTo: string | undefined,
   hideBottomNavigation: boolean,
+  hideTopBar: boolean,
 };
 
 const defaultProps: Partial<PageLayoutProps> = {
@@ -36,7 +37,7 @@ const ToggleThemeButton = () => {
     );
 };
 
-const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayoutProps) => {
+const PageLayout = ({ children, title, backTo, hideBottomNavigation, hideTopBar }: PageLayoutProps) => {
     const router = useRouter();
     const user = useFirestoreUser();
     const handleLogout = async () => {
@@ -50,47 +51,49 @@ const PageLayout = ({ children, title, backTo, hideBottomNavigation }: PageLayou
                 flexDirection: 'column',
                 height: '100vh',
             }}>
-                <AppBar position="sticky">
-                    <Toolbar>
-                        {backTo !== undefined ? (
-                            <IconButton
-                                size="large"
-                                edge="start"
-                                color="inherit"
-                                onClick={() => router.push(backTo)}
-                            >
-                                <ArrowBack />
-                            </IconButton>
-                        ) : (
-                            <Avatar src='logo_white.jpg' sx={{ mr: '16px' }} />
-                        )}
+                {!hideTopBar && (
+                    <AppBar position="sticky">
+                        <Toolbar>
+                            {backTo !== undefined ? (
+                                <IconButton
+                                    size="large"
+                                    edge="start"
+                                    color="inherit"
+                                    onClick={() => router.push(backTo)}
+                                >
+                                    <ArrowBack />
+                                </IconButton>
+                            ) : (
+                                <Avatar src='logo_white.jpg' sx={{ mr: '16px' }} />
+                            )}
 
-                        <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                            {title}
-                        </Typography>
-                        {user?.isAdmin && (
+                            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                                {title}
+                            </Typography>
+                            {user?.isAdmin && (
+                                <IconButton
+                                    onClick={() => router.push('/staffs')}
+                                    size="large"
+                                    edge="end"
+                                    color="inherit"
+                                    sx={{
+                                        marginRight: 0,
+                                    }}
+                                >
+                                    <AdminPanelSettings />
+                                </IconButton>
+                            )}
+                            <ToggleThemeButton />
                             <IconButton
-                                onClick={() => router.push('/staffs')}
+                                onClick={handleLogout}
                                 size="large"
                                 edge="end"
-                                color="inherit"
-                                sx={{
-                                    marginRight: 0,
-                                }}
-                            >
-                                <AdminPanelSettings />
+                                color="inherit">
+                                <Logout />
                             </IconButton>
-                        )}
-                        <ToggleThemeButton />
-                        <IconButton
-                            onClick={handleLogout}
-                            size="large"
-                            edge="end"
-                            color="inherit">
-                            <Logout />
-                        </IconButton>
-                    </Toolbar>
-                </AppBar>
+                        </Toolbar>
+                    </AppBar>
+                )}
 
                 <>
                     {children}

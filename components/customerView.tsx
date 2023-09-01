@@ -72,13 +72,7 @@ export const CustomerView: React.FC<{
     }, []);
 
     return (
-        <Stack
-            flexGrow={1}
-            direction="column"
-            p={4}
-            maxHeight='100%'
-            width='100%'
-        >
+        <>
             {/* Header Banner */}
             <Stack sx={{
                 flexDirection: 'row',
@@ -172,6 +166,7 @@ export const CustomerView: React.FC<{
                 borderRadius: '20px',
                 boxShadow: 'inset 0 2px 4px 0 hsla(0, 0%, 0%, .2)',
                 position: 'relative',
+                flexShrink: 0,
             }}>
                 <Typography sx={{
                     fontWeight: 700,
@@ -344,8 +339,6 @@ export const CustomerView: React.FC<{
                     </Stack>
                 </>
             )}
-
-
-        </Stack>
+        </>
     );
 };

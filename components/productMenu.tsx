@@ -124,7 +124,7 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
                 key={'transition'}
                 autoHideDuration={6000}
             >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }} variant="filled">
                     {message}
                 </Alert>
             </Snackbar>

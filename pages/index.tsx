@@ -33,7 +33,11 @@ const OrderPage: NextPage = () => {
                                 </FullHeightScrollableContainer>
                             </PageLayout>
                         ) : (
-                            <CustomerView account={firestoreUser} />
+                            <PageLayout hideTopBar hideBottomNavigation>
+                                <FullHeightScrollableContainer>
+                                    <CustomerView account={firestoreUser} />
+                                </FullHeightScrollableContainer>
+                            </PageLayout>
                         )}
                     </>
                 }
