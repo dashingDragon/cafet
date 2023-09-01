@@ -380,7 +380,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
 
 const AccountDetails: React.FC<{ account: Account }> = (props) => {
     const { account } = props;
-    const linesParams = { m: 2, mb: 0 };
+    const linesParams = { mb: 2 };
 
     const router = useRouter();
 

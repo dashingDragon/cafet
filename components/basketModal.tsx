@@ -26,7 +26,10 @@ const BasketModal: React.FC<{
         <Modal
             open={open}
             onClose={() => setBasketOpen(false)}
-            hideBackdrop
+            sx={{
+                width: '100%',
+                maxWidth: '900px',
+            }}
         >
             <Box sx={{
                 flexGrow: 1,
@@ -37,18 +40,15 @@ const BasketModal: React.FC<{
                 position: 'relative',
             }}>
                 <>
-                    <Fab onClick={() => setBasketOpen(false)} sx={{
+                    <IconButton onClick={() => setBasketOpen(false)} sx={{
                         position: 'absolute',
                         top: '16px',
                         left: '16px',
                         height: '48px',
                         width: '48px',
-                        background: theme => theme.palette.mode === 'light'
-                            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
-                            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
                     }}>
                         <ArrowBack />
-                    </Fab>
+                    </IconButton>
                     <Typography variant="h4" sx={{
                         width: '100%',
                         textAlign: 'center',

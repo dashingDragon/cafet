@@ -41,12 +41,12 @@ const Stats: React.FC = () => {
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                margin: '16px',
                 mt: '48px',
                 borderRadius: '20px',
                 overflow: 'visible',
                 px: '32px',
                 height: '40px',
+                width: '100%',
                 background: theme => theme.palette.mode === 'light'
                     ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
                     : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
@@ -62,7 +62,7 @@ const Stats: React.FC = () => {
                     />
                 </Box>
             </Card>
-            <Card sx={{ mx: '16px', borderRadius: '20px' }}>
+            <Card sx={{ mt: '32px', borderRadius: '20px' }}>
                 <CardContent>
                     {/* For each row */}
                     {rows.map((row, i) =>

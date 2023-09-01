@@ -1,4 +1,4 @@
-import { Avatar, Box, Card, CardContent, Chip, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
+import { Alert, AlertTitle, Avatar, Box, Card, CardContent, Chip, Divider, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
 import { getAuth, signOut } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
@@ -9,6 +9,8 @@ import { useOrderHistory } from '../lib/firebaseFunctionHooks';
 import { TransactionOrder, TransactionState } from '../lib/transactions';
 import { formatDate, formatMoney } from './accountDetails';
 import { OrderItemLine } from './lists/orderList';
+import Image from 'next/image';
+import { imageLoader } from '../pages/_app';
 
 const getDateFromBrokenTimestamp = (date: { _seconds: number }): Date => {
     return new Date(date._seconds * 1000);
@@ -21,7 +23,6 @@ export const CustomerView: React.FC<{
     const user = auth.currentUser;
     const [theme, setTheme] = useAppTheme();
     const getOrderHistory = useOrderHistory();
-    const [orderHistory, setOrderHistory] = useState<TransactionOrder[] | undefined>();
     const [currentOrders, setCurrentOrders] = useState<TransactionOrder[]>([]);
     const [pastOrders, setPastOrders] = useState<TransactionOrder[]>([]);
 
@@ -74,26 +75,24 @@ export const CustomerView: React.FC<{
         <Stack
             flexGrow={1}
             direction="column"
-            pb={4}
+            p={4}
             maxHeight='100%'
             width='100%'
         >
+            {/* Header Banner */}
             <Stack sx={{
-                p: 2,
-                width: '100%',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'flex-end',
             }}>
                 <Typography variant="h6">
-                    Bonjour <strong>{account.firstName}</strong> !
+                        Bonjour <strong>{account.firstName}</strong> !
                 </Typography>
 
-                <IconButton onClick={handleClick}>
+                <IconButton onClick={handleClick} sx={{ padding: 0 }}>
                     <Avatar
                         src={user?.photoURL ?? ''}
                         sx={{
-                            mr: 1,
                             background: 'default',
                             fontSize: '12px',
                             color: 'white',
@@ -104,60 +103,113 @@ export const CustomerView: React.FC<{
                         </Typography>
                     </Avatar>
                 </IconButton>
+                <Menu
+                    anchorEl={anchorEl}
+                    id="account-menu"
+                    open={open}
+                    onClose={handleClose}
+                    onClick={handleClose}
+                    PaperProps={{
+                        elevation: 0,
+                        sx: {
+                            overflow: 'visible',
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                                width: 32,
+                                height: 32,
+                                ml: -0.5,
+                                mr: 1,
+                            },
+                            '&:before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                top: 0,
+                                right: 14,
+                                width: 10,
+                                height: 10,
+                                bgcolor: 'background.paper',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                zIndex: 0,
+                            },
+                        },
+                    }}
+                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                >
+                    <MenuItem disableRipple disableTouchRipple>
+                            Mon compte: <strong>{formatMoney(account.balance)}</strong>
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem onClick={handleChangeTheme}>
+                        <ListItemIcon>
+                            {theme === 'dark' ? (
+                                <LightMode fontSize="small" />
+                            ) : (
+                                <DarkMode fontSize="small" />
+                            )}
+                        </ListItemIcon>
+                            Thème
+                    </MenuItem>
+                    <MenuItem onClick={handleSignOut}>
+                        <ListItemIcon>
+                            <Logout fontSize="small" />
+                        </ListItemIcon>
+                            Déconnexion
+                    </MenuItem>
+                </Menu>
             </Stack>
-            <Menu
-                anchorEl={anchorEl}
-                id="account-menu"
-                open={open}
-                onClose={handleClose}
-                onClick={handleClose}
-                PaperProps={{
-                    elevation: 0,
-                    sx: {
-                        overflow: 'visible',
-                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                        mt: 1.5,
-                        '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            ml: -0.5,
-                            mr: 1,
-                        },
-                        '&:before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            top: 0,
-                            right: 14,
-                            width: 10,
-                            height: 10,
-                            bgcolor: 'background.paper',
-                            transform: 'translateY(-50%) rotate(45deg)',
-                            zIndex: 0,
-                        },
-                    },
-                }}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-            >
-                <MenuItem onClick={handleChangeTheme}>
-                    <ListItemIcon>
-                        {theme === 'dark' ? (
-                            <LightMode fontSize="small" />
-                        ) : (
-                            <DarkMode fontSize="small" />
-                        )}
-                    </ListItemIcon>
-                    Thème
-                </MenuItem>
-                <MenuItem onClick={handleSignOut}>
-                    <ListItemIcon>
-                        <Logout fontSize="small" />
-                    </ListItemIcon>
-                    Déconnexion
-                </MenuItem>
-            </Menu>
 
+            {/* Announcement banner */}
+            <Box sx={{
+                my: 4,
+                width: '100%',
+                height: '128px',
+                background: 'linear-gradient(135deg, rgba(253,29,29,1) 0%, rgba(252,176,69,1) 100%)',
+                backgroundImage: 'url("/svg/orange_circles.svg")',
+                backgroundSize: 'cover',
+                borderRadius: '20px',
+                boxShadow: 'inset 0 2px 4px 0 hsla(0, 0%, 0%, .2)',
+                position: 'relative',
+            }}>
+                <Typography sx={{
+                    fontWeight: 700,
+                    fontSize: '20px',
+                    position: 'absolute',
+                    left: '15px',
+                    bottom: '10px',
+                    color: '#fff',
+                    maxWidth: '150px',
+                }}>
+                    {'L\'appli Cafet est sortie !'}
+                </Typography>
+                <Box sx={{
+                    position: 'absolute',
+                    right: '20px',
+                    bottom: '0',
+                }}>
+                    <Image
+                        loader={imageLoader}
+                        src={'svg/party.svg'}
+                        alt={''}
+                        height={128}
+                        width={128}
+                        className={'icon'}
+                    />
+                </Box>
+            </Box>
+
+            {/* Error Banner */}
+            {account.balance < 200 && (
+                <Alert severity="error" variant="filled" sx={{ borderRadius: '20px' }}>
+                    <AlertTitle sx={{ color: '#fff', fontWeight: 700 }}>Compte à sec</AlertTitle>
+                    Votre compte est vide ou presque, allez-le <strong>recharger</strong> auprès d&apos;un Cafet Master.
+                </Alert>
+            )}
+
+
+            {/* Today's orders */}
             {currentOrders.length ? (
                 <>
                     <Typography variant="body1" px={2} mb={2}>
@@ -209,7 +261,7 @@ export const CustomerView: React.FC<{
                                         </Typography>
                                         {transaction.admin?.firstName ? (
                                             <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                        Passée par {transaction.admin.firstName}
+                                                Passée par {transaction.admin.firstName}
                                             </Typography>
                                         ) : null
                                         }
@@ -221,7 +273,7 @@ export const CustomerView: React.FC<{
                 </>
             ) : (
                 <>
-                    <Typography variant="body1" px={2}>
+                    <Typography variant="body1" mt={8}>
                         {'Que voulez-vous manger aujourd\'hui ?'}
                     </Typography>
 
@@ -229,15 +281,16 @@ export const CustomerView: React.FC<{
                 </>
             )}
 
+            {/* Past orders */}
             {pastOrders.length > 0 && (
                 <>
-                    <Typography variant="body1" px={2} mb={2}>
+                    <Typography variant="body1" mb={2} mt={4}>
                         {'Commandes passées'}
                     </Typography>
                     <Stack direction='column' alignItems={'center'} gap={2}>
                         {pastOrders.map((transaction, i) => (
                             <Card key={i} variant={transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
-                                width: '320px',
+                                width: '100%',
                                 position: 'relative',
                                 borderRadius: '20px',
                                 display: 'flex',
@@ -291,6 +344,8 @@ export const CustomerView: React.FC<{
                     </Stack>
                 </>
             )}
+
+
         </Stack>
     );
 };

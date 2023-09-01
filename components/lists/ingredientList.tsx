@@ -186,13 +186,14 @@ const IngredientList: React.FC<{
     const [tabIndex, setTabIndex] = useState(0);
 
     return (
-        <Box m={'16px'}>
+        <>
             <Carousel carouselItems={carouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
             <Stack
                 direction={'row'}
                 justifyContent={'flex-start'}
                 sx={{
                     overflowX: 'auto',
+                    flexShrink: 0,
                     scrollbarWidth: 'none',
                     '&::-webkit-scrollbar': {
                         display: 'none',
@@ -211,7 +212,7 @@ const IngredientList: React.FC<{
                     </Box>
                 )}
             </Stack>
-        </Box>
+        </>
     );
 };
 

@@ -47,7 +47,7 @@ const Login = () => {
                 <Button
                     onClick={handleGoogleSignin}
                     variant="contained"
-                    sx={{ mt: 3, mb: 10 }}
+                    sx={{ mt: 3, mb: 10, borderRadius: '20px' }}
                 >
                     <Box display="flex" alignItems="center" textTransform="none">
                         <Typography mr={1}>Se connecter avec</Typography>

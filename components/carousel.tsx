@@ -17,9 +17,7 @@ const TabItem = styled(Box)(({ theme }) => ({
     background: theme.palette.background.paper,
     '&:hover, &.selected': {
         cursor: 'pointer',
-        background: theme.palette.mode === 'light'
-            ? 'linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(223,191,209,1) 100%)'
-            : 'linear-gradient(135deg, rgba(81,86,100,1) 0%, rgba(126,105,117,1) 100%)',
+        background: 'linear-gradient(125deg, rgba(247,184,94,1) 0%, rgba(222,69,69,1) 100%)',
     },
 }));
 
@@ -41,14 +39,15 @@ export const Carousel: React.FC<{
 }> = ({ carouselItems, tabIndex, setTabIndex}) => {
     return (
         <Stack sx={{
-            flexDirection: 'row',
-            my: '32px',
-            borderRadius: '20px',
-            overflow: 'auto',
-            display: 'flex',
+            width: '100%',
             height: '100px',
-            gap: 2,
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'row',
             overflowX: 'auto',
+            my: '32px',
+            gap: 2,
+            borderRadius: '20px',
             scrollbarWidth: 'none',
             '&::-webkit-scrollbar': {
                 display: 'none',

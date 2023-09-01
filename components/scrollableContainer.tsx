@@ -1,4 +1,4 @@
-import { Box, SxProps, Theme } from '@mui/material';
+import { Box, Stack, SxProps, Theme } from '@mui/material';
 import { ReactElement } from 'react';
 
 export const FullHeightScrollableContainer: React.FC<{
@@ -6,13 +6,16 @@ export const FullHeightScrollableContainer: React.FC<{
   sx?: SxProps<Theme>,
 }> = ({ sx, children }) => {
     return (
-        <Box
+        <Stack
             flexGrow={1}
-            maxHeight="100%"
+            direction="column"
+            p={4}
+            width='100%'
+            maxWidth='900px'
             overflow="auto"
             sx={sx}>
             {children}
-        </Box>
+        </Stack>
     );
 };
 

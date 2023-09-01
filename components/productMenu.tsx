@@ -87,39 +87,36 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
     return (
         <>
             {/* Menu */}
-            <Box m={'8px'}>
-                <ProductShortCardList
-                    basket={basket}
-                    setBasket={setBasket}
-                    priceLimit={account.balance - basketPrice}
-                    servingCount={servingCount}
-                    setSnackbarMessage={setSnackbarMessage}
-                />
-            </Box>
+            <ProductShortCardList
+                basket={basket}
+                setBasket={setBasket}
+                priceLimit={account.balance - basketPrice}
+                servingCount={servingCount}
+                setSnackbarMessage={setSnackbarMessage}
+            />
 
             {/* Checkout floating bar */}
-            <Box m={'8px'}>
-                {basketPrice > 0 && (
-                    <Button
-                        disabled={!canBeCompleted()}
-                        onClick={() => setBasketOpen(true)}
-                        variant="contained"
-                        sx={{
-                            textTransform: 'none',
-                            bottom: '16px',
-                            position: 'fixed',
-                            width: 'calc(100% - 16px)',
-                            zIndex: 20,
-                        }}
-                    >
-                        <Box width="100%" display="flex" justifyContent="space-between" alignItems="center" title="Payer">
-                            <ShoppingBasket />
-                            <Typography variant="h6">Panier: <strong>{formatMoney(basketPrice)}</strong></Typography>
-                            <ChevronRight fontSize="large" sx={{ height: '40px', width: '40px' }} />
-                        </Box>
-                    </Button>
-                )}
-            </Box>
+            {basketPrice > 0 && (
+                <Button
+                    disabled={!canBeCompleted()}
+                    onClick={() => setBasketOpen(true)}
+                    variant="contained"
+                    sx={{
+                        textTransform: 'none',
+                        bottom: '16px',
+                        position: 'fixed',
+                        width: 'calc(100% - 64px)',
+                        maxWidth: 'calc(900px - 64px)',
+                        zIndex: 20,
+                    }}
+                >
+                    <Box width="100%" display="flex" justifyContent="space-between" alignItems="center" title="Payer">
+                        <ShoppingBasket />
+                        <Typography variant="h6">Panier: <strong>{formatMoney(basketPrice)}</strong></Typography>
+                        <ChevronRight fontSize="large" sx={{ height: '40px', width: '40px' }} />
+                    </Box>
+                </Button>
+            )}
             <Snackbar
                 open={snackbarOpen}
                 onClose={() => setSnackbarOpen(false)}

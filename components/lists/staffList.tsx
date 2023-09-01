@@ -57,13 +57,13 @@ const StaffItem: React.FC<{ staff: Account }> = ({ staff }) => {
 
 const StaffList: React.FC<{ staffs: Account[] }> = ({ staffs }) => {
     return (
-        <Box m={1}>
+        <>
             {staffs.map((staff) =>
                 <Box key={staff.id} mb={1}>
                     <StaffItem staff={staff} />
                 </Box>
             )}
-        </Box>
+        </>
     );
 };
 

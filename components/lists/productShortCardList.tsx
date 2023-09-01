@@ -39,6 +39,8 @@ export const ProductShortCardList: React.FC<{
                 justifyContent={'flex-start'}
                 sx={{
                     overflowX: 'auto',
+                    marginRight: '-32px',
+                    paddingRight: '32px',
                     scrollbarWidth: 'none',
                     '&::-webkit-scrollbar': {
                         display: 'none',

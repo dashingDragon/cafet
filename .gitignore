@@ -43,3 +43,6 @@ public/*workbox*.js
 
 # firebase
 /.firebase
+
+# log
+*.log

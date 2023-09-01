@@ -6,6 +6,7 @@ import PageLayout from '../../../components/pageLayout';
 import ProductMenu from '../../../components/productMenu';
 import { useAccount } from '../../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../../lib/hooks';
+import FullHeightScrollableContainer from '../../../components/scrollableContainer';
 
 const AccountPayPage: NextPage = () => {
     const admin = useGuardIsAdmin();
@@ -30,7 +31,9 @@ const AccountPayPage: NextPage = () => {
                     </>
                     : <>
                         <PageLayout title={`Encaisser ${account.firstName} ${account.lastName}`} hideBottomNavigation backTo={`/accounts/${id}`}>
-                            <ProductMenu account={account} />
+                            <FullHeightScrollableContainer>
+                                <ProductMenu account={account} />
+                            </FullHeightScrollableContainer>
                         </PageLayout>
                     </>
                 }

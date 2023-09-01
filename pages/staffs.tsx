@@ -26,7 +26,7 @@ const StaffPage: NextPage = () => {
                             ? <LoadingScreen />
                             : (
                                 <>
-                                    <Typography variant="h5" m={1}>Staffs</Typography>
+                                    <Typography variant="h5" mb={2}>Staffs</Typography>
                                     <StaffList staffs={staffs} />
                                 </>
                             )

@@ -39,20 +39,14 @@ export const StaffView: React.FC = () => {
     }, [orders]);
 
     return (
-        <Stack
-            flexGrow={1}
-            direction="column"
-            pb={4}
-            alignItems='center'
-        >
+        <>
             {/* Shopping list */}
             <Card sx={{
-                m: '16px',
                 borderRadius: '20px',
                 overflow: 'visible',
                 px: '32px',
                 py: '16px',
-                width: '320px',
+                width: '100%',
                 display: 'flex',
                 flexDirection: 'column',
             }}>
@@ -84,7 +78,7 @@ export const StaffView: React.FC = () => {
                 <>
                     {ordersInPreparation.length === 0 ? (
                         <Stack direction="column" justifyContent="center" height="100%">
-                            <Typography variant="h5" sx={{ m: '32px' }}>
+                            <Typography variant="h5" sx={{ my: '32px' }}>
                                 {'Il n\'y a aucune commande en attente.'}
                             </Typography>
                             <Image
@@ -106,7 +100,7 @@ export const StaffView: React.FC = () => {
                 <>
                     {ordersInPreparation.length === 0 ? (
                         <Stack direction="column" justifyContent="center" height="100%">
-                            <Typography variant="h5" sx={{ m: '32px' }}>
+                            <Typography variant="h5" sx={{ my: '32px' }}>
                                 {'Il n\'y a aucune commande en attente.'}
                             </Typography>
                             <Image
@@ -128,7 +122,7 @@ export const StaffView: React.FC = () => {
                 <>
                     {ordersServed.length === 0 ? (
                         <Stack direction="column" justifyContent="center" height="100%">
-                            <Typography variant="h5" sx={{ m: '32px' }}>
+                            <Typography variant="h5" sx={{ my: '32px' }}>
                                 {'Aucune commande n\'a été servie aujourd\'hui.'}
                             </Typography>
                             <Image
@@ -147,6 +141,6 @@ export const StaffView: React.FC = () => {
                     <OrderList orders={ordersServed} />
                 </>
             )}
-        </Stack>
+        </>
     );
 };

@@ -50,14 +50,14 @@ For the customer-side app :
 - [x] add current orders screen for staffs
 - [x] add the order page
 - [x] change error screen for user
-- [ ] add a current and previous order list
-- [ ] add banner for user if their account money is low
-- [ ] add banner for user if there is maintenance
+- [x] add a current and previous order list
+- [x] add banner for user if their account money is low
+- [x] add the customer profile page
 - [ ] add banner for user if it is not time to order
 - [ ] use form validation to handle the sign up form
 - [ ] send customers notifications when their order is ready
 - [ ] add a button to disable orders for a day
-- [ ] add the customer profile page
+- [ ] add banner for user if there is maintenance
 - [ ] add formulas (serving+drink, serving+snack...)
 - [ ] add favorites recommendations
 - [ ] recommend trending foods ?

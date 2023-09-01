@@ -6,6 +6,7 @@ import LoadingScreen from '../../components/loading';
 import PageLayout from '../../components/pageLayout';
 import { useAccount } from '../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../lib/hooks';
+import FullHeightScrollableContainer from '../../components/scrollableContainer';
 
 const AccountDetailsPage: NextPage = () => {
     const admin = useGuardIsAdmin();
@@ -23,10 +24,12 @@ const AccountDetailsPage: NextPage = () => {
 
             <main>
                 <PageLayout title="Details du compte" hideBottomNavigation backTo="/accounts">
-                    {account === undefined || admin === undefined
-                        ? <LoadingScreen />
-                        : <AccountDetails account={account} />
-                    }
+                    <FullHeightScrollableContainer>
+                        {account === undefined || admin === undefined
+                            ? <LoadingScreen />
+                            : <AccountDetails account={account} />
+                        }
+                    </FullHeightScrollableContainer>
                 </PageLayout>
             </main>
         </>
