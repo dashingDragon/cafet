@@ -40,8 +40,8 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] cash in the order when serving
 - [x] add snackbars when adding a product to the basket
 - [x] add modify order button
+- [x] put snackbar in the top level component
 - [ ] check if ingredientPrice is taken into account everywhere
-- [ ] put snackbar in the top level component
 - [ ] add cancel order button
 - [ ] make a backup script for the database
 - [ ] make a statistical graph for products
@@ -53,8 +53,8 @@ For the customer-side app :
 - [x] add a current and previous order list
 - [x] add banner for user if their account money is low
 - [x] add the customer profile page
+- [x] use form validation to handle the sign up form
 - [ ] add banner for user if it is not time to order
-- [ ] use form validation to handle the sign up form
 - [ ] send customers notifications when their order is ready
 - [ ] add a button to disable orders for a day
 - [ ] add banner for user if there is maintenance

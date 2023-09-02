@@ -1,12 +1,13 @@
 import { Alert, AlertColor, Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, IconButton, Menu, MenuItem, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
 import { Order, TransactionState } from '../../lib/transactions';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { formatMoney } from '../accountDetails';
 import { cashInTransaction, useFirestoreUser, useOrderEditor, useUpdateOrderStatus } from '../../lib/firestoreHooks';
 import {CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
 import { getIngredientPrice } from '../../lib/ingredients';
 import BasketModal from '../basketModal';
+import { SnackbarContext } from '../scrollableContainer';
 
 export const OrderItemLine: React.FC<{
     productWithQty: ProductWithQty,
@@ -48,7 +49,7 @@ export const OrderItemLine: React.FC<{
     }
 };
 
-const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, severity: AlertColor) => void, short?: boolean}> = ({order, setSnackbarMessage, short}) => {
+const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) => {
     const user = useFirestoreUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -57,6 +58,8 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);
     const [servingCount, setServingCount] = useState(0);
+
+    const setSnackbarMessage = useContext(SnackbarContext);
 
     const setOrderStatus = useUpdateOrderStatus();
     const editOrder = useOrderEditor();
@@ -252,39 +255,12 @@ const OrderItem: React.FC<{order: Order, setSnackbarMessage: (message: string, s
     );
 };
 
-type TransitionProps = Omit<SlideProps, 'direction'>;
-
-const TransitionRight = (props: TransitionProps) => {
-    return <Slide {...props} direction="right" />;
-};
-
 export const OrderList: React.FC<{orders: Order[], short?: boolean}> = ({orders, short}) => {
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [message, setMessage] = useState('');
-    const [severity, setSeverity] = useState<AlertColor>('success');
-
-    const setSnackbarMessage = (message: string, severity: AlertColor) => {
-        setMessage(message);
-        setSeverity(severity);
-        setSnackbarOpen(true);
-    };
-
     return (
         <Stack direction='column' gap='16px' alignItems={'center'}>
             {orders.map((order) => (
-                <OrderItem order={order} setSnackbarMessage={setSnackbarMessage} key={order.id} short={short} />
+                <OrderItem order={order} key={order.id} short={short} />
             ))}
-            <Snackbar
-                open={snackbarOpen}
-                onClose={() => setSnackbarOpen(false)}
-                TransitionComponent={TransitionRight}
-                key={'transition'}
-                autoHideDuration={6000}
-            >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }} variant="filled">
-                    {message}
-                </Alert>
-            </Snackbar>
         </Stack>
     );
 };

@@ -14,7 +14,8 @@ const MiniProductCard: React.FC<{
     setBasket: (m: Map<string, ProductWithQty>) => void,
     priceLimit: number,
     servingCount: number,
-}> = ({ productWithQty, basket, setBasket, priceLimit, servingCount }) => {
+    loading: boolean,
+}> = ({ productWithQty, basket, setBasket, priceLimit, servingCount, loading }) => {
     const theme = useTheme();
     const product = productWithQty.product;
     const products = useProducts();
@@ -80,8 +81,8 @@ const MiniProductCard: React.FC<{
                             loader={imageLoader}
                             src={'../../png/leaf.png'}
                             alt={'Vege'}
-                            height={36}
-                            width={36}
+                            height={18}
+                            width={18}
                             className={'icon'}
                         />
                     )}
@@ -100,7 +101,7 @@ const MiniProductCard: React.FC<{
                             <Button
                                 sx={{ borderRadius: '20px', padding: '4px 12px' }}
                                 onClick={() => removeQuantity(size)}
-                                disabled={!product.isAvailable || !productWithQty.sizeWithQuantities[size]}
+                                disabled={!product.isAvailable || !productWithQty.sizeWithQuantities[size] || loading}
                                 title="Retirer du panier"
                             >
                                 <Remove fontSize='small' />
@@ -116,6 +117,7 @@ const MiniProductCard: React.FC<{
                                     price > priceLimit
                                     || (productStock !== undefined && productWithQty.sizeWithQuantities[size] >= productStock)
                                     || (product.type === 'serving' && servingCount >= 2)
+                                    || loading
                                 }
                             >
                                 <Add fontSize='small'  />

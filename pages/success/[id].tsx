@@ -20,7 +20,7 @@ const SuccessPage: NextPage = () => {
             </Head>
 
             <main>
-                <Stack direction="column" justifyContent="center" height="100%" m={4}>
+                <Stack direction="column" justifyContent="center" height="100%" mt={24}>
                     <Image
                         loader={imageLoader}
                         src={'/svg/success.svg'}
@@ -38,7 +38,7 @@ const SuccessPage: NextPage = () => {
                         width={120}
                         height={120}
                     />
-                    <Button variant="contained" sx={{ m: '32px' }} onClick={() => router.replace(user?.isAdmin ? `/accounts/${id}` : '/')}>
+                    <Button variant="contained" sx={{ m: '32px', borderRadius: '20px' }} onClick={() => router.replace(user?.isAdmin ? `/accounts/${id}` : '/')}>
                         Retour
                     </Button>
                 </Stack>

@@ -207,13 +207,13 @@ export const CustomerView: React.FC<{
             {/* Today's orders */}
             {currentOrders.length ? (
                 <>
-                    <Typography variant="body1" px={2} mb={2}>
+                    <Typography variant="body1" mb={2} mt={4}>
                         {'Aujourd\'hui'}
                     </Typography>
                     <Stack direction='column' alignItems={'center'} gap={2} mb={4}>
                         {currentOrders.map((transaction, i) => (
                             <Card key={i} variant={transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
-                                width: '320px',
+                                width: '100%',
                                 position: 'relative',
                                 borderRadius: '20px',
                                 display: 'flex',
@@ -256,7 +256,7 @@ export const CustomerView: React.FC<{
                                         </Typography>
                                         {transaction.admin?.firstName ? (
                                             <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                                Passée par {transaction.admin.firstName}
+                                                Encaissée par {transaction.admin.firstName}
                                             </Typography>
                                         ) : null
                                         }
@@ -328,7 +328,7 @@ export const CustomerView: React.FC<{
                                         </Typography>
                                         {transaction.admin?.firstName ? (
                                             <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                        Passée par {transaction.admin.firstName}
+                                                Encaissée par {transaction.admin.firstName}
                                             </Typography>
                                         ) : null
                                         }

@@ -65,6 +65,7 @@ const BasketModal: React.FC<{
                                 setBasket={setBasket}
                                 priceLimit={account.balance - basketPrice}
                                 servingCount={servingCount}
+                                loading={loading}
                             />
                         ))}
                     </Stack>

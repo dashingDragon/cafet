@@ -1,6 +1,6 @@
 import { ChevronRight, ShoppingBasket } from '@mui/icons-material';
-import { Alert, AlertColor, Box, Button, Slide, SlideProps, Snackbar, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { Alert, AlertColor, Box, Button, Typography } from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
 import { ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
@@ -9,12 +9,7 @@ import { getIngredientPrice } from '../lib/ingredients';
 import { useRouter } from 'next/router';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { ProductShortCardList } from './lists/productShortCardList';
-
-type TransitionProps = Omit<SlideProps, 'direction'>;
-
-const TransitionRight = (props: TransitionProps) => {
-    return <Slide {...props} direction="right" />;
-};
+import { SnackbarContext } from './scrollableContainer';
 
 const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
     // State
@@ -22,17 +17,10 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);
     const [servingCount, setServingCount] = useState(0);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [message, setMessage] = useState('');
-    const [severity, setSeverity] = useState<AlertColor>('success');
     const router = useRouter();
     const makeTransaction = useMakeTransaction();
 
-    const setSnackbarMessage = (message: string, severity: AlertColor) => {
-        setMessage(message);
-        setSeverity(severity);
-        setSnackbarOpen(true);
-    };
+    const setSnackbarMessage = useContext(SnackbarContext);
 
     const makeOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
         if (basket.values().next()) {
@@ -117,17 +105,6 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
                     </Box>
                 </Button>
             )}
-            <Snackbar
-                open={snackbarOpen}
-                onClose={() => setSnackbarOpen(false)}
-                TransitionComponent={TransitionRight}
-                key={'transition'}
-                autoHideDuration={6000}
-            >
-                <Alert onClose={() => setSnackbarOpen(false)} severity={severity} sx={{ width: '100%' }} variant="filled">
-                    {message}
-                </Alert>
-            </Snackbar>
 
             {/* Basket Modal */}
             <BasketModal

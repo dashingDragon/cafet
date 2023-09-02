@@ -338,7 +338,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     </Typography>
                                     {transaction.admin ? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                            Passée par {transaction.admin.firstName}
+                                            Encaissée par {transaction.admin.firstName}
                                         </Typography>
                                     ) : null
                                     }
@@ -362,7 +362,7 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     </Typography>
                                     {transaction.admin ? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                            Passée par {transaction.admin.firstName}
+                                            Encaissée par {transaction.admin.firstName}
                                         </Typography>
                                     ) : null
                                     }

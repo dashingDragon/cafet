@@ -18,13 +18,13 @@ const AccountPage: NextPage = () => {
 
             <main>
                 <PageLayout title={'Kafet'}>
-                    {admin === undefined ? (
-                        <FullHeightScrollableContainer>
+                    <FullHeightScrollableContainer>
+                        {admin === undefined ? (
                             <LoadingScreen />
-                        </FullHeightScrollableContainer>
-                    ) : (
-                        <AccountList />
-                    )}
+                        ) : (
+                            <AccountList />
+                        )}
+                    </FullHeightScrollableContainer>
                 </PageLayout>
             </main>
         </>
