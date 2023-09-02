@@ -21,9 +21,11 @@ const OrderPage: NextPage = () => {
 
                 {!firestoreUser
                     ? (
-                        <FullHeightScrollableContainer>
-                            <LoadingScreen />
-                        </FullHeightScrollableContainer>
+                        <PageLayout hideTopBar hideBottomNavigation>
+                            <FullHeightScrollableContainer>
+                                <LoadingScreen />
+                            </FullHeightScrollableContainer>
+                        </PageLayout>
                     )
                     : <>
                         {firestoreUser.isStaff && firestoreUser.isAvailable ? (

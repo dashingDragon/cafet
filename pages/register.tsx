@@ -3,6 +3,8 @@ import Head from 'next/head';
 import Register from '../components/register';
 import { useGuardIsConnected } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
+import PageLayout from '../components/pageLayout';
+import FullHeightScrollableContainer from '../components/scrollableContainer';
 
 const RegisterPage: NextPage = () => {
     const user = useGuardIsConnected();
@@ -15,10 +17,14 @@ const RegisterPage: NextPage = () => {
             </Head>
 
             <main>
-                {user === null
-                    ? <LoadingScreen />
-                    : <Register />
-                }
+                <PageLayout hideBottomNavigation hideTopBar>
+                    <FullHeightScrollableContainer>
+                        {user === null
+                            ? <LoadingScreen />
+                            : <Register />
+                        }
+                    </FullHeightScrollableContainer>
+                </PageLayout>
             </main>
         </>
     );

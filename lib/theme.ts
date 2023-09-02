@@ -44,7 +44,7 @@ const createThemeMode = (mode: PaletteMode) => {
     });
 
     theme.typography.h3 = {
-        fontSize: '36px',
+        fontSize: '24px',
         fontWeight: 700,
         fontFamily: `"Poppins", "sans-serif"`,
     };
