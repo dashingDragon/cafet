@@ -4,8 +4,8 @@
     "display": "fullscreen",
     "scope": "/",
     "start_url": "/",
-    "name": "Kafet",
-    "short_name": "Kafet",
+    "name": "Cafet",
+    "short_name": "Cafet",
     "description": "Oui",
     "prefer_related_applications": false,
     "icons": [

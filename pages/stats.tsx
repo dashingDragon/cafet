@@ -12,8 +12,8 @@ const StatsPage: NextPage = () => {
     return (
         <>
             <Head>
-                <title>{'Kafet'}</title>
-                <meta name="description" content="Kafet App" />
+                <title>{'Cafet'}</title>
+                <meta name="description" content="Cafet App" />
             </Head>
 
             <main>

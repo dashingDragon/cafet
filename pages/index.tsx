@@ -13,8 +13,8 @@ const OrderPage: NextPage = () => {
     return (
         <>
             <Head>
-                <title>Kafet</title>
-                <meta name="description" content="Kafet App" />
+                <title>Cafet</title>
+                <meta name="description" content="Cafet App" />
             </Head>
 
             <main>
@@ -29,7 +29,7 @@ const OrderPage: NextPage = () => {
                     )
                     : <>
                         {firestoreUser.isStaff && firestoreUser.isAvailable ? (
-                            <PageLayout title={'Kafet'} hideBottomNavigation={!firestoreUser?.isAdmin}>
+                            <PageLayout title={'Cafet'} hideBottomNavigation={!firestoreUser?.isAdmin}>
                                 <FullHeightScrollableContainer>
                                     <StaffView />
                                 </FullHeightScrollableContainer>

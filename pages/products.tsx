@@ -29,12 +29,12 @@ const ProductListPage: NextPage = () => {
     return (
         <>
             <Head>
-                <title>Kafet</title>
-                <meta name="description" content="Kafet App" />
+                <title>Cafet</title>
+                <meta name="description" content="Cafet App" />
             </Head>
 
             <main>
-                <PageLayout title={'Kafet'}>
+                <PageLayout title={'Cafet'}>
                     <FullHeightScrollableContainer sx={{ position: 'relative', pb: '128px' }}>
                         {products === undefined || admin === undefined ? (
                             <LoadingScreen />

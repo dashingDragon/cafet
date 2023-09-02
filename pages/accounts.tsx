@@ -12,12 +12,12 @@ const AccountPage: NextPage = () => {
     return (
         <>
             <Head>
-                <title>{'Kafet'}</title>
-                <meta name="description" content="Kafet App" />
+                <title>{'Cafet'}</title>
+                <meta name="description" content="Cafet App" />
             </Head>
 
             <main>
-                <PageLayout title={'Kafet'}>
+                <PageLayout title={'Cafet'}>
                     <FullHeightScrollableContainer>
                         {admin === undefined ? (
                             <LoadingScreen />
