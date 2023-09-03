@@ -41,7 +41,7 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] add snackbars when adding a product to the basket
 - [x] add modify order button
 - [x] put snackbar in the top level component
-- [ ] show if an account is linked to a google account
+- [x] show if an account is linked to a google account
 - [x] check if ingredientPrice is taken into account everywhere
 - [ ] use better images
 - [ ] add cancel order button

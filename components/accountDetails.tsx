@@ -1,5 +1,5 @@
 import { AccountBalanceWallet, AccountCircle, AddModerator, Coffee, Cookie, DeleteForever, Edit, Error, Euro, LunchDining, PointOfSale } from '@mui/icons-material';
-import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { Account, MAX_MONEY_PER_ACCOUNT, School } from '../lib/accounts';
@@ -7,6 +7,8 @@ import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useMak
 import AccountEditDialog from './dialogs/accountEditDialog';
 import { TransactionOrder, TransactionRecharge, TransactionType } from '../lib/transactions';
 import { useGuardIsAdmin } from '../lib/hooks';
+import Image from 'next/image';
+import { imageLoader } from '../pages/_app';
 
 const schoolToImage = (school: School) => {
     return `/schools/${School[school].toLowerCase()}.png`;
@@ -37,17 +39,30 @@ const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
                         {account.phone !== '' && (
                             <Typography variant="overline" sx={{ textTransform: 'none' }}>{account.phone}</Typography>
                         )}
-                        {account.isStaff && (
-                            <Chip
-                                variant="outlined"
-                                color={'warning'}
-                                icon={<AccountCircle sx={{ marginLeft: 2 }} />}
-                                label={'Staff'}
-                                sx={{
-                                    width: '100px',
-                                }}
-                            />
-                        )}
+                        <Stack direction="row">
+                            {account.isStaff && (
+                                <Chip
+                                    variant="outlined"
+                                    color={'warning'}
+                                    icon={<AccountCircle sx={{ marginLeft: 2 }} />}
+                                    label={'Staff'}
+                                    sx={{
+                                        width: '100px',
+                                        mr: 2,
+                                    }}
+                                />
+                            )}
+                            {account.isLinkedToGoogle && (
+                                <Image
+                                    loader={imageLoader}
+                                    src={'../png/google.png'}
+                                    alt={'Vege'}
+                                    height={32}
+                                    width={32}
+                                    className={'icon'}
+                                />
+                            )}
+                        </Stack>
                     </Box>
                 </Box>
             </CardContent>
@@ -371,6 +386,11 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                         );
                     }
                 })}
+                {transactions.length === 0 && (
+                    <Typography>
+                        Cet utilisateur n&apos;a jamais effectué de transaction.
+                    </Typography>
+                )}
             </CardContent>
         </Card>
     );
