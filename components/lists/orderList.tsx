@@ -1,13 +1,13 @@
-import { Alert, AlertColor, Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, IconButton, Menu, MenuItem, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
+import {  Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, IconButton, Menu, MenuItem, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
 import { Order, TransactionState } from '../../lib/transactions';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { formatMoney } from '../accountDetails';
-import { cashInTransaction, useFirestoreUser, useOrderEditor, useUpdateOrderStatus } from '../../lib/firestoreHooks';
+import { cashInTransaction, useFirestoreUser, useUpdateOrderStatus } from '../../lib/firestoreHooks';
 import {Cancel, CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
 import { getIngredientPrice } from '../../lib/ingredients';
-import BasketModal from '../basketModal';
 import { SnackbarContext } from '../scrollableContainer';
+import { useRouter } from 'next/router';
 
 export const OrderItemLine: React.FC<{
     productWithQty: ProductWithQty,
@@ -52,19 +52,15 @@ export const OrderItemLine: React.FC<{
 
 const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) => {
     const user = useFirestoreUser();
+    const router = useRouter();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
     const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-    const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
-    const [basketOpen, setBasketOpen] = useState(false);
-    const [basketPrice, setBasketPrice] = useState(0);
-    const [servingCount, setServingCount] = useState(0);
 
     const setSnackbarMessage = useContext(SnackbarContext);
-
     const setOrderStatus = useUpdateOrderStatus();
-    const editOrder = useOrderEditor();
+
 
     const handleOpenMenu = (event: { currentTarget: React.SetStateAction<HTMLElement | null>; }) => {
         if (user?.isAdmin) {
@@ -103,66 +99,6 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
         }
         setCancelDialogOpen(false);
     };
-
-    const openBasketModal = () => {
-        console.log('edit order');
-        console.log(order.transaction);
-        setBasketOpen(true);
-    };
-
-    const handleEditOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
-        if (basket.values().next()) {
-            const payload = {
-                order: order.transaction,
-                productsWithQty: Array.from(basket.values())
-                    .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
-                price: basketPrice,
-                needPreparation: needPreparation,
-            };
-            console.log(payload);
-            setLoading(true);
-            const {success, message} = await editOrder(payload);
-            if (success) {
-                setSnackbarMessage(message, 'success');
-            } else {
-                setSnackbarMessage(message, 'error');
-            }
-            setBasketOpen(false);
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        let priceProducts = 0;
-        let nbServings = 0;
-
-        for (const productWithQty of basket.values()) {
-            if (productWithQty.product.sizeWithPrices && productWithQty.sizeWithQuantities) {
-                for (const [size, quantity] of Object.entries(productWithQty.sizeWithQuantities)) {
-                    const priceForSize = productWithQty.product.sizeWithPrices[size];
-                    const ingredientsPrice = getIngredientPrice(productWithQty.product.ingredients);
-                    if (priceForSize && quantity) {
-                        priceProducts += productWithQty.product.sizeWithPrices[size] * quantity + ingredientsPrice;
-                    }
-
-                    if (productWithQty.product.type === 'serving') {
-                        nbServings += quantity;
-                    }
-                }
-            }
-        }
-
-        setBasketPrice(priceProducts);
-        setServingCount(nbServings);
-    }, [basket]);
-
-    useEffect(() => {
-        for (const productWithQty of order.transaction.productsWithQty) {
-            basket.set(productWithQty.product.id, JSON.parse(JSON.stringify(productWithQty)));
-        }
-        setBasket(new Map(basket));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     return (
         <Card variant={order.transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
@@ -215,7 +151,7 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
                             {/* Edit button */}
                             <IconButton>
                                 <EditOutlined
-                                    onClick={openBasketModal}
+                                    onClick={() => router.push(`/edit/${order.transaction.id}`)}
                                     fontSize='small'
                                     sx={(theme) => ({
                                         color: theme.colors.main,
@@ -281,17 +217,6 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
                     <Button onClick={setStatusCancelled} variant="contained">Oui</Button>
                 </DialogActions>
             </Dialog>
-
-            <BasketModal
-                open={basketOpen}
-                setBasketOpen={setBasketOpen}
-                basket={basket}
-                setBasket={setBasket}
-                basketPrice={basketPrice}
-                servingCount={servingCount}
-                actionCallback={handleEditOrder}
-                account={order.transaction.customer}
-            />
         </Card>
     );
 };

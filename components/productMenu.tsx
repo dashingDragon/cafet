@@ -10,8 +10,10 @@ import { useRouter } from 'next/router';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { ProductShortCardList } from './lists/productShortCardList';
 import { SnackbarContext } from './scrollableContainer';
+import { TransactionOrder } from '../lib/transactions';
+import { useOrderEditor } from '../lib/firestoreHooks';
 
-const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
+const ProductMenu: React.FC<{ account: Account, order?: TransactionOrder }> = ({ account, order }) => {
     // State
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
@@ -19,10 +21,11 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
     const [servingCount, setServingCount] = useState(0);
     const router = useRouter();
     const makeTransaction = useMakeTransaction();
+    const editOrder = useOrderEditor();
 
     const setSnackbarMessage = useContext(SnackbarContext);
 
-    const makeOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
+    const handleMakeOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
         if (basket.values().next()) {
             const payload = {
                 account: account,
@@ -30,14 +33,35 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
                     .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
                 needPreparation: needPreparation,
             };
-            console.log(payload);
             setLoading(true);
             const result = await makeTransaction(payload);
-            console.log(result);
+            setLoading(false);
             if (result.data.success) {
                 router.push(`/success/${account.id}`);
             } else {
                 router.push(`/error/${account.id}`);
+            }
+        }
+    };
+
+    const handleEditOrder = async (needPreparation: boolean, setLoading: (b: boolean) => void) => {
+        if (order && basket.values().next()) {
+            const payload = {
+                order: order as TransactionOrder,
+                productsWithQty: Array.from(basket.values())
+                    .filter((s) => Object.values(s.sizeWithQuantities).some(value => value !== null && value !== undefined && value !== 0)),
+                price: basketPrice,
+                needPreparation: needPreparation,
+            };
+            setLoading(true);
+            const {success, message} = await editOrder(payload);
+            setLoading(false);
+            if (success) {
+                setSnackbarMessage(message, 'success');
+                router.back();
+            } else {
+                setSnackbarMessage(message, 'error');
+                router.back();
             }
         }
     };
@@ -66,6 +90,16 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
         setBasketPrice(priceProducts);
         setServingCount(nbServings);
     }, [basket]);
+
+    useEffect(() => {
+        if (order) {
+            for (const productWithQty of (order as TransactionOrder).productsWithQty) {
+                basket.set(productWithQty.product.id, JSON.parse(JSON.stringify(productWithQty)));
+            }
+            setBasket(new Map(basket));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [order]);
 
     // Compute money stuff
     const canBeCompleted = () => {
@@ -115,7 +149,8 @@ const ProductMenu: React.FC<{ account: Account}> = ({ account }) => {
                 account={account}
                 basketPrice={basketPrice}
                 servingCount={servingCount}
-                actionCallback={makeOrder}
+                actionCallback={order ? handleEditOrder : handleMakeOrder}
+                order={order}
             />
         </>
     );

@@ -1,12 +1,13 @@
 import { Add, Clear, Remove } from '@mui/icons-material';
 import { Box, Button, ButtonGroup, CardMedia, Dialog, DialogActions, DialogTitle, IconButton, Stack, Typography, useTheme } from '@mui/material';
 import { ProductWithQty } from '../../lib/products';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getIngredientPrice } from '../../lib/ingredients';
 import { formatMoney } from '../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
 import { useProducts } from '../../lib/firestoreHooks';
+import { TransactionOrder } from '../../lib/transactions';
 
 const MiniProductCard: React.FC<{
     productWithQty: ProductWithQty,
@@ -15,18 +16,30 @@ const MiniProductCard: React.FC<{
     priceLimit: number,
     servingCount: number,
     loading: boolean,
-}> = ({ productWithQty, basket, setBasket, priceLimit, servingCount, loading }) => {
+    order?: TransactionOrder,
+}> = ({ productWithQty, basket, setBasket, priceLimit, servingCount, loading, order }) => {
     const theme = useTheme();
     const product = productWithQty.product;
     const products = useProducts();
-    const productStock = products.filter(p => p.id === productWithQty.product.id).length > 0
-        ? products.filter(p => p.id === productWithQty.product.id)[0].stock
-        : undefined;
+    let stockReserved = 0;
+    if (order) {
+        stockReserved = Object.values(order.productsWithQty.filter(p => p.product.id === product.id)[0].sizeWithQuantities).reduce((a, b) => a + b);
+    }
+    const [productStock, setProductStock] = useState<number | undefined>(undefined);
+
+    useEffect(() => {
+        if (products.length) {
+            const productInDb = products.filter(p => p.id === product.id)[0];
+            setProductStock(productInDb.stock
+                ? productInDb.stock + stockReserved
+                : undefined);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [products]);
 
     const addQuantity = (size: string) => {
         console.log('add quantity');
         const basketItem = basket.get(product.id);
-        console.log(basketItem);
         if (basketItem) {
             basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] + 1,
             setBasket(new Map(basket.set(basketItem.product.id, basketItem)));

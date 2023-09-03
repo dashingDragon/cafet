@@ -24,11 +24,9 @@ export const useFirestoreUser = () => {
 
     useEffect(() => {
         if (user) {
-            console.log(user);
             const q = doc(db, `accounts/${user.uid}`).withConverter(accountConverter);
             return onSnapshot(q, (snapshot) => {
                 const firestoreUserData = snapshot.data();
-                console.log(firestoreUserData);
                 if (!firestoreUserData) {
                     console.error('Failed to fetch firestore user data.');
                     router.replace('/register');
@@ -635,7 +633,7 @@ export const useUpdateOrderStatus = () => {
     }> => {
         console.log(`Updating transaction ${transaction.id} status`);
 
-        if (state !== TransactionState.Served) {
+        if (state === TransactionState.Served) {
             try {
                 await updateDoc(doc(db, `transactions/${transaction.id}`), {
                     state,
@@ -644,25 +642,31 @@ export const useUpdateOrderStatus = () => {
             } catch (error) {
                 return {success: false, message: 'Error'};
             }
-        } else {
+        } else if (state === TransactionState.Cancelled) {
+            console.log(transaction);
             try {
                 const db = getFirestore();
                 const batch = writeBatch(db);
-                const productsWithQty = transaction.productsWithQty;
 
                 // Update the products stocks.
-                for (let i = 0; i < productsWithQty.length; i++) {
-                    const productRef = doc(db, `products/${productsWithQty[i].product.id}`).withConverter(productConverter);
+                for (const productWithQty of transaction.productsWithQty) {
+                    const productRef = doc(db, `products/${productWithQty.product.id}`).withConverter(productConverter);
                     const productData = (await getDoc(productRef)).data();
                     if (!productData) {
                         return {success: false, message: 'Error'};
                     }
-                    if (productData.stock) {
+                    if (productData.stock !== undefined) {
                         batch.update(productRef, {
-                            stock: productData.stock + Object.values(productsWithQty[i].sizeWithQuantities).reduce((a, b) => a + b),
+                            stock: productData.stock + Object.values(productWithQty.sizeWithQuantities).reduce((a, b) => a + b),
                         });
                     }
                 }
+
+                // Update the transaction state.
+                batch.update(doc(db, `transactions/${transaction.id}`), {
+                    state,
+                });
+
                 try {
                     await batch.commit();
                     return {success: true, message: 'Order cancelled'};
@@ -673,6 +677,8 @@ export const useUpdateOrderStatus = () => {
             } catch (error) {
                 return {success: false, message: 'Error'};
             }
+        } else {
+            return {success: false, message: 'New state not compatible.'};
         }
     };
 };
@@ -772,6 +778,27 @@ export const cashInTransaction = async (transaction: TransactionOrder): Promise<
     } catch (error) {
         return {success: false, message: 'Error'};
     }
+};
+
+export const useOrder = (orderId: string) => {
+    const db = getFirestore();
+
+    const [order, setOrder] = useState<Transaction>();
+
+    useEffect(() => {
+        const q = doc(db, `transactions/${orderId}`).withConverter(transactionConverter);
+        return onSnapshot(q, (snapshot) => {
+
+            const _order = snapshot.data();
+            console.log(orderId);
+            if (_order) {
+                setOrder(_order);
+            }
+
+        });
+    }, [db, orderId]);
+
+    return order;
 };
 
 type OrderPayload = {

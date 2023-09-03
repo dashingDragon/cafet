@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { OrderItemLine } from './lists/orderList';
 import { formatMoney } from './accountDetails';
 import { useFirestoreUser } from '../lib/firestoreHooks';
+import { TransactionOrder } from '../lib/transactions';
 
 const BasketModal: React.FC<{
     open: boolean,
@@ -17,7 +18,8 @@ const BasketModal: React.FC<{
     servingCount: number,
     actionCallback: (b: boolean, setLoading: (b: boolean) => void) => void,
     account: Account,
-}> = ({open, setBasketOpen, basket, setBasket, account, basketPrice, servingCount, actionCallback }) => {
+    order?: TransactionOrder,
+}> = ({open, setBasketOpen, basket, setBasket, account, basketPrice, servingCount, actionCallback, order }) => {
     const [loading, setLoading] = useState(false);
     const [needPreparation, setNeedPreparation] = useState(true);
     const user = useFirestoreUser();
@@ -66,6 +68,7 @@ const BasketModal: React.FC<{
                                 priceLimit={account.balance - basketPrice}
                                 servingCount={servingCount}
                                 loading={loading}
+                                order={order}
                             />
                         ))}
                     </Stack>
