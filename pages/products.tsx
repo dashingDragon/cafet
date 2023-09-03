@@ -56,8 +56,8 @@ const ProductListPage: NextPage = () => {
                                     color="primary"
                                     sx={{
                                         position: 'fixed',
-                                        bottom: 70,
-                                        right: 50,
+                                        bottom: 72,
+                                        right: 16,
                                     }}
                                 >
                                     <Add />

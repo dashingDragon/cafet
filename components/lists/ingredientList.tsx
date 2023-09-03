@@ -73,6 +73,7 @@ const IngredientItem: React.FC<{
                 position: 'relative',
                 borderRadius: '20px',
             }}>
+                {/* Title and price */}
                 <CardHeader
                     title={
                         <>
@@ -103,6 +104,7 @@ const IngredientItem: React.FC<{
                     })}
                 />
 
+                {/* Chips */}
                 {hasContents && (
                     <CardContent sx={{ py: 0 }}>
                         {ingredient.allergen  && (
@@ -192,8 +194,10 @@ const IngredientList: React.FC<{
                 direction={'row'}
                 justifyContent={'flex-start'}
                 sx={{
-                    overflowX: 'auto',
                     flexShrink: 0,
+                    overflowX: 'auto',
+                    marginRight: '-32px',
+                    paddingRight: '32px',
                     scrollbarWidth: 'none',
                     '&::-webkit-scrollbar': {
                         display: 'none',

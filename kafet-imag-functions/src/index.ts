@@ -5,7 +5,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
 import {MakeTransactionPayload, Transaction, TransactionState, TransactionType, transactionConverter} from '../../lib/transactions';
-import {Account, MakeAccountPayload, accountConverter} from '../../lib/accounts';
+import {Account, MakeAccountPayload, SetFavoritesPayload, accountConverter} from '../../lib/accounts';
 import {Product, productConverter} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
 import {getIngredientPrice} from '../../lib/ingredients';
@@ -61,6 +61,8 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
         isStaff: false,
         isAdmin: false,
         isAvailable: false,
+        isLinkedToGoogle: true,
+        favorites: [],
         balance: 0,
         stats: {
             totalMoneySpent: 0,
@@ -122,6 +124,31 @@ export const getOrderHistory = functions.https.onCall(async (data, context) => {
     } catch (error) {
         console.error(error);
         return {success: false, orders: undefined};
+    }
+});
+
+/**
+ * Update the list of favorite foods of the customer.
+ */
+export const setFavorites = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated have favorite servings.');
+    }
+    const db = admin.firestore();
+    const googleUid = context.auth.uid;
+
+    const {favorites} = (data as SetFavoritesPayload);
+
+    try {
+        const accountRef = db.doc(`accounts/${googleUid}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
+        await accountRef.update({
+            favorites: favorites,
+        });
+
+        return {success: true};
+    } catch (error) {
+        console.error(error);
+        return {success: false};
     }
 });
 

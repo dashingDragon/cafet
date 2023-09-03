@@ -1,4 +1,4 @@
-import { Add } from '@mui/icons-material';
+import { Add, FavoriteBorderOutlined, FavoriteOutlined } from '@mui/icons-material';
 import { AlertColor, Box, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import { useState } from 'react';
 import { getIngredientPrice } from '../../lib/ingredients';
@@ -6,6 +6,7 @@ import { Product, ProductWithQty } from '../../lib/products';
 import { formatMoney } from './../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
+import { useSetFavorites } from '../../lib/firebaseFunctionHooks';
 
 export const ShortProductCard: React.FC<{
     product: Product,
@@ -14,7 +15,9 @@ export const ShortProductCard: React.FC<{
     priceLimit: number,
     servingCount: number,
     setSnackbarMessage: (message: string, severity: AlertColor) => void,
-}> = ({ product, basket, setBasket, priceLimit, servingCount, setSnackbarMessage }) => {
+    favorites: Set<string>,
+    setFavorites: (s: Set<string>) => void,
+}> = ({ product, basket, setBasket, priceLimit, servingCount, setSnackbarMessage, favorites, setFavorites }) => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const basketItem = basket.get(product.id);
@@ -51,6 +54,15 @@ export const ShortProductCard: React.FC<{
         handleCloseMenu();
     };
 
+    const handleChangeFavorite = () => {
+        if (favorites.has(product.id)) {
+            favorites.delete(product.id);
+        } else {
+            favorites.add(product.id);
+        }
+        setFavorites(new Set(favorites));
+    };
+
     return (
         <Card variant={isReallyAvailable ? 'elevation' : 'outlined'} sx={{
             width: 200,
@@ -59,6 +71,7 @@ export const ShortProductCard: React.FC<{
             borderRadius: '20px',
         }}>
 
+            {/* Image */}
             <Box sx={{
                 ...(!isReallyAvailable && {
                     position: 'relative',
@@ -84,6 +97,24 @@ export const ShortProductCard: React.FC<{
                     }}
                 />
             </Box>
+
+            <Box sx={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                borderBottomLeftRadius: '20px',
+                background: 'hsla(0, 0%, 0%, 0.5)',
+            }}>
+                <IconButton onClick={handleChangeFavorite}>
+                    {favorites.has(product.id) ? (
+                        <FavoriteOutlined sx={{ color: 'hsla(4, 93%, 52%, 1)' }} />
+                    ) : (
+                        <FavoriteBorderOutlined />
+                    )}
+                </IconButton>
+            </Box>
+
+            {/* Name and price */}
             <CardHeader
                 title={
                     <>
@@ -150,7 +181,7 @@ export const ShortProductCard: React.FC<{
                     ml: 0,
                 },
             }}>
-                {/* Allergen info*/}
+                {/* Allergen info */}
                 {product.allergen  && (
                     <Chip
                         variant='outlined'

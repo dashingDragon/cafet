@@ -45,6 +45,8 @@ export type Account = {
     phone: string;
     email: string;
     school: School;
+    isLinkedToGoogle: boolean;
+    favorites: Array<string>;
     balance: number;
     stats: AccountStats;
 }
@@ -55,6 +57,10 @@ export type MakeAccountPayload = {
     phone: string;
     email: string;
     school: School;
+}
+
+export type SetFavoritesPayload = {
+    favorites: Array<string>;
 }
 
 export const accountConverter: FirestoreDataConverter<Account> = {
@@ -69,6 +75,8 @@ export const accountConverter: FirestoreDataConverter<Account> = {
             phone,
             email,
             school,
+            isLinkedToGoogle,
+            favorites,
             balance,
             stats: {
                 totalMoneySpent,
@@ -87,6 +95,8 @@ export const accountConverter: FirestoreDataConverter<Account> = {
             phone,
             email,
             school,
+            isLinkedToGoogle,
+            favorites,
             balance,
             stats: {
                 totalMoneySpent,
@@ -97,11 +107,11 @@ export const accountConverter: FirestoreDataConverter<Account> = {
         };
     },
     toFirestore: (account) => {
-        const { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, balance, stats } = account;
+        const { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, isLinkedToGoogle, favorites, balance, stats } = account;
 
         if (id) {
-            return { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, balance, stats };
+            return { id, firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, isLinkedToGoogle, favorites, balance, stats };
         }
-        return { firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, balance, stats };
+        return { firstName, lastName, isStaff, isAdmin, isAvailable, phone, email, school, isLinkedToGoogle, favorites, balance, stats };
     },
 };

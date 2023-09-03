@@ -129,12 +129,14 @@ const ProductItem: React.FC<{
             />
 
             <CardContent sx={{ pb: 0 }}>
+                {/* Description */}
                 {product.description !== undefined && (
                     <Typography variant="body1" mb="16px" fontSize="10px">
                         {product.description}
                     </Typography>
                 )}
 
+                {/* Chips */}
                 <Stack gap={1} alignItems={'flex-start'}>
                     {product.allergen  && (
                         <Chip
@@ -249,8 +251,10 @@ const ProductList: React.FC<{
                 direction={'row'}
                 justifyContent={'flex-start'}
                 sx={{
-                    overflowX: 'auto',
                     flexShrink: 0,
+                    overflowX: 'auto',
+                    marginRight: '-32px',
+                    paddingRight: '32px',
                     scrollbarWidth: 'none',
                     '&::-webkit-scrollbar': {
                         display: 'none',

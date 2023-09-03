@@ -269,6 +269,8 @@ export const useAccountMaker = () => {
             phone,
             email,
             school,
+            isLinkedToGoogle: false,
+            favorites: [],
             balance: 0,
             stats: {
                 totalMoneySpent: 0,

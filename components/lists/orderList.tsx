@@ -16,18 +16,19 @@ export const OrderItemLine: React.FC<{
     showIngredients?: boolean,
     short?: boolean
 }> = ({ productWithQty, quantity, size, showIngredients, short }) => {
-    if (productWithQty.product.type === 'serving') {
+    const product = productWithQty.product;
+    if (product.type === 'serving') {
         return (
             <>
-                <Stack key={productWithQty.product.name} direction="row" justifyContent={'space-between'}>
+                <Stack key={product.name} direction="row" justifyContent={'space-between'}>
                     <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
-                        {quantity} x {productWithQty.product.name}: <strong>{size}</strong>
+                        {quantity} x {product.name}: <strong>{size}</strong>
                     </Typography>
                     {!short && (
-                        <Typography variant="body2">{formatMoney(quantity * (productWithQty.product.sizeWithPrices[size] +  getIngredientPrice(productWithQty.product.ingredients)))}</Typography>
+                        <Typography variant="body2">{formatMoney(quantity * (product.sizeWithPrices[size] +  getIngredientPrice(product.ingredients)))}</Typography>
                     )}
                 </Stack>
-                {showIngredients && productWithQty.product.ingredients && productWithQty.product.ingredients.map((ingredient) =>
+                {showIngredients && product.ingredients && product.ingredients.map((ingredient) =>
                     <Stack key={ingredient.name} direction="row" justifyContent={'space-between'}>
                         <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>· {ingredient.name}</Typography>
                         {ingredient.price > 0 && <Typography variant="body2">+{formatMoney(ingredient.price)}</Typography>}
@@ -37,12 +38,12 @@ export const OrderItemLine: React.FC<{
         );
     } else {
         return (
-            <Stack key={productWithQty.product.name} direction="row" justifyContent={'space-between'}>
+            <Stack key={product.name} direction="row" justifyContent={'space-between'}>
                 <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>
-                    {quantity} x {productWithQty.product.name}: <strong>{size}</strong>
+                    {quantity} x {product.name}: <strong>{size}</strong>
                 </Typography>
                 {!short && (
-                    <Typography variant="body2">{formatMoney(quantity * (productWithQty.product.sizeWithPrices[size] +  getIngredientPrice(productWithQty.product.ingredients)))}</Typography>
+                    <Typography variant="body2">{formatMoney(quantity * (product.sizeWithPrices[size] +  getIngredientPrice(product.ingredients)))}</Typography>
                 )}
             </Stack>
         );
@@ -153,7 +154,7 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
 
     return (
         <Card variant={order.transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
-            width: '320px',
+            width: '100%',
             position: 'relative',
             borderRadius: '20px',
             display: 'flex',
@@ -174,12 +175,20 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
                 <Box mb={2}>
                     {order.transaction.productsWithQty.map((productWithQty) => (
                         Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
-                            (quantity > 0 && <OrderItemLine key={productWithQty.id} productWithQty={productWithQty} quantity={quantity} size={size} showIngredients={!short} short={short} /> ))))
-                    }
+                            (quantity > 0 && (
+                                <OrderItemLine
+                                    key={productWithQty.id}
+                                    productWithQty={productWithQty}
+                                    quantity={quantity}
+                                    size={size}
+                                    showIngredients={!short}
+                                    short={short}
+                                />
+                            ))))
+                    )}
                 </Box>
 
                 <Box display="flex" justifyContent="flex-end" flexDirection={'row'} alignItems={'center'}>
-
                     {user?.isAdmin && order.transaction.state !== TransactionState.Served && (
                         <>
                             {/* // TODO add cancel button */}
