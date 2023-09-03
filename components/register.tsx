@@ -1,4 +1,4 @@
-import { Box, Button, Container, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Container, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { MakeAccountPayload, School, allSchools } from '../lib/accounts';
 import { useMakeAccount } from '../lib/firebaseFunctionHooks';
@@ -141,11 +141,14 @@ const Register: React.FC = () => {
             <Button
                 onClick={handleSignUp}
                 variant="contained"
-                sx={{ mt: 3, borderRadius: '20px' }}
+                sx={{ mt: 3, borderRadius: '20px', width: '170px' }}
                 disabled={submitting}
             >
-                Créer mon compte
+                {submitting ? (
+                    <CircularProgress sx={{ color: 'white' }} size='24.5px' />
+                ) : 'Créer mon compte'}
             </Button>
+
         </Stack>
     );
 };

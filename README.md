@@ -58,7 +58,7 @@ For the customer-side app :
 - [x] use form validation to handle the sign up form
 - [x] let user pick favorite foods
 - [ ] do not allow orders on weekend
-- [ ] add spinner when registering
+- [x] add spinner when registering
 - [ ] add banner for user if it is not time to order
 - [ ] send customers notifications when their order is ready
 - [ ] add a button to disable orders for a day
