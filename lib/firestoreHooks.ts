@@ -629,11 +629,51 @@ export const useTodaysOrders = () => {
 export const useUpdateOrderStatus = () => {
     const db = getFirestore();
 
-    return async (transaction: TransactionOrder, state: TransactionState) => {
+    return async (transaction: TransactionOrder, state: TransactionState): Promise<{
+        success: boolean,
+        message: string,
+    }> => {
         console.log(`Updating transaction ${transaction.id} status`);
-        await updateDoc(doc(db, `transactions/${transaction.id}`), {
-            state,
-        });
+
+        if (state !== TransactionState.Served) {
+            try {
+                await updateDoc(doc(db, `transactions/${transaction.id}`), {
+                    state,
+                });
+                return {success: true, message: 'Order cancelled'};
+            } catch (error) {
+                return {success: false, message: 'Error'};
+            }
+        } else {
+            try {
+                const db = getFirestore();
+                const batch = writeBatch(db);
+                const productsWithQty = transaction.productsWithQty;
+
+                // Update the products stocks.
+                for (let i = 0; i < productsWithQty.length; i++) {
+                    const productRef = doc(db, `products/${productsWithQty[i].product.id}`).withConverter(productConverter);
+                    const productData = (await getDoc(productRef)).data();
+                    if (!productData) {
+                        return {success: false, message: 'Error'};
+                    }
+                    if (productData.stock) {
+                        batch.update(productRef, {
+                            stock: productData.stock + Object.values(productsWithQty[i].sizeWithQuantities).reduce((a, b) => a + b),
+                        });
+                    }
+                }
+                try {
+                    await batch.commit();
+                    return {success: true, message: 'Order cancelled'};
+                } catch {
+                    return {success: false, message: 'Error cancelling order'};
+                }
+
+            } catch (error) {
+                return {success: false, message: 'Error'};
+            }
+        }
     };
 };
 

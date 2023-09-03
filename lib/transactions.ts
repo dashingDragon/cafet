@@ -12,6 +12,7 @@ export enum TransactionState {
     Preparing = 0,
     Ready = 1,
     Served = 2,
+    Cancelled= 3,
 }
 
 type TransactionMetadata = {

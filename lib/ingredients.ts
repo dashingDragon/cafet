@@ -1,5 +1,5 @@
 import { FirestoreDataConverter } from 'firebase/firestore';
-import { Order } from './transactions';
+import { Order, TransactionState, TransactionType } from './transactions';
 
 export type ingredientCategory = 'meat' | 'cheese' | 'veggie' | 'spice' | 'sauce';
 
@@ -91,7 +91,7 @@ export const countIngredients = (orders: Order[]): Record<string, number> => {
         ingredientsQuantities[ingredient] = 0;
     }
 
-    for (const order of orders) {
+    for (const order of orders.filter(o => o.transaction.state === TransactionState.Preparing)) {
         for (const productWithQty of order.transaction.productsWithQty) {
             if (productWithQty.product.ingredients === undefined) continue;
             for (const ingredient of productWithQty.product.ingredients) {
@@ -111,7 +111,7 @@ export const countIngredients = (orders: Order[]): Record<string, number> => {
     }
 
     // Round the baguette count and add some more just in case
-    ingredientsQuantities['Baguette'] = Math.ceil(ingredientsQuantities['Baguette']) + 3;
+    ingredientsQuantities['Baguette'] = ingredientsQuantities['Baguette'] ?  Math.ceil(ingredientsQuantities['Baguette']) + 3 : 0;
 
     return ingredientsQuantities;
 };

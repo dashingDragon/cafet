@@ -6,7 +6,7 @@ import { Product, ProductWithQty } from '../../lib/products';
 import { formatMoney } from './../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
-import { useSetFavorites } from '../../lib/firebaseFunctionHooks';
+import { useFirestoreUser } from '../../lib/firestoreHooks';
 
 export const ShortProductCard: React.FC<{
     product: Product,
@@ -18,6 +18,7 @@ export const ShortProductCard: React.FC<{
     favorites: Set<string>,
     setFavorites: (s: Set<string>) => void,
 }> = ({ product, basket, setBasket, priceLimit, servingCount, setSnackbarMessage, favorites, setFavorites }) => {
+    const user = useFirestoreUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const basketItem = basket.get(product.id);
@@ -98,21 +99,24 @@ export const ShortProductCard: React.FC<{
                 />
             </Box>
 
-            <Box sx={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                borderBottomLeftRadius: '20px',
-                background: 'hsla(0, 0%, 0%, 0.5)',
-            }}>
-                <IconButton onClick={handleChangeFavorite}>
-                    {favorites.has(product.id) ? (
-                        <FavoriteOutlined sx={{ color: 'hsla(4, 93%, 52%, 1)' }} />
-                    ) : (
-                        <FavoriteBorderOutlined />
-                    )}
-                </IconButton>
-            </Box>
+            {/* Favorite icon */}
+            {user && !user.isAdmin && (
+                <Box sx={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    borderBottomLeftRadius: '20px',
+                    background: 'hsla(0, 0%, 0%, 0.5)',
+                }}>
+                    <IconButton onClick={handleChangeFavorite}>
+                        {favorites.has(product.id) ? (
+                            <FavoriteOutlined sx={{ color: 'hsla(4, 93%, 52%, 1)' }} />
+                        ) : (
+                            <FavoriteBorderOutlined />
+                        )}
+                    </IconButton>
+                </Box>
+            )}
 
             {/* Name and price */}
             <CardHeader

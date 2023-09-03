@@ -34,7 +34,7 @@ export const StaffView: React.FC = () => {
     useEffect(() => {
         console.log(orders);
         setIngredientsQuantities(countIngredients(orders));
-        setOrdersInPreparation(orders.filter(o => o.transaction.state !== TransactionState.Served));
+        setOrdersInPreparation(orders.filter(o => o.transaction.state !== TransactionState.Served && o.transaction.state !== TransactionState.Cancelled));
         setOrdersServed(orders.filter(o => o.transaction.state === TransactionState.Served));
     }, [orders]);
 

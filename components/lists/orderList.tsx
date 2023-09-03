@@ -3,7 +3,7 @@ import { Order, TransactionState } from '../../lib/transactions';
 import React, { useContext, useEffect, useState } from 'react';
 import { formatMoney } from '../accountDetails';
 import { cashInTransaction, useFirestoreUser, useOrderEditor, useUpdateOrderStatus } from '../../lib/firestoreHooks';
-import {CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
+import {Cancel, CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
 import { getIngredientPrice } from '../../lib/ingredients';
 import BasketModal from '../basketModal';
@@ -55,6 +55,7 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+    const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);
@@ -86,10 +87,21 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
             await setOrderStatus(order.transaction, TransactionState.Served);
             setSnackbarMessage(message, 'success');
         } else {
-            console.error('Failed to cash in transaction');
+            console.error('Failed to cash in order');
             setSnackbarMessage(message, 'error');
         }
         setConfirmDialogOpen(false);
+    };
+
+    const setStatusCancelled = async () => {
+        const {success, message} = await setOrderStatus(order.transaction, TransactionState.Cancelled);
+        if (success) {
+            setSnackbarMessage(message, 'success');
+        } else {
+            console.error('Failed to cancel order');
+            setSnackbarMessage(message, 'error');
+        }
+        setCancelDialogOpen(false);
     };
 
     const openBasketModal = () => {
@@ -191,11 +203,20 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
                 <Box display="flex" justifyContent="flex-end" flexDirection={'row'} alignItems={'center'}>
                     {user?.isAdmin && order.transaction.state !== TransactionState.Served && (
                         <>
-                            {/* // TODO add cancel button */}
+                            {/* Cancel button */}
+                            <IconButton>
+                                <Cancel
+                                    onClick={() => setCancelDialogOpen(true)}
+                                    fontSize='small'
+                                    sx={(theme) => ({
+                                        color: theme.colors.main,
+                                    })} />
+                            </IconButton>
                             {/* Edit button */}
                             <IconButton>
                                 <EditOutlined
                                     onClick={openBasketModal}
+                                    fontSize='small'
                                     sx={(theme) => ({
                                         color: theme.colors.main,
                                     })} />
@@ -247,6 +268,17 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
                 <DialogActions>
                     <Button onClick={() => setConfirmDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
                     <Button onClick={setStatusServed} variant="contained">Confirmer</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={cancelDialogOpen} onClose={() => setCancelDialogOpen(false)}>
+                <DialogTitle>
+                    {'Attention cette action est irréversible. Êtes-vous sûr de vouloir indiquer cette commande comme "Annulée" ?'}
+                </DialogTitle>
+
+                <DialogActions>
+                    <Button onClick={() => setCancelDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Non</Button>
+                    <Button onClick={setStatusCancelled} variant="contained">Oui</Button>
                 </DialogActions>
             </Dialog>
 

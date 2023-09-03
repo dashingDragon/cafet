@@ -161,18 +161,20 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     const {account, productsWithQty, needPreparation} = (data as MakeTransactionPayload);
     const db = admin.firestore();
 
-    let firestoreUser: Account | undefined = await checkIfUser(context.auth?.uid);
-    let accountRef = db.doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
+    const requestingAccount: Account | undefined = await checkIfUser(context.auth?.uid);
+    let customerRef;
 
-    if (firestoreUser.isAdmin) {
+    if (requestingAccount.isAdmin) {
         // update given account if request comes from admin
-        firestoreUser = (await accountRef.get()).data();
-        if (!firestoreUser) {
-            throw new functions.https.HttpsError('not-found', 'Account not found');
-        }
+        customerRef = db.doc(`accounts/${account.id}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
     } else {
         // update requesting user account if not an admin
-        accountRef = db.doc(`accounts/${context.auth?.uid}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
+        customerRef = db.doc(`accounts/${context.auth?.uid}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
+    }
+
+    const customerAccount = (await customerRef.get()).data();
+    if (!customerAccount) {
+        throw new functions.https.HttpsError('not-found', 'Account not found');
     }
 
     // Compute price, check user provision and check availability of products.
@@ -213,7 +215,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         });
     }
 
-    if (priceProducts > firestoreUser.balance) {
+    if (priceProducts > customerAccount.balance) {
         throw new functions.https.HttpsError('permission-denied', 'You do not have enough provision on your account.');
     }
 
@@ -223,10 +225,15 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
 
     const parisTimeZone = 'Europe/Paris';
     const currentTimeParis = DateTime.now().setZone(parisTimeZone);
+
+    if (!requestingAccount.isAdmin && (currentTimeParis.weekday === 6 /* saturday */ || currentTimeParis.weekday === 7 /* sunday */)) {
+        throw new functions.https.HttpsError('permission-denied', 'You can only order on weekdays (Monday to Friday).');
+    }
+
     const startOfDayParis = currentTimeParis.set({hour: 0, minute: 0, second: 0, millisecond: 1});
     const endOfDayParis = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
 
-    if (!firestoreUser.isAdmin && !startOfDayParis.until(endOfDayParis).contains(currentTimeParis)) {
+    if (!requestingAccount.isAdmin && !startOfDayParis.until(endOfDayParis).contains(currentTimeParis)) {
         throw new functions.https.HttpsError('permission-denied', 'You can only order between 0:00 AM and 11:30 AM Paris time.');
     }
 
@@ -241,7 +248,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         price: priceProducts,
         state: needPreparation ? TransactionState.Preparing : TransactionState.Served,
         customer: account,
-        admin: firestoreUser.isAdmin ? firestoreUser : {},
+        admin: requestingAccount.isAdmin ? requestingAccount : {},
         createdAt: new Date(),
     });
 
@@ -277,7 +284,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         });
 
         // Update balance.
-        batch.update(accountRef, {
+        batch.update(customerRef, {
             balance: account.balance - priceProducts,
             stats: {
                 totalMoneySpent: account.stats.totalMoneySpent += priceProducts,
