@@ -213,7 +213,7 @@ export const CustomerView: React.FC<{
 
             {/* Error Banner */}
             {account.balance < 200 && (
-                <Alert severity="error" variant="filled" sx={{ borderRadius: '20px' }}>
+                <Alert severity="error" variant="filled" sx={{ borderRadius: '20px', mb: 4 }}>
                     <AlertTitle sx={{ color: '#fff', fontWeight: 700 }}>Compte à sec</AlertTitle>
                     Votre compte est vide ou presque, allez-le <strong>recharger</strong> auprès d&apos;un Cafet Master.
                 </Alert>
