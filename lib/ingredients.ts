@@ -1,5 +1,5 @@
 import { FirestoreDataConverter } from 'firebase/firestore';
-import { Order, TransactionState, TransactionType } from './transactions';
+import { Order, TransactionState } from './transactions';
 
 export type ingredientCategory = 'meat' | 'cheese' | 'veggie' | 'spice' | 'sauce';
 

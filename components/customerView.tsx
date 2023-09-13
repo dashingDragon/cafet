@@ -16,6 +16,21 @@ const getDateFromBrokenTimestamp = (date: { _seconds: number }): Date => {
     return new Date(date._seconds * 1000);
 };
 
+const isCurrentTimeInRange = () => {
+    const currentDate = new Date();
+    const currentDayOfWeek = currentDate.getDay();
+    const currentHour = currentDate.getHours();
+    const currentMinutes = currentDate.getMinutes();
+
+    if (currentDayOfWeek >= 1 && currentDayOfWeek <= 5) {
+        if (currentHour < 11 || (currentHour === 11 && currentMinutes <= 30)) {
+            return true;
+        }
+    }
+
+    return false;
+};
+
 export const CustomerView: React.FC<{
     account: Account,
 }> = ({ account }) => {
@@ -25,6 +40,7 @@ export const CustomerView: React.FC<{
     const getOrderHistory = useOrderHistory();
     const [currentOrders, setCurrentOrders] = useState<TransactionOrder[]>([]);
     const [pastOrders, setPastOrders] = useState<TransactionOrder[]>([]);
+    const isTimeToOrder = isCurrentTimeInRange();
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -203,7 +219,6 @@ export const CustomerView: React.FC<{
                 </Alert>
             )}
 
-
             {/* Today's orders */}
             {currentOrders.length ? (
                 <>
@@ -265,6 +280,21 @@ export const CustomerView: React.FC<{
                             </Card>
                         ))}
                     </Stack>
+                </>
+            ) : !isTimeToOrder ? (
+                <>
+                    <Alert severity="error" variant="filled" sx={{ borderRadius: '20px', mb: 8 }}>
+                        <AlertTitle sx={{ color: '#fff', fontWeight: 700 }}>Bientôt...</AlertTitle>
+                        Ce n&apos;est pas encore l&apos;heure de commander.
+                        Vous pouvez commander entre <strong>minuit</strong> et <strong>11h30</strong> du <strong>lundi</strong> au <strong>vendredi</strong>.
+                    </Alert>
+                    <Image
+                        loader={imageLoader}
+                        src={'/svg/waiting.svg'}
+                        alt={'Success image'}
+                        width={120}
+                        height={120}
+                    />
                 </>
             ) : (
                 <>

@@ -60,8 +60,9 @@ For the customer-side app :
 - [x] do not allow orders on weekend
 - [x] add spinner when registering
 - [x] add favorites recommendations
+- [x] add banner for user if it is not time to order
+- [ ] add cancel button for users
 - [ ] add a button to disable orders for a day
-- [ ] add banner for user if it is not time to order
 - [ ] send customers notifications when their order is ready
 - [ ] add banner for user if there is maintenance
 - [ ] add formulas (serving+drink, serving+snack...)
