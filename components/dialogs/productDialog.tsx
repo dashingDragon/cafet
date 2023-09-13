@@ -67,7 +67,7 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
     };
 
     const handleChangeStock = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (parseInt(event.target.value)) {
+        if (parseInt(event.target.value) >= 0) {
             setStock(parseInt(event.target.value));
         }
     };
