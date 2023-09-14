@@ -8,37 +8,33 @@ import Image from 'next/image';
 import { imageLoader } from '../../pages/_app';
 import { Carousel, CarouselItem } from '../carousel';
 
-const carouselItems = [
+export const ingredientCarouselItems = [
     {
-        label: 'Viandes',
+        id: 'meat',
+        label: 'Viandes/Poisson',
         icon: '/png/meat.png',
     },
     {
-        label: 'Fromages',
+        id: 'cheese',
+        label: 'Fromage',
         icon: '/png/cheese.png',
     },
     {
+        id: 'veggie',
         label: 'Légumes',
         icon: '/png/lettuce.png',
     },
     {
+        id: 'sauce',
         label: 'Sauces',
         icon: '/png/sauce.png',
     },
     {
+        id: 'spice',
         label: 'Épices',
         icon: '/png/spice.png',
     },
 ] as CarouselItem[];
-
-export const categoryTranslation: Record<string, string> = {
-    'meat': 'Viandes/Poisson',
-    'cheese': 'Fromage',
-    'veggie': 'Légumes',
-    'spice': 'Épices',
-    'sauce': 'Sauce',
-    'bread': 'Pains',
-};
 
 const IngredientItem: React.FC<{
     ingredient: Ingredient,
@@ -76,7 +72,17 @@ const IngredientItem: React.FC<{
                 {/* Title and price */}
                 <CardHeader
                     title={
-                        <>
+                        <Stack alignItems="center" direction="row" gap={1}>
+                            {(ingredient.image) && (
+                                <Image
+                                    loader={imageLoader}
+                                    src={ingredient.image}
+                                    alt={''}
+                                    height={36}
+                                    width={36}
+                                    className={'icon'}
+                                />
+                            )}
                             {ingredient.name}
                             {(ingredient.isVege || ingredient.isVegan) && (
                                 <Image
@@ -88,9 +94,7 @@ const IngredientItem: React.FC<{
                                     className={'icon'}
                                 />
                             )}
-
-
-                        </>}
+                        </Stack>}
                     subheader={ingredient.price ? <strong>+{formatMoney(ingredient.price)}</strong> : ''}
                     sx={(theme) => ({
                         '.MuiCardHeader-title': {
@@ -107,57 +111,57 @@ const IngredientItem: React.FC<{
                 {/* Chips */}
                 {hasContents && (
                     <CardContent sx={{ py: 0 }}>
-                        {ingredient.allergen  && (
-                            <Chip
-                                variant='outlined'
-                                color={'warning'}
-                                label={ingredient.allergen}
-                                sx={{
-                                    fontSize: '8px',
-                                    fontWeight: 700,
-                                    height: '24px',
-                                }}
-                            />
-                        )}
-                        {ingredient.isVegan ? (
-                            <Chip
-                                variant='outlined'
-                                color={'success'}
-                                label={'Végan'}
-                                sx={{
-                                    fontSize: '8px',
-                                    fontWeight: 700,
-                                    height: '24px',
-                                }}
-                            />
-                        ) : ingredient.isVege && (
-                            <Chip
-                                variant='outlined'
-                                color={'success'}
-                                label={'Végé'}
-                                sx={{
-                                    fontSize: '8px',
-                                    fontWeight: 700,
-                                    height: '24px',
-                                }}
-                            />
-                        )}
+                        <Stack gap={1} alignItems={'flex-start'} direction="row">   
+                            {ingredient.allergen  && (
+                                <Chip
+                                    variant='outlined'
+                                    color={'warning'}
+                                    label={ingredient.allergen}
+                                    sx={{
+                                        fontSize: '8px',
+                                        fontWeight: 700,
+                                        height: '24px',
+                                    }}
+                                />
+                            )}
+                            {ingredient.isVegan ? (
+                                <Chip
+                                    variant='outlined'
+                                    color={'success'}
+                                    label={'Végan'}
+                                    sx={{
+                                        fontSize: '8px',
+                                        fontWeight: 700,
+                                        height: '24px',
+                                    }}
+                                />
+                            ) : ingredient.isVege && (
+                                <Chip
+                                    variant='outlined'
+                                    color={'success'}
+                                    label={'Végé'}
+                                    sx={{
+                                        fontSize: '8px',
+                                        fontWeight: 700,
+                                        height: '24px',
+                                    }}
+                                />
+                            )}
+                        </Stack>
                     </CardContent>
                 )}
 
                 <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
-                    <IconButton>
+                    <IconButton onClick={handleOpenIngredientDialog}>
                         <EditOutlined
-                            onClick={handleOpenIngredientDialog}
                             fontSize='small'
                             sx={(theme) => ({
                                 color: theme.colors.main,
                             })} />
                     </IconButton>
 
-                    <IconButton>
+                    <IconButton onClick={handleOpenDeleteDialog}>
                         <DeleteOutlined
-                            onClick={handleOpenDeleteDialog}
                             fontSize='small'
                             sx={(theme) => ({
                                 color: theme.colors.main,
@@ -189,7 +193,7 @@ const IngredientList: React.FC<{
 
     return (
         <>
-            <Carousel carouselItems={carouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
+            <Carousel carouselItems={ingredientCarouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
             <Stack
                 direction={'row'}
                 justifyContent={'flex-start'}
@@ -210,7 +214,7 @@ const IngredientList: React.FC<{
                 mt={2}
                 mb={4}
             >
-                {ingredients.filter(p => p.category === Object.keys(categoryTranslation)[tabIndex]).map((ingredient) =>
+                {ingredients.filter(p => p.category === ingredientCarouselItems[tabIndex].id).map((ingredient) =>
                     <Box key={ingredient.id} mb={'16px'}>
                         <IngredientItem ingredient={ingredient} setIngredientDialogOpen={setIngredientDialogOpen} setIngredient={setIngredient} />
                     </Box>

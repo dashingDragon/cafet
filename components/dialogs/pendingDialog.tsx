@@ -16,7 +16,7 @@ export const PendingDialog: React.FC<{
                 <DialogTitle>
                     Que voulez-vous ajouter ?
                 </DialogTitle>
-                <DialogContent>
+                <DialogContent sx={{ width: '320px' }}>
                     <Stack direction="column" justifyContent={'center'} alignContent={'stretch'}>
                         <Box onClick={ () => { setPendingProductDialogOpen(true); onClose(); }} sx={{
                             height: '192px',
@@ -39,7 +39,7 @@ export const PendingDialog: React.FC<{
                                     height={128}
                                 />
                             </Box>
-                            <Typography variant="h5" textAlign={'center'} fontSize={'18px'}>
+                            <Typography variant="h5" textAlign={'center'}>
                                 Plat/boisson/snack
                             </Typography>
                         </Box>
@@ -64,7 +64,7 @@ export const PendingDialog: React.FC<{
                                     height={128}
                                 />
                             </Box>
-                            <Typography variant="h5" textAlign={'center'} fontSize={'18px'}>
+                            <Typography variant="h5" textAlign={'center'}>
                                 Ingrédient
                             </Typography>
                         </Box>

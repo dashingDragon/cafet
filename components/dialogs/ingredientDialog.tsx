@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useIngredientEditor, useIngredientMaker } from '../../lib/firestoreHooks';
 import { SelectChangeEvent } from '@mui/material/Select/SelectInput';
 import { Ingredient, ingredientCategory } from '../../lib/ingredients';
-import { categoryTranslation } from '../lists/ingredientList';
+import { ingredientCarouselItems } from '../lists/ingredientList';
 
 interface IIngredientDialog extends DialogProps {
     setIngredientDialogOpen: (b: boolean) => void;
@@ -18,6 +18,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
     const [isVegan, setIsVegan] = useState('false');
     const [price, setPrice] = useState(0);
     const [allergen, setAllergen] = useState('');
+    const [image, setImage] = useState('');
 
     useEffect(() => {
         if (ingredient) {
@@ -27,6 +28,9 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
             setIsVegan(ingredient.isVegan ? 'true' : 'false');
             setPrice(ingredient.price);
             setAllergen(ingredient.allergen);
+            if (ingredient.image) {
+                setImage(ingredient.image);
+            }
         } else {
             setCategory('veggie');
             setName('');
@@ -34,6 +38,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
             setIsVegan('true');
             setPrice(0);
             setAllergen('');
+            setImage('');
         }
     }, [ingredient]);
 
@@ -64,6 +69,10 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
         setAllergen(event.target.value);
     };
 
+    const handleChangeImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setImage(event.target.value);
+    };
+
     const handleCreateIngredient = async () => {
         const ingredient: Ingredient = {
             id: '0',
@@ -73,14 +82,16 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
             isVegan: isVegan === 'true',
             price: price,
             allergen: allergen,
+            image: image,
         };
         await makeIngredient(ingredient);
-        setName('');
         setCategory('veggie');
-        setIsVege('false');
-        setIsVegan('false');
+        setName('');
+        setIsVege('true');
+        setIsVegan('true');
         setPrice(0);
         setAllergen('');
+        setImage('');
 
         setIngredientDialogOpen(false);
     };
@@ -95,8 +106,17 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
                 isVegan === 'true',
                 price,
                 allergen,
+                image,
             );
         }
+        setCategory('veggie');
+        setName('');
+        setIsVege('true');
+        setIsVegan('true');
+        setPrice(0);
+        setAllergen('');
+        setImage('');
+        
         setIngredientDialogOpen(false);
     };
 
@@ -104,7 +124,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
         <>
             <Dialog open={open} onClose={() => setIngredientDialogOpen(false)}>
                 <DialogTitle>
-                    Ajouter un ingrédient
+                    {ingredient ? `Modifier ${ingredient.name}` : 'Ajouter un ingrédient'}
                 </DialogTitle>
 
                 <DialogContent>
@@ -117,8 +137,8 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
                             value={category}
                             onChange={handleChange}
                         >
-                            {Object.entries(categoryTranslation).map(([k, v]) =>
-                                <MenuItem key={k} value={k}>{v}</MenuItem>
+                            {ingredientCarouselItems.map((item) =>
+                                <MenuItem key={item.id} value={item.id}>{item.label}</MenuItem>
                             )}
                         </Select>
 
@@ -178,12 +198,22 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
                                 type="number"
                             />
                         </FormControl>
+
+                        {/* Image */}
+                        <FormControl fullWidth sx={{ marginTop: 3 }}>
+                            <OutlinedInput
+                                id="image-input"
+                                placeholder="Image"
+                                value={image}
+                                onChange={handleChangeImage}
+                            />
+                        </FormControl>
                     </Stack>
                 </DialogContent>
 
                 <DialogActions>
                     <Button onClick={() => setIngredientDialogOpen(false)} sx={{ color: theme => theme.colors.main }}>Annuler</Button>
-                    <Button onClick={ingredient ? handleEditIngredient : handleCreateIngredient} variant="contained">Ajouter</Button>
+                    <Button onClick={ingredient ? handleEditIngredient : handleCreateIngredient} variant="contained">Confirmer</Button>
                 </DialogActions>
             </Dialog>
         </>

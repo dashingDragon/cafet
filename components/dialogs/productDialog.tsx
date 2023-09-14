@@ -1,11 +1,9 @@
 import { Autocomplete, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogProps, DialogTitle, FormControl, IconButton, InputAdornment, InputLabel, ListSubheader, MenuItem, OutlinedInput, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Product, productType } from '../../lib/products';
+import { Product, productCarouselItems, productType } from '../../lib/products';
 import { useProductEditor, useProductMaker } from '../../lib/firestoreHooks';
-import { typeTranslation } from '../lists/productList';
 import { Add, CheckBox, CheckBoxOutlineBlank, Clear } from '@mui/icons-material';
 import { Ingredient } from '../../lib/ingredients';
-import { categoryTranslation } from '../lists/ingredientList';
 import { formatMoney } from '../accountDetails';
 
 const icon = <CheckBoxOutlineBlank fontSize="small" />;
@@ -31,7 +29,7 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
 
     useEffect(() => {
         if (product) {
-            setType(product.type as productType);
+            setType(product.type);
             setName(product.name);
             setIsAvailable(product.isAvailable ? 'true' : 'false');
             if (product.sizeWithPrices) {
@@ -167,8 +165,8 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
                         value={type}
                         onChange={handleChangeType}
                     >
-                        {Object.entries(typeTranslation).map(([k, v]) =>
-                            <MenuItem key={k} value={k}>{v}</MenuItem>
+                        {productCarouselItems.map((item) =>
+                            <MenuItem key={item.id} value={item.id}>{item.label}</MenuItem>
                         )}
                     </Select>
 
@@ -223,7 +221,7 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
                             )}
                             renderGroup={(params) => (
                                 <li key={params.key}>
-                                    <ListSubheader>{categoryTranslation[params.group]}</ListSubheader>
+                                    <ListSubheader>{productCarouselItems.filter(item => params.group === item.id)[0]}</ListSubheader>
                                     {params.children}
                                 </li>
                             )}
@@ -296,8 +294,6 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
                         </FormControl>
                     )}
 
-
-
                     {/* Availability */}
                     <InputLabel id="availability-input" sx={{ marginTop: 3 }}>Le produit est-il disponible ?</InputLabel>
                     <Select
@@ -308,8 +304,6 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
                         <MenuItem value={'true'}>Oui</MenuItem>
                         <MenuItem value={'false'}>Non</MenuItem>
                     </Select>
-
-
                 </Stack>
             </DialogContent>
 

@@ -8,7 +8,7 @@ import { Order, TransactionState } from '../lib/transactions';
 import { useTodaysOrders } from '../lib/firestoreHooks';
 import { Carousel, CarouselItem } from './carousel';
 
-const carouselItems = [
+const orderStatusPanels = [
     {
         label: 'Commandes',
         icon: '/png/order.png',
@@ -73,7 +73,7 @@ export const StaffView: React.FC = () => {
             </Card>
 
             {/* Menu tabs */}
-            <Carousel carouselItems={carouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
+            <Carousel carouselItems={orderStatusPanels} tabIndex={tabIndex} setTabIndex={setTabIndex} />
             {tabIndex === 0 ? (
                 <>
                     {ordersInPreparation.length === 0 ? (

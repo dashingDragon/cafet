@@ -17,7 +17,8 @@ service cloud.firestore {
     }
 
     match /ingredients/{document=**} {
-      allow read, create, update, delete: if isAdmin();
+      allow read;
+      allow create, update, delete: if isAdmin();
     }
 
     match /stats/{document=**} {

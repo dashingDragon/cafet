@@ -3,6 +3,7 @@ import { imageLoader } from '../pages/_app';
 import Image from 'next/image';
 
 export type CarouselItem = {
+    id: string;
     label: string;
     icon: string;
 }

@@ -18,12 +18,13 @@ export type Ingredient = {
     isVegan: boolean,
     price: number,
     allergen: string,
+    image: string,
 };
 
 export const ingredientConverter: FirestoreDataConverter<Ingredient> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        const { name, category, isVege, isVegan, price, allergen } = data;
+        const { name, category, isVege, isVegan, price, allergen, image } = data;
         return {
             id: snapshot.id,
             name,
@@ -32,11 +33,12 @@ export const ingredientConverter: FirestoreDataConverter<Ingredient> = {
             isVegan,
             price,
             allergen,
+            image,
         };
     },
     toFirestore: (product) => {
-        const { name, category, isVege, isVegan, price, allergen } = product;
-        return { name, category, isVege, isVegan, price, allergen };
+        const { name, category, isVege, isVegan, price, allergen, image } = product;
+        return { name, category, isVege, isVegan, price, allergen, image };
     },
 };
 
@@ -128,5 +130,5 @@ export const ingredientsToCount: Record<string, string> = {
     'Concombre': '/png/cucumber.png',
     'Tomate': '/png/tomato.png',
     'Oignons frits': '/png/onion.png',
-    'Baguette': 'png/baguette.png',
+    'Baguette': 'png/bread.png',
 };

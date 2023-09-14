@@ -2,29 +2,12 @@ import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Dialog, DialogActions, DialogTitle, IconButton, List, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useProductDeleter } from '../../lib/firestoreHooks';
-import { Product } from '../../lib/products';
+import { Product, productCarouselItems } from '../../lib/products';
 import { formatMoney } from '../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
 import { getIngredientPrice } from '../../lib/ingredients';
 import { Carousel, CarouselItem } from '../carousel';
-
-export const typeTranslation: Record<string, string> = { 'serving': 'Plat', 'drink': 'Boisson', 'snack': 'Snack'};
-
-const carouselItems = [
-    {
-        label: 'Plats',
-        icon: '/png/serving.png',
-    },
-    {
-        label: 'Boissons',
-        icon: '/png/drink.png',
-    },
-    {
-        label: 'Snacks',
-        icon: '/png/snack.png',
-    },
-] as CarouselItem[];
 
 const ProductItem: React.FC<{
     product: Product,
@@ -203,9 +186,8 @@ const ProductItem: React.FC<{
             </CardContent>
             <CardActions disableSpacing sx={{ justifyContent: 'flex-end' }}>
                 {/* Edit button */}
-                <IconButton>
+                <IconButton onClick={handleOpenProductDialog}>
                     <EditOutlined
-                        onClick={handleOpenProductDialog}
                         fontSize='small'
                         sx={(theme) => ({
                             color: theme.colors.main,
@@ -213,9 +195,8 @@ const ProductItem: React.FC<{
                 </IconButton>
 
                 {/* Delete button */}
-                <IconButton>
+                <IconButton onClick={handleOpenDeleteDialog}>
                     <DeleteOutlined
-                        onClick={handleOpenDeleteDialog}
                         fontSize='small'
                         sx={(theme) => ({
                             color: theme.colors.main,
@@ -246,7 +227,7 @@ const ProductList: React.FC<{
 
     return (
         <>
-            <Carousel carouselItems={carouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
+            <Carousel carouselItems={productCarouselItems} tabIndex={tabIndex} setTabIndex={setTabIndex} />
             <Stack
                 direction={'row'}
                 justifyContent={'flex-start'}
@@ -265,7 +246,7 @@ const ProductList: React.FC<{
                 }}
                 gap={2}
             >
-                {products.filter(p => p.type === Object.keys(typeTranslation)[tabIndex]).map((product) =>
+                {products.filter(p => p.type === productCarouselItems[tabIndex].id).map((product) =>
                     <Box key={product.id} mb={'8px'}>
                         <ProductItem product={product} setProductDialogOpen={setProductDialogOpen} setProduct={setProduct} />
                     </Box>

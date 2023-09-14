@@ -435,7 +435,7 @@ export const useProductDeleter = () => {
 export const useIngredientMaker = () => {
     const db = getFirestore();
 
-    return async ({ id, name, category, isVege, isVegan, price, allergen }: Ingredient) => {
+    return async ({ id, name, category, isVege, isVegan, price, allergen, image }: Ingredient) => {
         console.log('Create ingredient');
         return await addDoc(collection(db, 'ingredients').withConverter(ingredientConverter), {
             id,
@@ -445,6 +445,7 @@ export const useIngredientMaker = () => {
             isVegan,
             price,
             allergen,
+            image,
         });
     };
 };
@@ -483,7 +484,8 @@ export const useIngredientEditor = () => {
         isVege: boolean,
         isVegan: boolean,
         price: number,
-        allergen: string
+        allergen: string,
+        image: string,
     ) => {
         console.log(`Updating ${name}`);
         await updateDoc(doc(db, `ingredients/${ingredient.id}`).withConverter(ingredientConverter), {
@@ -493,6 +495,7 @@ export const useIngredientEditor = () => {
             isVegan,
             price,
             allergen,
+            image,
         });
     };
 };
