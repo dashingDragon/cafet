@@ -3,9 +3,9 @@ import { Order, TransactionState } from '../../lib/transactions';
 import React, { useContext, useState } from 'react';
 import { formatMoney } from '../accountDetails';
 import { cashInTransaction, useFirestoreUser, useUpdateOrderStatus } from '../../lib/firestoreHooks';
+import { getIngredientPrice } from '../../lib/ingredients';
 import {Cancel, CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
-import { getIngredientPrice } from '../../lib/ingredients';
 import { SnackbarContext } from '../scrollableContainer';
 import { useRouter } from 'next/router';
 
@@ -25,7 +25,7 @@ export const OrderItemLine: React.FC<{
                         {quantity} x {product.name}: <strong>{size}</strong>
                     </Typography>
                     {!short && (
-                        <Typography variant="body2">{formatMoney(quantity * (product.sizeWithPrices[size] +  getIngredientPrice(product.ingredients)))}</Typography>
+                        <Typography variant="body2">{formatMoney(quantity * (product.sizeWithPrices[size] + getIngredientPrice(product.ingredients)))}</Typography>
                     )}
                 </Stack>
                 {showIngredients && product.ingredients && product.ingredients.map((ingredient) =>

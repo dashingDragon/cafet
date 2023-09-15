@@ -6,7 +6,8 @@ import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { Order, TransactionState } from '../lib/transactions';
 import { useTodaysOrders } from '../lib/firestoreHooks';
-import { Carousel, CarouselItem } from './carousel';
+import { Carousel } from './carousel';
+import { CarouselItem } from '../lib/products';
 
 const orderStatusPanels = [
     {

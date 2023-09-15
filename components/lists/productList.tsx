@@ -2,12 +2,13 @@ import { DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import { Box, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Chip, Dialog, DialogActions, DialogTitle, IconButton, List, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useProductDeleter } from '../../lib/firestoreHooks';
+import { getIngredientPrice } from '../../lib/ingredients';
 import { Product, productCarouselItems } from '../../lib/products';
 import { formatMoney } from '../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
-import { getIngredientPrice } from '../../lib/ingredients';
-import { Carousel, CarouselItem } from '../carousel';
+import { Carousel } from '../carousel';
+import { CarouselItem } from '../../lib/products';
 
 const ProductItem: React.FC<{
     product: Product,

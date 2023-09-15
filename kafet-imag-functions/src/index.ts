@@ -6,9 +6,9 @@ import * as admin from 'firebase-admin';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
 import {MakeTransactionPayload, Transaction, TransactionState, TransactionType, transactionConverter} from '../../lib/transactions';
 import {Account, MakeAccountPayload, SetFavoritesPayload, accountConverter} from '../../lib/accounts';
-import {Product, productConverter} from '../../lib/products';
+import {Product, productConverter, sandwichSizeWithPrices} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
-import {getIngredientPrice} from '../../lib/ingredients';
+import {Ingredient, getIngredientPrice, ingredientConverter} from '../../lib/ingredients';
 import {DateTime} from 'luxon';
 
 admin.initializeApp();
@@ -19,7 +19,7 @@ const checkIfConnected = async (uid: string | undefined) => {
     }
 };
 
-const checkIfUser = async (uid: string | undefined) => {
+const checkIfUser = async (uid: string | undefined): Promise<Account> => {
     await checkIfConnected(uid);
     const firestoreUser = (await admin.firestore().doc(`accounts/${uid}`)
         .withConverter(accountConverter as unknown as FirestoreDataConverter<Account>)
@@ -152,6 +152,27 @@ export const setFavorites = functions.https.onCall(async (data, context) => {
     }
 });
 
+const getIngredientPriceFromDb = async (ingredients?: Ingredient[]): Promise<number> => {
+    const db = admin.firestore();
+
+    if (!ingredients) {
+        return 0;
+    }
+
+    let price = 0;
+    for (const ingredient of ingredients) {
+        const ingredientSnapshot = await db.doc(`ingredients/${ingredient.id}`)
+            .withConverter(ingredientConverter as unknown as FirestoreDataConverter<Ingredient>)
+            .get();
+        const ingredientData = ingredientSnapshot.data();
+        if (ingredientData && ingredientData.price) {
+            price += ingredientData.price;
+        }
+    }
+
+    return price;
+};
+
 /**
  * Make a pay transaction.
  * Check if the stock is available and if the user has provision for the payment.
@@ -161,7 +182,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     const {account, productsWithQty, needPreparation} = (data as MakeTransactionPayload);
     const db = admin.firestore();
 
-    const requestingAccount: Account | undefined = await checkIfUser(context.auth?.uid);
+    const requestingAccount = await checkIfUser(context.auth?.uid);
     let customerRef;
 
     if (requestingAccount.isAdmin) {
@@ -191,28 +212,51 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         const productSnapshot = await db.doc(`products/${productWithQtySize.product.id}`)
             .withConverter(productConverter as unknown as FirestoreDataConverter<Product>)
             .get();
-        const productData = productSnapshot.data();
-        if (!productData) {
-            throw new functions.https.HttpsError('not-found', 'Product not found.');
-        }
-        if (!productData.isAvailable) {
-            throw new functions.https.HttpsError('unavailable', 'Product is unavailable');
-        }
 
-        Object.entries(productWithQtySize.sizeWithQuantities).forEach(([size, quantity]) => {
-            // Check user input.
-            if (quantity < 0) {
-                throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
+        if (!productSnapshot) {
+            // Custom sandwich case
+            Object.entries(productWithQtySize.sizeWithQuantities).forEach(async ([size, quantity]) => {
+                // Check user input.
+                if (quantity < 0) {
+                    throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
+                } else if (quantity > 0) {
+                    if (!Object.keys(sandwichSizeWithPrices).includes(size)) {
+                        throw new functions.https.HttpsError('invalid-argument', 'Size must exist for given product.');
+                    }
+                    const ingredientPrice = await getIngredientPriceFromDb(productWithQtySize.product.ingredients);
+                    if (ingredientPrice < 0) {
+                        throw new functions.https.HttpsError('invalid-argument', 'Unknown ingredient, cannot compute product price.');
+                    }
+                    priceProducts += (sandwichSizeWithPrices[size] + ingredientPrice) * quantity;
+                    // Enter serving by hand to avoid cheating
+                    quantityOrdered['serving'] += quantity;
+                }
+            });
+        } else {
+            const productData = productSnapshot.data();
+            if (!productData) {
+                throw new functions.https.HttpsError('not-found', 'Product not found.');
             }
-            if (!Object.keys(productData.sizeWithPrices).includes(size)) {
-                throw new functions.https.HttpsError('invalid-argument', 'Size must exist for given product.');
+            if (!productData.isAvailable) {
+                throw new functions.https.HttpsError('unavailable', 'Product is unavailable');
             }
-            if (productData.stock && productData.stock < quantity) {
-                throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');
-            }
-            priceProducts += (productData.sizeWithPrices[size] + getIngredientPrice(productData.ingredients)) * quantity;
-            quantityOrdered[productWithQtySize.product.type] += quantity;
-        });
+
+            Object.entries(productWithQtySize.sizeWithQuantities).forEach(([size, quantity]) => {
+                // Check user input.
+                if (quantity < 0) {
+                    throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
+                } else if (quantity > 0) {
+                    if (!Object.keys(productData.sizeWithPrices).includes(size)) {
+                        throw new functions.https.HttpsError('invalid-argument', 'Size must exist for given product.');
+                    }
+                    if (productData.stock && productData.stock < quantity) {
+                        throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');
+                    }
+                    priceProducts += (productData.sizeWithPrices[size] + getIngredientPrice(productData.ingredients)) * quantity;
+                    quantityOrdered[productWithQtySize.product.type] += quantity;
+                }
+            });
+        }
     }
 
     if (priceProducts > customerAccount.balance) {

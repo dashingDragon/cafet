@@ -5,13 +5,13 @@ import { Account } from '../lib/accounts';
 import { ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
 import BasketModal from './basketModal';
+import { useOrderEditor } from '../lib/firestoreHooks';
 import { getIngredientPrice } from '../lib/ingredients';
 import { useRouter } from 'next/router';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { ProductShortCardList } from './lists/productShortCardList';
 import { SnackbarContext } from './scrollableContainer';
 import { TransactionOrder } from '../lib/transactions';
-import { useOrderEditor } from '../lib/firestoreHooks';
 
 const ProductMenu: React.FC<{ account: Account, order?: TransactionOrder }> = ({ account, order }) => {
     // State
@@ -89,6 +89,7 @@ const ProductMenu: React.FC<{ account: Account, order?: TransactionOrder }> = ({
 
         setBasketPrice(priceProducts);
         setServingCount(nbServings);
+        console.log(basket);
     }, [basket]);
 
     useEffect(() => {

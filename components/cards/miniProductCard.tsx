@@ -28,7 +28,7 @@ const MiniProductCard: React.FC<{
     const [productStock, setProductStock] = useState<number | undefined>(undefined);
 
     useEffect(() => {
-        if (products.length) {
+        if (products.length && product.stock) {
             const productInDb = products.filter(p => p.id === product.id)[0];
             setProductStock(productInDb.stock
                 ? productInDb.stock + stockReserved

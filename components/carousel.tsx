@@ -1,12 +1,7 @@
 import { Box, Stack, Typography, styled } from '@mui/material';
 import { imageLoader } from '../pages/_app';
 import Image from 'next/image';
-
-export type CarouselItem = {
-    id: string;
-    label: string;
-    icon: string;
-}
+import { CarouselItem } from '../lib/products';
 
 const TabItem = styled(Box)(({ theme }) => ({
     width: '90px',

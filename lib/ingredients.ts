@@ -75,18 +75,6 @@ export const parseIngredients = (ingredients: Ingredient[]): {
     };
 };
 
-export const getIngredientPrice = (ingredients?: Ingredient[]): number => {
-    if (!ingredients) {
-        return 0;
-    }
-
-    let price = 0;
-    for (const ingredient of ingredients) {
-        price += ingredient.price;
-    }
-    return price;
-};
-
 export const countIngredients = (orders: Order[]): Record<string, number> => {
     const ingredientsQuantities: Record<string, number> = {};
     for (const ingredient of Object.keys(ingredientsToCount)) {
@@ -131,4 +119,16 @@ export const ingredientsToCount: Record<string, string> = {
     'Tomate': '/png/tomato.png',
     'Oignons frits': '/png/onion.png',
     'Baguette': 'png/bread.png',
+};
+
+export const getIngredientPrice = (ingredients: Ingredient[] | undefined): number => {
+    if (!ingredients) {
+        return 0;
+    }
+
+    let price = 0;
+    for (const ingredient of ingredients) {
+        price += ingredient.price;
+    }
+    return price;
 };

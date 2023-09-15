@@ -6,7 +6,8 @@ import { Ingredient } from '../../lib/ingredients';
 import { formatMoney } from '../accountDetails';
 import Image from 'next/image';
 import { imageLoader } from '../../pages/_app';
-import { Carousel, CarouselItem } from '../carousel';
+import { Carousel } from '../carousel';
+import { CarouselItem } from '../../lib/products';
 
 export const ingredientCarouselItems = [
     {
@@ -16,7 +17,7 @@ export const ingredientCarouselItems = [
     },
     {
         id: 'cheese',
-        label: 'Fromage',
+        label: 'Fromages',
         icon: '/png/cheese.png',
     },
     {

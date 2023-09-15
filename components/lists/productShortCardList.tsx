@@ -201,11 +201,10 @@ export const ProductShortCardList: React.FC<{
                             </Menu>
                         </CardActions>
 
-                        <SandwichModal size={sandwichSize} modalOpen={sandwichModalOpen} setSandwichModalOpen={setSandwichModalOpen} setBasket={setBasket} priceLimit={priceLimit} />
+                        <SandwichModal size={sandwichSize} modalOpen={sandwichModalOpen} setSandwichModalOpen={setSandwichModalOpen} basket={basket} setBasket={setBasket} priceLimit={priceLimit} />
                     </Card>
                 )}
                 
-
                 {products.filter(p => p.type === productCarouselItems[tabIndex].id).map((product) => (
                     <ShortProductCard
                         key={product.name}

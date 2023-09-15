@@ -1,6 +1,5 @@
 import { FirestoreDataConverter, doc, getFirestore } from 'firebase/firestore';
 import { Ingredient } from './ingredients';
-import { CarouselItem } from '../components/carousel';
 
 export type productType = 'serving' | 'drink' | 'snack';
 
@@ -99,4 +98,10 @@ export const sandwichSizeWithPrices: Record<string, number> = {
     'Petit': 150,
     'Moyen': 200,
     'Grand': 250,
+};
+
+export type CarouselItem = {
+    id: string;
+    label: string;
+    icon: string;
 };
