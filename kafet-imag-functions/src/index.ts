@@ -213,7 +213,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
             .withConverter(productConverter as unknown as FirestoreDataConverter<Product>)
             .get();
 
-        if (!productSnapshot) {
+        if (!productSnapshot.exists) {
             // Custom sandwich case
             Object.entries(productWithQtySize.sizeWithQuantities).forEach(async ([size, quantity]) => {
                 // Check user input.

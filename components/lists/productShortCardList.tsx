@@ -201,7 +201,16 @@ export const ProductShortCardList: React.FC<{
                             </Menu>
                         </CardActions>
 
-                        <SandwichModal size={sandwichSize} modalOpen={sandwichModalOpen} setSandwichModalOpen={setSandwichModalOpen} basket={basket} setBasket={setBasket} priceLimit={priceLimit} />
+                        <SandwichModal
+                            size={sandwichSize}
+                            modalOpen={sandwichModalOpen}
+                            setSandwichModalOpen={setSandwichModalOpen}
+                            favorites={favorites}
+                            setFavorites={setFavorites}
+                            basket={basket}
+                            setBasket={setBasket}
+                            priceLimit={priceLimit}
+                        />
                     </Card>
                 )}
                 

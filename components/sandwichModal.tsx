@@ -1,9 +1,9 @@
 import { ArrowBack } from '@mui/icons-material';
-import { Box, Button, Card, CardMedia, Checkbox, Chip, FormControlLabel, IconButton, Modal, Stack, Typography } from '@mui/material';
+import { Box, Button, Card, CardMedia, Checkbox, Chip, FormControlLabel, IconButton, Menu, MenuItem, Modal, Stack, TextField, Typography } from '@mui/material';
 import { Fragment, useEffect, useState } from 'react';
 import { Product, ProductWithQty, sandwichSizeWithPrices } from '../lib/products';
 import { imageLoader } from '../pages/_app';
-import { useIngredients } from '../lib/firestoreHooks';
+import { useIngredients, useProducts } from '../lib/firestoreHooks';
 import { ingredientCarouselItems } from './lists/ingredientList';
 import Image from 'next/image';
 import { Ingredient, parseIngredients } from '../lib/ingredients';
@@ -12,25 +12,41 @@ import { formatMoney } from './accountDetails';
 export const SandwichModal: React.FC<{
     size: string,
     modalOpen: boolean,
+    favorites: Set<string>,
+    setFavorites: (s: Set<string>) => void,
     setSandwichModalOpen: (b: boolean) => void,
     basket: Map<string, ProductWithQty>,
     setBasket: (m: Map<string, ProductWithQty>) => void,
     priceLimit: number,
-}> = ({ size, modalOpen, setSandwichModalOpen, basket, setBasket, priceLimit }) => {
+}> = ({ size, modalOpen, favorites, setFavorites, setSandwichModalOpen, basket, setBasket, priceLimit }) => {
     const [addToFavorites, setAddToFavorites] = useState(false);
     const [price, setPrice] = useState(sandwichSizeWithPrices[size]);
-    const [selectedIngredients, setSelectedIngredients] = useState<Set<Ingredient>>(new Set());
+    const [selectedIngredientsIds, setSelectedIngredientsIds] = useState<Set<string>>(new Set());
     const [meatCount, setMeatCount] = useState(0);
     const ingredients = useIngredients();
+    const products = useProducts();
+
+    const [sandwiches, setSandwiches] = useState<Map<string, Product>>(new Map());
 
     const [_isVege, setIsVege] = useState(false);
     const [_isVegan, setIsVegan] = useState(false);
     const [_allergen, setAllergen] = useState('');
     const [_description, setDescription] = useState('');
 
+    const [name, setName] = useState('');
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+    const handleOpenMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleCloseMenu = () => {
+        setAnchorEl(null);
+    };
+
     const handleIngredient = (ingredient: Ingredient) => {
-        if (selectedIngredients.has(ingredient)) {
-            selectedIngredients.delete(ingredient);
+        if (selectedIngredientsIds.has(ingredient.id)) {
+            selectedIngredientsIds.delete(ingredient.id);
             if (ingredient.category === 'meat') {
                 setMeatCount(meatCount - 1);
             }
@@ -38,7 +54,7 @@ export const SandwichModal: React.FC<{
                 setPrice(price - ingredient.price);
             }
         } else {
-            selectedIngredients.add(ingredient);
+            selectedIngredientsIds.add(ingredient.id);
             if (ingredient.category === 'meat') {
                 setMeatCount(meatCount + 1);
             }
@@ -47,16 +63,22 @@ export const SandwichModal: React.FC<{
             }
         }
 
-        setSelectedIngredients(new Set(selectedIngredients));
+        setSelectedIngredientsIds(new Set(selectedIngredientsIds));
     };
 
     const handleAddNewSandwich = () => {
-        const {isVege, isVegan, allergen, description} = parseIngredients(Array.from(selectedIngredients));
+        const selectedIngredients = [] as Ingredient[];
+        ingredients.forEach((ingredient) => {
+            if (selectedIngredientsIds.has(ingredient.id)) {
+                selectedIngredients.push(ingredient);
+            }
+        });
+        const {isVege, isVegan, allergen, description} = parseIngredients(selectedIngredients);
         
         const sandwich = {
             id: (Math.floor(Math.random() * (10000000))).toString(),
             type: 'serving',
-            name: 'Sandwich perso',
+            name: name ?? 'Sandwich perso',
             isAvailable: true,
             image: '/servings/custom_sandwich.jpg',
             sizeWithPrices: sandwichSizeWithPrices,
@@ -75,20 +97,63 @@ export const SandwichModal: React.FC<{
         } as ProductWithQty;
 
         setBasket(new Map(basket.set(sandwich.id, basketItem)));
+
+        if (addToFavorites && name) {
+            if (favorites.has(name)) {
+                favorites.delete(name);
+            } else {
+                favorites.add(name);
+            }
+            setFavorites(new Set(favorites));
+        }
+
         setSandwichModalOpen(false);
-        setSelectedIngredients(new Set());
+        setSelectedIngredientsIds(new Set());
         setMeatCount(0);
         setPrice(0);
     };
 
+    const chooseSandwichTemplate = (sandwich: Product) => {
+        if (sandwich && sandwich.ingredients) {
+            selectedIngredientsIds.clear();
+            sandwich.ingredients.forEach((ingredient) => {
+                selectedIngredientsIds.add(ingredient.id);
+            });
+            setSelectedIngredientsIds(new Set(selectedIngredientsIds));
+        };
+        handleCloseMenu();
+    };
+
     useEffect(() => {
+        let newMeatCount = 0;
         setPrice(sandwichSizeWithPrices[size]);
-        const {isVege, isVegan, allergen, description} = parseIngredients(Array.from(selectedIngredients));
+        const selectedIngredients = [] as Ingredient[];
+        ingredients.forEach((ingredient) => {
+            if (selectedIngredientsIds.has(ingredient.id)) {
+                selectedIngredients.push(ingredient);
+                if (ingredient.category === 'meat') {
+                    newMeatCount++;
+                }
+            }
+        });
+        const {isVege, isVegan, allergen, description} = parseIngredients(selectedIngredients);
         setIsVege(isVege);
         setIsVegan(isVegan);
         setAllergen(allergen);
         setDescription(description);
-    }, [size, selectedIngredients]);
+        setMeatCount(newMeatCount);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [size, selectedIngredientsIds]);
+
+    useEffect(() => {
+        products.forEach((product) => {
+            if (product.name.includes('Sandwich')) {
+                sandwiches.set(product.id, product);
+            }
+        });
+        setSandwiches(new Map(sandwiches));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [products]);
 
     return (
         <Modal
@@ -154,6 +219,33 @@ export const SandwichModal: React.FC<{
                             Sandwich {size}
                         </Typography>
 
+                        {/* Size Menu */}
+                        <Button onClick={handleOpenMenu} variant="contained" sx={{ width: '150px'}}>
+                            Présélections
+                        </Button>
+                        
+                        <Menu
+                            anchorEl={anchorEl}
+                            open={open}
+                            onClose={handleCloseMenu}
+                        >
+                            {Array.from(sandwiches.values()).map((product) => (
+                                <MenuItem key={product.id} onClick={() => chooseSandwichTemplate(product)} disabled={price > priceLimit}>
+                                    {product.name}
+                                    {(product.isVege || product.isVegan) && product.type === 'serving' && (
+                                        <Image
+                                            loader={imageLoader}
+                                            src={'../../png/leaf.png'}
+                                            alt={'Vege'}
+                                            height={18}
+                                            width={18}
+                                            className={'icon'}
+                                        />
+                                    )}
+                                </MenuItem>
+                            ))}
+                        </Menu>
+
                         <Typography variant='body2'>
                             Choisissez vos ingrédients :
                         </Typography>
@@ -175,7 +267,12 @@ export const SandwichModal: React.FC<{
                                 <Stack direction="row" flexWrap={'wrap'}>
                                     {ingredients.filter((ingredient) => ingredient.category === item.id).map((ingredient) => (
                                         <Stack key={ingredient.name} width='50%' direction="row" gap={1} sx={{ alignItems: 'center', p: 1 }}>
-                                            <Checkbox sx={{ p: 0 }} onChange={() => handleIngredient(ingredient)} disabled={ingredient.category === 'meat' && meatCount > 0 && !selectedIngredients.has(ingredient)} />
+                                            <Checkbox
+                                                sx={{ p: 0 }}
+                                                checked={selectedIngredientsIds.has(ingredient.id)}
+                                                onChange={() => handleIngredient(ingredient)}
+                                                disabled={ingredient.category === 'meat' && meatCount > 0 && !selectedIngredientsIds.has(ingredient.id)}
+                                            />
                                             <Typography variant="body1">
                                                 {ingredient.name}
                                             </Typography>
@@ -246,7 +343,7 @@ export const SandwichModal: React.FC<{
                         </Stack>
                     </Card>
 
-                    <Box m={2} display="flex" justifyContent={'flex-end'}>
+                    <Stack m={2} justifyContent={'flex-end'} flexWrap={'wrap-reverse'}>
                         {/* <FormControlLabel
                             label="Ajouter aux favoris"
                             control={
@@ -255,16 +352,27 @@ export const SandwichModal: React.FC<{
                                     onChange={() => setAddToFavorites(!addToFavorites)}
                                 />
                             }
-                        /> */}
+                        />
+                        {addToFavorites && (
+                            <TextField
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Nom du favori"
+                                variant="outlined"
+                                fullWidth
+                                sx={{ my: 1 }}
+                                helperText={'Si ce nom existe déjà, l\'ancien favori sera écrasé'}
+                            />
+                        )} */}
                         <Button
                             variant="contained"
                             onClick={handleAddNewSandwich}
-                            disabled={price > priceLimit}
-                            sx={{ width: '170px', borderRadius: '20px' }}
+                            disabled={price > priceLimit || (addToFavorites && !name)}
+                            sx={{ minWidth: '170px', width: '170px', borderRadius: '20px' }}
                         >
                             {'Ajouter au panier'}
                         </Button>
-                    </Box>
+                    </Stack>
                 </>
             </Box>
         </Modal>

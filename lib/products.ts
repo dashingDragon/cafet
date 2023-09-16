@@ -96,7 +96,7 @@ export const productCarouselItems = [
 
 export const sandwichSizeWithPrices: Record<string, number> = {
     'Petit': 150,
-    'Moyen': 200,
+    'Normal': 200,
     'Grand': 250,
 };
 
