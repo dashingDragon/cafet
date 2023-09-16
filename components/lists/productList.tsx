@@ -8,7 +8,6 @@ import { formatMoney } from '../accountDetails';
 import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
 import { Carousel } from '../carousel';
-import { CarouselItem } from '../../lib/products';
 
 const ProductItem: React.FC<{
     product: Product,

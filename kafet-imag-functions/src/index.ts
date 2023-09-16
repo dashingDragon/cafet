@@ -117,12 +117,12 @@ export const getOrderHistory = functions.https.onCall(async (data, context) => {
             .get()
         ).docs.map((doc) => doc.data());
 
-        logger.log('transactions after modification');
-        logger.log(transactions);
+        console.log('transactions after modification');
+        console.log(transactions);
 
         return {success: true, orders: transactions};
     } catch (error) {
-        logger.error(error);
+        console.error(error);
         return {success: false, orders: undefined};
     }
 });
@@ -147,7 +147,7 @@ export const setFavorites = functions.https.onCall(async (data, context) => {
 
         return {success: true};
     } catch (error) {
-        logger.error(error);
+        console.error(error);
         return {success: false};
     }
 });
@@ -344,7 +344,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         await batch.commit();
         return {success: true};
     } catch (error) {
-        logger.error('An error occured during batching :', error);
+        console.error('An error occured during batching :', error);
         throw new functions.https.HttpsError('internal', 'An error occured during batching: ' + error);
     }
 });
