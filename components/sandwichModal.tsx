@@ -89,7 +89,7 @@ export const SandwichModal: React.FC<{
             ingredients: Array.from(ingredients),
         } as Product;
 
-        const sizeWithQuantities: Record<string, number> = {'Petit': 0, 'Normal': 0, 'Grand': 0};
+        const sizeWithQuantities: Record<string, number> = {'Petit': 0, 'Moyen': 0, 'Grand': 0};
         sizeWithQuantities[size] = 1;
         const basketItem = {
             product: sandwich,

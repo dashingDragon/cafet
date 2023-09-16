@@ -138,7 +138,7 @@ export const ProductShortCardList: React.FC<{
                         {/* Name and price */}
                         <CardHeader
                             title={'Faire mon sandwich'}
-                            subheader={'Grand: 2.50 € · Normal: 2.00 € · Petit: 1.50 €' }
+                            subheader={'Grand: 2.50 € · Moyen: 2.00 € · Petit: 1.50 €' }
                             sx={(theme) => ({
                                 px: '16px',
                                 pt: '8px',

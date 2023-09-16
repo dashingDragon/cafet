@@ -5,7 +5,6 @@ export type ingredientCategory = 'meat' | 'cheese' | 'veggie' | 'spice' | 'sauce
 
 export const baguetteSizes: Record<string, number> = {
     'Petit': 1/3,
-    'Normal': 1/2,
     'Moyen': 1/2,
     'Grand': 2/3,
 };

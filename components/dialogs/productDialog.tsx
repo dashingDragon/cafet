@@ -265,11 +265,11 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
                                 marginTop: 1,
                             }}
                         >
-                            Add
+                            Ajouter
                         </Button>
                     </Stack>
 
-                    {prices && Object.entries(product?.sizeWithPrices ? product.sizeWithPrices : prices).map(([size, price], i) =>
+                    {prices && Object.entries(prices).map(([size, price], i) =>
                         <Box key={i} display="flex" flexDirection="row" alignItems="center" justifyContent={'space-between'} py={1}>
                             <Typography variant="body1">{size}</Typography>
                             <Typography variant="body2">{formatMoney(price)}</Typography>
