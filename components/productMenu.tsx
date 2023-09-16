@@ -12,6 +12,7 @@ import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { ProductShortCardList } from './lists/productShortCardList';
 import { SnackbarContext } from './scrollableContainer';
 import { TransactionOrder } from '../lib/transactions';
+import logger from '../lib/logger';
 
 const ProductMenu: React.FC<{ account: Account, order?: TransactionOrder }> = ({ account, order }) => {
     // State
@@ -89,7 +90,7 @@ const ProductMenu: React.FC<{ account: Account, order?: TransactionOrder }> = ({
 
         setBasketPrice(priceProducts);
         setServingCount(nbServings);
-        console.log(basket);
+        logger.log(basket);
     }, [basket]);
 
     useEffect(() => {

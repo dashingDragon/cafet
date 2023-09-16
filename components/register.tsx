@@ -5,6 +5,7 @@ import { useMakeAccount } from '../lib/firebaseFunctionHooks';
 import { useState } from 'react';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
+import logger from '../lib/logger';
 
 const Register: React.FC = () => {
     const router = useRouter();
@@ -39,7 +40,7 @@ const Register: React.FC = () => {
                 // TODO snackbar
                 router.replace('/');
             } else {
-                console.error('An error occured. Please try again.');
+                logger.error('An error occured. Please try again.');
             }
             setSubmitting(false);
         }

@@ -2,6 +2,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useFirestoreUser } from './firestoreHooks';
+import logger from './logger';
 
 export const useGuardIsConnected = () => {
     const auth = getAuth();
@@ -12,7 +13,7 @@ export const useGuardIsConnected = () => {
         return onAuthStateChanged(auth, (user) => {
             setUser(user);
             if (!user) {
-                console.log('Not logged in, redirecting to /login');
+                logger.log('Not logged in, redirecting to /login');
                 router.replace('/login');
             }
         });

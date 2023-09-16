@@ -8,6 +8,7 @@ import { Order, TransactionState } from '../lib/transactions';
 import { useTodaysOrders } from '../lib/firestoreHooks';
 import { Carousel } from './carousel';
 import { CarouselItem } from '../lib/products';
+import logger from '../lib/logger';
 
 const orderStatusPanels = [
     {
@@ -33,7 +34,7 @@ export const StaffView: React.FC = () => {
     const [tabIndex, setTabIndex] = useState(0);
 
     useEffect(() => {
-        console.log(orders);
+        logger.log(orders);
         setIngredientsQuantities(countIngredients(orders));
         setOrdersInPreparation(orders.filter(o => o.transaction.state !== TransactionState.Served && o.transaction.state !== TransactionState.Cancelled));
         setOrdersServed(orders.filter(o => o.transaction.state === TransactionState.Served));

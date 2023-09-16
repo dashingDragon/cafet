@@ -1,6 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, MenuItem, Select, TextField } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { Account, School, allSchools } from '../../lib/accounts';
+import logger from '../../lib/logger';
 
 const AccountEditDialog: React.FC<{
   account: Account | null,
@@ -16,7 +17,7 @@ const AccountEditDialog: React.FC<{
     const [email, setEmail] = useState(account?.email ?? '');
 
     useEffect(() => {
-        console.log('Reset form');
+        logger.log('Reset form');
 
         setSubmitting(false);
         setFirstName(account?.firstName ?? '');

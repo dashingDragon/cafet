@@ -1,6 +1,7 @@
 import { HttpsCallableResult, connectFunctionsEmulator, getFunctions, httpsCallable } from 'firebase/functions';
 import { MakeTransactionPayload, TransactionOrder } from './transactions';
 import { Account, MakeAccountPayload, SetFavoritesPayload } from './accounts';
+import logger from './logger';
 
 const LOCAL_FUNCTIONS = false;
 
@@ -12,11 +13,11 @@ export const useMakeAccount = () => {
     const fun = httpsCallable(functions, 'makeAccount') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
 
     return async (payload: MakeAccountPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
-        console.log('Called function makeAccount');
+        logger.log('Called function makeAccount');
         try {
             return await fun(payload);
         } catch (e) {
-            console.error('makeAccount failed : '  + e);
+            logger.error('makeAccount failed : '  + e);
             return { data: { success: false } };
         }
     };
@@ -36,11 +37,11 @@ export const useMakeTransaction = () => {
     const fun = httpsCallable(functions, 'makeTransaction') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
 
     return async (payload: MakeTransactionPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
-        console.log('Called function makeTransaction');
+        logger.log('Called function makeTransaction');
         try {
             return await fun(payload);
         } catch (e) {
-            console.error('makeTransaction failed : '  + e);
+            logger.error('makeTransaction failed : '  + e);
             return { data: { success: false } };
         }
     };
@@ -54,11 +55,11 @@ export const useGetFirestoreUser = () => {
     const fun = httpsCallable(functions, 'getFirestoreUser') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, account: Account | undefined }>>;
 
     return async (): Promise<HttpsCallableResult<{ success: boolean, account: Account | undefined }>> => {
-        console.log('Called function getFirestoreUser');
+        logger.log('Called function getFirestoreUser');
         try {
             return await fun();
         } catch (e) {
-            console.error('getFirestoreUser failed : '  + e);
+            logger.error('getFirestoreUser failed : '  + e);
             return { data: { success: false, account: undefined } };
         }
     };
@@ -72,11 +73,11 @@ export const useOrderHistory = () => {
     const fun = httpsCallable(functions, 'getOrderHistory') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, orders: TransactionOrder[] | undefined }>>;
 
     return async (): Promise<HttpsCallableResult<{ success: boolean, orders: TransactionOrder[] | undefined }>> => {
-        console.log('Called function getOrderHistory');
+        logger.log('Called function getOrderHistory');
         try {
             return await fun();
         } catch (e) {
-            console.error('getOrderHistory failed : '  + e);
+            logger.error('getOrderHistory failed : '  + e);
             return { data: { success: false, orders: undefined } };
         }
     };
@@ -90,7 +91,7 @@ export const useSetFavorites = () => {
     const fun = httpsCallable(functions, 'setFavorites') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
 
     return async (payload: SetFavoritesPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
-        console.log('Called function setFavorites');
+        logger.log('Called function setFavorites');
         try {
             return await fun(payload);
         } catch (e) {

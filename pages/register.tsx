@@ -8,7 +8,6 @@ import FullHeightScrollableContainer from '../components/scrollableContainer';
 
 const RegisterPage: NextPage = () => {
     const user = useGuardIsConnected();
-    console.log('register page');
     return (
         <>
             <Head>

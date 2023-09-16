@@ -8,6 +8,7 @@ import { imageLoader } from '../../pages/_app';
 import Image from 'next/image';
 import { useProducts } from '../../lib/firestoreHooks';
 import { TransactionOrder } from '../../lib/transactions';
+import logger from '../../lib/logger';
 
 const MiniProductCard: React.FC<{
     productWithQty: ProductWithQty,
@@ -38,7 +39,7 @@ const MiniProductCard: React.FC<{
     }, [products]);
 
     const addQuantity = (size: string) => {
-        console.log('add quantity');
+        logger.log('add quantity');
         const basketItem = basket.get(product.id);
         if (basketItem) {
             basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] + 1,
@@ -47,7 +48,7 @@ const MiniProductCard: React.FC<{
     };
 
     const removeQuantity = (size: string) => {
-        console.log('remove quantity');
+        logger.log('remove quantity');
         const basketItem = basket.get(product.id);
         if (basketItem) {
             basketItem.sizeWithQuantities[size] = basketItem.sizeWithQuantities[size] - 1,

@@ -8,6 +8,7 @@ import { Ingredient, ingredientCategory, ingredientConverter, parseIngredients }
 import { Stat, statConverter } from './stats';
 import { useRouter } from 'next/router';
 import { useGetFirestoreUser } from './firebaseFunctionHooks';
+import logger from './logger';
 
 // =================== Staff stuff ===================
 /**
@@ -39,7 +40,7 @@ export const useFirestoreUser = () => {
                     if (result.data.account) {
                         setFirestoreUser(result.data.account);
                     } else {
-                        console.log('User does not exist');
+                        logger.log('User does not exist');
                         router.replace('/register');
                     }
                 }
@@ -218,7 +219,7 @@ export const useAccountList = () => {
 
     useEffect(() => {
         const q = query(collection(db, 'accounts'), orderBy('lastName', 'asc'), orderBy('firstName', 'asc')).withConverter(accountConverter);
-        console.log(q);
+        logger.log(q);
         return onSnapshot(q, (snapshot) => {
             setAccounts(snapshot.docs.map((a) => a.data()));
         });
@@ -256,7 +257,7 @@ export const useAccountMaker = () => {
     const db = getFirestore();
 
     return async (firstName: string, lastName: string, school: School, phone: string, email: string) => {
-        console.log(`Create account for ${firstName} ${lastName} ${school}`);
+        logger.log(`Create account for ${firstName} ${lastName} ${school}`);
         return await addDoc(collection(db, 'accounts').withConverter(accountConverter), {
             id: '',
             firstName,
@@ -289,7 +290,7 @@ export const useAccountEditor = () => {
     const db = getFirestore();
 
     return async (account: Account, firstName: string, lastName: string, school: School, phone: string, email: string) => {
-        console.log(`Updating ${firstName} ${lastName}`);
+        logger.log(`Updating ${firstName} ${lastName}`);
         await updateDoc(doc(db, `accounts/${account.id}`).withConverter(accountConverter), { firstName, lastName, school, phone, email });
     };
 };
@@ -303,7 +304,7 @@ export const useAccountDeleter = () => {
     const db = getFirestore();
 
     return async (account: Account) => {
-        console.log(`Deleting ${account.firstName} ${account.lastName}`);
+        logger.log(`Deleting ${account.firstName} ${account.lastName}`);
         await deleteDoc(doc(db, `accounts/${account.id}`));
     };
 };
@@ -322,7 +323,7 @@ export const useProductMaker = () => {
         ingredients: Ingredient[],
         stock: number
     ) => {
-        console.log('Create product');
+        logger.log('Create product');
         if (type === 'serving') {
             const {isVege, isVegan, allergen, description} = parseIngredients(ingredients);
 
@@ -389,7 +390,7 @@ export const useProductEditor = () => {
         ingredients: Ingredient[],
         stock: number
     ) => {
-        console.log(`Updating ${name}`);
+        logger.log(`Updating ${name}`);
         if (type === 'serving') {
             const {isVege, isVegan, allergen, description} = parseIngredients(ingredients);
             return await updateDoc(doc(db, `products/${product.id}`).withConverter(productConverter), {
@@ -426,7 +427,7 @@ export const useProductDeleter = () => {
     const db = getFirestore();
 
     return async (product: Product) => {
-        console.log(`Deleting ${product.name}`);
+        logger.log(`Deleting ${product.name}`);
         await deleteDoc(doc(db, `products/${product.id}`));
     };
 };
@@ -436,7 +437,7 @@ export const useIngredientMaker = () => {
     const db = getFirestore();
 
     return async ({ id, name, category, isVege, isVegan, price, allergen, image }: Ingredient) => {
-        console.log('Create ingredient');
+        logger.log('Create ingredient');
         return await addDoc(collection(db, 'ingredients').withConverter(ingredientConverter), {
             id,
             name,
@@ -487,7 +488,7 @@ export const useIngredientEditor = () => {
         allergen: string,
         image: string,
     ) => {
-        console.log(`Updating ${name}`);
+        logger.log(`Updating ${name}`);
         await updateDoc(doc(db, `ingredients/${ingredient.id}`).withConverter(ingredientConverter), {
             name,
             category,
@@ -509,7 +510,7 @@ export const useIngredientDeleter = () => {
     const db = getFirestore();
 
     return async (ingredient: Ingredient) => {
-        console.log(`Deleting ${ingredient.name}`);
+        logger.log(`Deleting ${ingredient.name}`);
         await deleteDoc(doc(db, `ingredients/${ingredient.id}`));
     };
 };
@@ -568,7 +569,7 @@ export const useTransactionHistory = (account: Account) => {
 
         return onSnapshot(transaction, (snapshot) => {
             const _transactions = snapshot.docs.map((a) => a.data());
-            console.log(_transactions);
+            logger.log(_transactions);
             if (_transactions) {
                 setTransactions(_transactions);
             }
@@ -604,7 +605,7 @@ export const useTodaysOrders = () => {
 
         return onSnapshot(transactionQuery, (snapshot) => {
             const _transactions = snapshot.docs.map((a) => a.data());
-            console.log(_transactions);
+            logger.log(_transactions);
             if (_transactions) {
                 setTransactions(
                     (_transactions as TransactionOrder[]).sort((a, b) => +a.createdAt - +b.createdAt).map((t, i) =>
@@ -634,7 +635,7 @@ export const useUpdateOrderStatus = () => {
         success: boolean,
         message: string,
     }> => {
-        console.log(`Updating transaction ${transaction.id} status`);
+        logger.log(`Updating transaction ${transaction.id} status`);
 
         if (state === TransactionState.Served) {
             try {
@@ -646,7 +647,7 @@ export const useUpdateOrderStatus = () => {
                 return {success: false, message: 'Error'};
             }
         } else if (state === TransactionState.Cancelled) {
-            console.log(transaction);
+            logger.log(transaction);
             try {
                 const db = getFirestore();
                 const batch = writeBatch(db);
@@ -793,7 +794,7 @@ export const useOrder = (orderId: string) => {
         return onSnapshot(q, (snapshot) => {
 
             const _order = snapshot.data();
-            console.log(orderId);
+            logger.log(orderId);
             if (_order) {
                 setOrder(_order);
             }
@@ -823,9 +824,9 @@ export const useOrderEditor = () => {
     const admin = useFirestoreUser();
 
     return async ({order, productsWithQty, price, needPreparation }: OrderPayload): Promise<{ success: boolean; message: string; }> => {
-        console.log(`Updating order ${order.id}`);
-        console.log(order);
-        console.log(productsWithQty);
+        logger.log(`Updating order ${order.id}`);
+        logger.log(order);
+        logger.log(productsWithQty);
         // check if account has enough provision
         const accountData = (await getDoc(doc(db, `accounts/${order.customer.id}`).withConverter(accountConverter))).data();
         if (!accountData) {
@@ -841,17 +842,17 @@ export const useOrderEditor = () => {
             // Update the products stocks.
             for (const productWithQty of productsWithQty) {
                 const prevProductWithQty = order.productsWithQty.filter(p => p.product.id === productWithQty.product.id)[0];
-                console.log(`prev product`);
-                console.log(prevProductWithQty);
-                console.log(`product`);
-                console.log(productWithQty);
+                logger.log(`prev product`);
+                logger.log(prevProductWithQty);
+                logger.log(`product`);
+                logger.log(productWithQty);
                 const productRef = doc(db, `products/${productWithQty.product.id}`).withConverter(productConverter);
                 const productData = (await getDoc(productRef)).data();
                 if (!productData) {
                     return {success: false, message: `Product ${productWithQty.product.name} not found.`};
                 }
-                console.log(`productData`);
-                console.log(productData);
+                logger.log(`productData`);
+                logger.log(productData);
                 if (productData.stock !== undefined) {
                     const newStock = productData.stock
                     + Object.values(prevProductWithQty.sizeWithQuantities).reduce((a, b) => a + b)
@@ -860,7 +861,7 @@ export const useOrderEditor = () => {
                     if (newStock < 0) {
                         return {success: false, message: `Product ${productWithQty.product.name} is out of stock.`};
                     }
-                    console.log(`new stock: ${newStock}`);
+                    logger.log(`new stock: ${newStock}`);
                     batch.update(productRef, {
                         stock: newStock,
                     });
@@ -870,14 +871,14 @@ export const useOrderEditor = () => {
             // Restore the stocks for removed products
             for (const productWithQty of order.productsWithQty) {
                 if (!productsWithQty.map(p => p.product.id).includes(productWithQty.product.id)) {
-                    console.log(`${productWithQty.product.name} was removed from the order.`);
+                    logger.log(`${productWithQty.product.name} was removed from the order.`);
                     const productRef = doc(db, `products/${productWithQty.product.id}`).withConverter(productConverter);
                     const productData = (await getDoc(productRef)).data();
                     if (!productData) {
                         return {success: false, message: `Product ${productWithQty.product.name} not found.`};
                     }
                     if (productData.stock !== undefined) {
-                        console.log(`update stock of ${productWithQty.product.name}`);
+                        logger.log(`update stock of ${productWithQty.product.name}`);
                         const newStock = productData.stock
                         + Object.values(productWithQty.sizeWithQuantities).reduce((a, b) => a + b);
 
