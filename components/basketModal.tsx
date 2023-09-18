@@ -75,7 +75,7 @@ const BasketModal: React.FC<{
                     <Box m={2}>
                         {Array.from(basket.values()).map((productWithQty) => (
                             Object.entries(productWithQty.sizeWithQuantities).map(([size, quantity]) =>
-                                (quantity > 0 && <OrderItemLine productWithQty={productWithQty} quantity={quantity} size={size} /> ))))
+                                (quantity > 0 && <OrderItemLine key={productWithQty.id + size} productWithQty={productWithQty} quantity={quantity} size={size} /> ))))
                         }
                         {Array.from(basket.values()).length === 0 ? (
                             <Typography variant='h3'>

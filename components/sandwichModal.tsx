@@ -78,7 +78,7 @@ export const SandwichModal: React.FC<{
         const sandwich = {
             id: (Math.floor(Math.random() * (10000000))).toString(),
             type: 'serving',
-            name: name ?? 'Sandwich perso',
+            name: name === '' ? 'Sandwich perso' : name,
             isAvailable: true,
             image: '/servings/custom_sandwich.jpg',
             sizeWithPrices: sandwichSizeWithPrices,
@@ -86,7 +86,7 @@ export const SandwichModal: React.FC<{
             isVegan,
             allergen,
             description,
-            ingredients: Array.from(ingredients),
+            ingredients: selectedIngredients,
         } as Product;
 
         const sizeWithQuantities: Record<string, number> = {'Petit': 0, 'Moyen': 0, 'Grand': 0};
@@ -98,14 +98,14 @@ export const SandwichModal: React.FC<{
 
         setBasket(new Map(basket.set(sandwich.id, basketItem)));
 
-        if (addToFavorites && name) {
-            if (favorites.has(name)) {
-                favorites.delete(name);
-            } else {
-                favorites.add(name);
-            }
-            setFavorites(new Set(favorites));
-        }
+        // if (addToFavorites && name) {
+        //     if (favorites.has(name)) {
+        //         favorites.delete(name);
+        //     } else {
+        //         favorites.add(name);
+        //     }
+        //     setFavorites(new Set(favorites));
+        // }
 
         setSandwichModalOpen(false);
         setSelectedIngredientsIds(new Set());

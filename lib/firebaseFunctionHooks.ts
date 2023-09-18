@@ -3,7 +3,7 @@ import { MakeTransactionPayload, TransactionOrder } from './transactions';
 import { Account, MakeAccountPayload, SetFavoritesPayload } from './accounts';
 import logger from './logger';
 
-const LOCAL_FUNCTIONS = false;
+const LOCAL_FUNCTIONS = true;
 
 export const useMakeAccount = () => {
     const functions = getFunctions();
@@ -37,7 +37,8 @@ export const useMakeTransaction = () => {
     const fun = httpsCallable(functions, 'makeTransaction') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
 
     return async (payload: MakeTransactionPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
-        logger.log('Called function makeTransaction');
+        logger.log('Called function makeTransaction with payload');
+        logger.log(payload);
         try {
             return await fun(payload);
         } catch (e) {

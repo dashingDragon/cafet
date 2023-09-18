@@ -74,7 +74,13 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
 
     const handleChangeStatus = async (state: number) => {
         handleCloseMenu();
-        await setOrderStatus(order.transaction, state);
+        const {success, message} = await setOrderStatus(order.transaction, state);
+        if (success) {
+            setSnackbarMessage(message, 'success');
+        } else {
+            setSnackbarMessage(message, 'error');
+        }
+        setConfirmDialogOpen(false);
     };
 
     const setStatusServed = async () => {

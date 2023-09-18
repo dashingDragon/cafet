@@ -646,6 +646,15 @@ export const useUpdateOrderStatus = () => {
             } catch (error) {
                 return {success: false, message: 'Error'};
             }
+        } else if (state === TransactionState.Ready) {
+            try {
+                await updateDoc(doc(db, `transactions/${transaction.id}`), {
+                    state,
+                });
+                return {success: true, message: 'Order ready'};
+            } catch (error) {
+                return {success: false, message: 'Error'};
+            }
         } else if (state === TransactionState.Cancelled) {
             logger.log(transaction);
             try {
@@ -656,10 +665,7 @@ export const useUpdateOrderStatus = () => {
                 for (const productWithQty of transaction.productsWithQty) {
                     const productRef = doc(db, `products/${productWithQty.product.id}`).withConverter(productConverter);
                     const productData = (await getDoc(productRef)).data();
-                    if (!productData) {
-                        return {success: false, message: 'Error'};
-                    }
-                    if (productData.stock !== undefined) {
+                    if (productData && productData.stock !== undefined) {
                         batch.update(productRef, {
                             stock: productData.stock + Object.values(productWithQty.sizeWithQuantities).reduce((a, b) => a + b),
                         });
@@ -729,26 +735,7 @@ export const cashInTransaction = async (transaction: TransactionOrder): Promise<
         for (let i = 0; i < transaction.productsWithQty.length; i++) {
             const productWithQtySize = transaction.productsWithQty[i];
 
-            // Do not trust user product price, check with db
-            const productData = (await getDoc(doc(db, `products/${productWithQtySize.product.id}`).withConverter(productConverter))).data();
-            if (!productData) {
-                return {success: false, message: `${productWithQtySize.product.name} not found.`};
-            }
-            if (!productData.isAvailable) {
-                return {success: false, message: `${productWithQtySize.product.name} is not available.`};
-            }
-
             Object.entries(productWithQtySize.sizeWithQuantities).forEach(([size, quantity]) => {
-                // Check user input.
-                if (quantity < 0) {
-                    return {success: false, message: 'Quantities must be positive.'};
-                }
-                if (!Object.keys(productData.sizeWithPrices).includes(size)) {
-                    return {success: false, message: `Size does not exist for product ${productData.name}.`};
-                }
-                if (productData.stock && productData.stock < quantity) {
-                    return {success: false, message: 'Queried quantity exceeds remaining product stock.'};
-                }
                 quantityOrdered[productWithQtySize.product.type] += quantity;
             });
         }

@@ -212,10 +212,9 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         const productSnapshot = await db.doc(`products/${productWithQtySize.product.id}`)
             .withConverter(productConverter as unknown as FirestoreDataConverter<Product>)
             .get();
-
         if (!productSnapshot.exists) {
             // Custom sandwich case
-            Object.entries(productWithQtySize.sizeWithQuantities).forEach(async ([size, quantity]) => {
+            for (const [size, quantity] of Object.entries(productWithQtySize.sizeWithQuantities)) {
                 // Check user input.
                 if (quantity < 0) {
                     throw new functions.https.HttpsError('invalid-argument', 'Quantities must be positive.');
@@ -227,11 +226,13 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
                     if (ingredientPrice < 0) {
                         throw new functions.https.HttpsError('invalid-argument', 'Unknown ingredient, cannot compute product price.');
                     }
+                    console.log('ingredientPrice:' + ingredientPrice);
                     priceProducts += (sandwichSizeWithPrices[size] + ingredientPrice) * quantity;
+                    console.log('priceProducts:' + priceProducts);
                     // Enter serving by hand to avoid cheating
                     quantityOrdered['serving'] += quantity;
                 }
-            });
+            }
         } else {
             const productData = productSnapshot.data();
             if (!productData) {
@@ -253,7 +254,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
                         throw new functions.https.HttpsError('resource-exhausted', 'Queried quantity exceeds remaining product stock.');
                     }
                     priceProducts += (productData.sizeWithPrices[size] + getIngredientPrice(productData.ingredients)) * quantity;
-                    quantityOrdered[productWithQtySize.product.type] += quantity;
+                    quantityOrdered[productData.type] += quantity;
                 }
             });
         }
@@ -290,7 +291,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
         type: TransactionType.Order,
         productsWithQty: productsWithQty,
         price: priceProducts,
-        state: needPreparation ? TransactionState.Preparing : TransactionState.Served,
+        state: !needPreparation && requestingAccount.isAdmin ? TransactionState.Served : TransactionState.Preparing,
         customer: account,
         admin: requestingAccount.isAdmin ? requestingAccount : {},
         createdAt: new Date(),
@@ -300,14 +301,17 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     for (let i = 0; i < productsWithQty.length; i++) {
         const productRef = db.doc(`products/${productsWithQty[i].product.id}`).withConverter(productConverter as unknown as FirestoreDataConverter<Product>);
         const productSnapshot = await productRef.get();
-        const productData = productSnapshot.data();
-        if (!productData) {
-            throw new functions.https.HttpsError('not-found', 'Product not found.');
-        }
-        if (productData.stock) {
-            batch.update(productRef, {
-                stock: productData.stock - Object.values(productsWithQty[i].sizeWithQuantities).reduce((a, b) => a + b),
-            });
+        if (productSnapshot.exists) {
+            const productData = productSnapshot.data();
+            // Actually useless as .exists=true garantees that productData is defined
+            if (!productData) {
+                throw new functions.https.HttpsError('not-found', 'Product not found.');
+            }
+            if (productData.stock) {
+                batch.update(productRef, {
+                    stock: productData.stock - Object.values(productsWithQty[i].sizeWithQuantities).reduce((a, b) => a + b),
+                });
+            }
         }
     }
 

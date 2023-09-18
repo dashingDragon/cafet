@@ -8,6 +8,7 @@ import { useSetFavorites } from '../../lib/firebaseFunctionHooks';
 import { Add } from '@mui/icons-material';
 import { formatMoney } from '../accountDetails';
 import { SandwichModal } from '../sandwichModal';
+import logger from '../../lib/logger';
 
 export const ProductShortCardList: React.FC<{
     basket: Map<string, ProductWithQty>,
@@ -45,6 +46,7 @@ export const ProductShortCardList: React.FC<{
 
     useEffect(() => {
         if (favorites.size) {
+            logger.log(favorites);
             updateFavorites({ favorites: [...favorites] });
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
