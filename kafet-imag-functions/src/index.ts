@@ -5,11 +5,13 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
 import {MakeTransactionPayload, Transaction, TransactionState, TransactionType, transactionConverter} from '../../lib/transactions';
-import {Account, MakeAccountPayload, SetFavoritesPayload, accountConverter} from '../../lib/accounts';
+import {Account, MakeAccountPayload, School, SetFavoritesPayload, accountConverter} from '../../lib/accounts';
 import {Product, productConverter, sandwichSizeWithPrices} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
 import {Ingredient, getIngredientPrice, ingredientConverter} from '../../lib/ingredients';
 import {DateTime} from 'luxon';
+
+const nameRegex = /^[a-zA-ZÀ-ÖØ-öø-ÿ -]{1,30}$/;
 
 admin.initializeApp();
 
@@ -26,7 +28,7 @@ const checkIfUser = async (uid: string | undefined): Promise<Account> => {
         .get()
     ).data();
     if (!firestoreUser) {
-        throw new functions.https.HttpsError('not-found', 'User not found.');
+        throw new functions.https.HttpsError('invalid-argument', 'User not found.');
     }
     return firestoreUser;
 };
@@ -40,6 +42,23 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
     }
 
     const {firstName, lastName, phone, school, email} = data as MakeAccountPayload;
+    if (!nameRegex.test(firstName)) {
+        throw new functions.https.HttpsError('invalid-argument', 'First name must contains only letters or dashes.');
+    }
+    if (!nameRegex.test(firstName)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Last name must contains only letters or dashes.');
+    }
+    const phoneRegex = /^[\d\s+]{1,15}$/;
+    if (!phoneRegex.test(phone)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Phone number format can only contain spaces, numbers (prefixed with a +).');
+    }
+    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailRegex.test(email)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid email format.');
+    }
+    if (Object.values(School).includes(school)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid school number.');
+    }
     const googleUid = context.auth.uid;
 
     const firestoreUser = (await admin.firestore().doc(`accounts/${googleUid}`)
@@ -132,12 +151,17 @@ export const getOrderHistory = functions.https.onCall(async (data, context) => {
  */
 export const setFavorites = functions.https.onCall(async (data, context) => {
     if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated have favorite servings.');
+        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated to have favorite servings.');
     }
     const db = admin.firestore();
     const googleUid = context.auth.uid;
 
     const {favorites} = (data as SetFavoritesPayload);
+    favorites.forEach((favorite) => {
+        if (!nameRegex.test(favorite)) {
+            throw new functions.https.HttpsError('invalid-argument', 'Invalid format for favorite id.');
+        }
+    });
 
     try {
         const accountRef = db.doc(`accounts/${googleUid}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
@@ -179,6 +203,7 @@ const getIngredientPriceFromDb = async (ingredients?: Ingredient[]): Promise<num
  * Also check if it is still time for an order.
  */
 export const makeTransaction = functions.https.onCall(async (data, context) => {
+    // TODO make more thorough verifications on runtime objects
     const {account, productsWithQty, needPreparation} = (data as MakeTransactionPayload);
     const db = admin.firestore();
 
@@ -195,7 +220,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
 
     const customerAccount = (await customerRef.get()).data();
     if (!customerAccount) {
-        throw new functions.https.HttpsError('not-found', 'Account not found');
+        throw new functions.https.HttpsError('invalid-argument', 'Account not found');
     }
 
     // Compute price, check user provision and check availability of products.
