@@ -1,4 +1,5 @@
 import { FirestoreDataConverter } from 'firebase/firestore';
+import { ZodSchema, z } from 'zod';
 
 export const MAX_MONEY_PER_ACCOUNT = 50 * 100; // max 50€ at a time on one account
 
@@ -14,6 +15,8 @@ export enum School {
     Uga = 8,
     Unknown = 9,
 }
+
+export const SchoolSchema: ZodSchema<School> = z.number();
 
 export const allSchools = [
     { value: School.Ensimag, name: School[School.Ensimag] },
@@ -35,6 +38,13 @@ export type AccountStats = {
     snacksOrdered: number;
 }
 
+const AccountStatsSchema: ZodSchema<AccountStats> = z.object({
+    totalMoneySpent: z.number(),
+    servingsOrdered: z.number(),
+    drinksOrdered: z.number(),
+    snacksOrdered: z.number(),
+});
+
 export type Account = {
     id: string;
     firstName: string;
@@ -51,6 +61,24 @@ export type Account = {
     stats: AccountStats;
 }
 
+export const AccountSchema: ZodSchema<Account> = z.object({
+    id: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
+    isStaff: z.boolean(),
+    isAdmin: z.boolean(),
+    isAvailable: z.boolean(),
+    phone: z.string(),
+    email: z.string(),
+    school: SchoolSchema,
+    isLinkedToGoogle: z.boolean(),
+    favorites: z.array(z.string()),
+    balance: z.number(),
+    stats: AccountStatsSchema,
+});
+
+// Note: we could also use type Account = z.infer<typeof AccountSchema> 
+
 export type MakeAccountPayload = {
     firstName: string;
     lastName: string;
@@ -58,6 +86,14 @@ export type MakeAccountPayload = {
     email: string;
     school: School;
 }
+  
+export const MakeAccountPayloadSchema: ZodSchema<MakeAccountPayload> = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    phone: z.string(),
+    email: z.string(),
+    school: SchoolSchema,
+});
 
 export type SetFavoritesPayload = {
     favorites: Array<string>;

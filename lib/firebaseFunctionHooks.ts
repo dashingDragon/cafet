@@ -10,15 +10,15 @@ export const useMakeAccount = () => {
     if (LOCAL_FUNCTIONS) {
         connectFunctionsEmulator(functions, '127.0.0.1', 5001);
     }
-    const fun = httpsCallable(functions, 'makeAccount') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean }>>;
+    const fun = httpsCallable(functions, 'makeAccount') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, message: string }>>;
 
-    return async (payload: MakeAccountPayload): Promise<HttpsCallableResult<{ success: boolean }>> => {
+    return async (payload: MakeAccountPayload): Promise<HttpsCallableResult<{ success: boolean, message: string }>> => {
         logger.log('Called function makeAccount');
         try {
             return await fun(payload);
         } catch (e) {
-            logger.error('makeAccount failed : '  + e);
-            return { data: { success: false } };
+            console.error('makeAccount failed : ' + e);
+            return { data: { success: false, message: String(e)} };
         }
     };
 };
@@ -42,7 +42,7 @@ export const useMakeTransaction = () => {
         try {
             return await fun(payload);
         } catch (e) {
-            logger.error('makeTransaction failed : '  + e);
+            console.error('makeTransaction failed : '  + e);
             return { data: { success: false } };
         }
     };
@@ -60,7 +60,7 @@ export const useGetFirestoreUser = () => {
         try {
             return await fun();
         } catch (e) {
-            logger.error('getFirestoreUser failed : '  + e);
+            console.error('getFirestoreUser failed : '  + e);
             return { data: { success: false, account: undefined } };
         }
     };
@@ -78,7 +78,7 @@ export const useOrderHistory = () => {
         try {
             return await fun();
         } catch (e) {
-            logger.error('getOrderHistory failed : '  + e);
+            console.error('getOrderHistory failed : '  + e);
             return { data: { success: false, orders: undefined } };
         }
     };

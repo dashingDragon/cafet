@@ -15,7 +15,6 @@ import { TransactionOrder } from '../lib/transactions';
 import logger from '../lib/logger';
 
 const ProductMenu: React.FC<{ account: Account, order?: TransactionOrder }> = ({ account, order }) => {
-    // State
     const [basket, setBasket] = useState(new Map<string, ProductWithQty>());
     const [basketOpen, setBasketOpen] = useState(false);
     const [basketPrice, setBasketPrice] = useState(0);

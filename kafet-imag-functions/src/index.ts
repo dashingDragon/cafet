@@ -5,11 +5,12 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import {FirestoreDataConverter} from '@google-cloud/firestore';
 import {MakeTransactionPayload, Transaction, TransactionState, TransactionType, transactionConverter} from '../../lib/transactions';
-import {Account, MakeAccountPayload, School, SetFavoritesPayload, accountConverter} from '../../lib/accounts';
-import {Product, productConverter, sandwichSizeWithPrices} from '../../lib/products';
+import {Account, AccountSchema, MakeAccountPayload, SchoolSchema, SetFavoritesPayload, accountConverter} from '../../lib/accounts';
+import {Product, ProductWithQtySchema, productConverter, sandwichSizeWithPrices} from '../../lib/products';
 import {Stat, statConverter} from '../../lib/stats';
 import {Ingredient, getIngredientPrice, ingredientConverter} from '../../lib/ingredients';
 import {DateTime} from 'luxon';
+import {z} from 'zod';
 
 const nameRegex = /^[a-zA-ZÀ-ÖØ-öø-ÿ -]{1,30}$/;
 
@@ -42,6 +43,7 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
     }
 
     const {firstName, lastName, phone, school, email} = data as MakeAccountPayload;
+    console.log(data);
     if (!nameRegex.test(firstName)) {
         throw new functions.https.HttpsError('invalid-argument', 'First name must contains only letters or dashes.');
     }
@@ -49,14 +51,14 @@ export const makeAccount = functions.https.onCall(async (data, context) => {
         throw new functions.https.HttpsError('invalid-argument', 'Last name must contains only letters or dashes.');
     }
     const phoneRegex = /^[\d\s+]{1,15}$/;
-    if (!phoneRegex.test(phone)) {
+    if (phone !== '' && !phoneRegex.test(phone)) {
         throw new functions.https.HttpsError('invalid-argument', 'Phone number format can only contain spaces, numbers (prefixed with a +).');
     }
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-    if (!emailRegex.test(email)) {
+    if (email !== '' && !emailRegex.test(email)) {
         throw new functions.https.HttpsError('invalid-argument', 'Invalid email format.');
     }
-    if (Object.values(School).includes(school)) {
+    if (!SchoolSchema.safeParse(school)) {
         throw new functions.https.HttpsError('invalid-argument', 'Invalid school number.');
     }
     const googleUid = context.auth.uid;
@@ -203,8 +205,16 @@ const getIngredientPriceFromDb = async (ingredients?: Ingredient[]): Promise<num
  * Also check if it is still time for an order.
  */
 export const makeTransaction = functions.https.onCall(async (data, context) => {
-    // TODO make more thorough verifications on runtime objects
     const {account, productsWithQty, needPreparation} = (data as MakeTransactionPayload);
+    if (!AccountSchema.safeParse(account)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid account format.');
+    }
+    if (!z.array(ProductWithQtySchema).safeParse(productsWithQty)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid productsWithQty format.');
+    }
+    if (!z.boolean().parse(needPreparation)) {
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid needPreparation format.');
+    }
     const db = admin.firestore();
 
     const requestingAccount = await checkIfUser(context.auth?.uid);

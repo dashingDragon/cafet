@@ -1,7 +1,10 @@
 import { FirestoreDataConverter, doc, getFirestore } from 'firebase/firestore';
-import { Ingredient } from './ingredients';
+import { Ingredient, IngredientSchema } from './ingredients';
+import { ZodSchema, z } from 'zod';
 
 export type productType = 'serving' | 'drink' | 'snack';
+
+const ProductTypeSchema: ZodSchema<productType> = z.enum(['serving', 'drink', 'snack']);
 
 export type Product = {
     id: string;
@@ -18,11 +21,32 @@ export type Product = {
     stock?: number;
 };
 
+const ProductSchema: ZodSchema<Product> = z.object({
+    id: z.string(),
+    type: ProductTypeSchema,
+    name: z.string(),
+    isAvailable: z.boolean(),
+    image: z.string(),
+    sizeWithPrices: z.record(z.number()),
+    isVege: z.optional(z.boolean()),
+    isVegan: z.optional(z.boolean()),
+    allergen: z.optional(z.string()),
+    ingredients: z.optional(z.array(IngredientSchema)),
+    description: z.optional(z.string()),
+    stock: z.optional(z.number()),
+});
+
 export type ProductWithQty = {
     id: string;
     product: Product;
     sizeWithQuantities: Record<string, number>;
 }
+
+export const ProductWithQtySchema: ZodSchema<ProductWithQty> = z.object({
+    id: z.string(),
+    product: ProductSchema,
+    sizeWithQuantities: z.record(z.number()),
+});
 
 export const productConverter: FirestoreDataConverter<Product> = {
     fromFirestore: (snapshot, options) => {

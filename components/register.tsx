@@ -2,10 +2,11 @@ import { Box, Button, CircularProgress, Container, FormControl, InputLabel, Menu
 import { useRouter } from 'next/router';
 import { MakeAccountPayload, School, allSchools } from '../lib/accounts';
 import { useMakeAccount } from '../lib/firebaseFunctionHooks';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
 import logger from '../lib/logger';
+import { SnackbarContext } from './scrollableContainer';
 
 const Register: React.FC = () => {
     const router = useRouter();
@@ -19,6 +20,8 @@ const Register: React.FC = () => {
 
     const [missingFirstName, setMissingFirstName] = useState(false);
     const [missingLastName, setMissingLastName] = useState(false);
+
+    const setSnackbarMessage = useContext(SnackbarContext);
 
     const handleSignUp = async () => {
         setSubmitting(true);
@@ -37,10 +40,11 @@ const Register: React.FC = () => {
             } as MakeAccountPayload;
             const result = await makeAccount(payload);
             if (result.data.success) {
-                // TODO snackbar
                 router.replace('/');
+                setSnackbarMessage(`Compte créé avec succès.`, 'success');
             } else {
                 logger.error('An error occured. Please try again.');
+                setSnackbarMessage(result.data.message ? result.data.message.split(':')[1] : 'Une erreur s\'est produite', 'error');
             }
             setSubmitting(false);
         }

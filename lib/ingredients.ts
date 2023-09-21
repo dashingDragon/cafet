@@ -1,7 +1,10 @@
 import { FirestoreDataConverter } from 'firebase/firestore';
 import { Order, TransactionState } from './transactions';
+import { ZodSchema, z } from 'zod';
 
 export type ingredientCategory = 'meat' | 'cheese' | 'veggie' | 'spice' | 'sauce';
+
+const IngredientCategorySchema: ZodSchema<ingredientCategory> = z.enum(['meat', 'cheese', 'veggie', 'spice', 'sauce']);
 
 export const baguetteSizes: Record<string, number> = {
     'Petit': 1/3,
@@ -19,6 +22,17 @@ export type Ingredient = {
     allergen: string,
     image: string,
 };
+
+export const IngredientSchema: ZodSchema<Ingredient> = z.object({
+    id: z.string(),
+    name: z.string(),
+    category: IngredientCategorySchema,
+    isVege: z.boolean(),
+    isVegan: z.boolean(),
+    price: z.number(),
+    allergen: z.string(),
+    image: z.string(),
+});
 
 export const ingredientConverter: FirestoreDataConverter<Ingredient> = {
     fromFirestore: (snapshot, options) => {
