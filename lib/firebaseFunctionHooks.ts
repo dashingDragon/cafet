@@ -3,7 +3,7 @@ import { MakeTransactionPayload, TransactionOrder } from './transactions';
 import { Account, MakeAccountPayload, SetFavoritesPayload } from './accounts';
 import logger from './logger';
 
-const LOCAL_FUNCTIONS = false;
+const LOCAL_FUNCTIONS = true;
 
 export const useMakeAccount = () => {
     const functions = getFunctions();

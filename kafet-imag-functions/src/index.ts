@@ -212,7 +212,7 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     if (!z.array(ProductWithQtySchema).safeParse(productsWithQty)) {
         throw new functions.https.HttpsError('invalid-argument', 'Invalid productsWithQty format.');
     }
-    if (!z.boolean().parse(needPreparation)) {
+    if (typeof needPreparation !== 'boolean') {
         throw new functions.https.HttpsError('invalid-argument', 'Invalid needPreparation format.');
     }
     const db = admin.firestore();
