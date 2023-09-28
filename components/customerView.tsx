@@ -11,24 +11,31 @@ import { formatDate, formatMoney } from './accountDetails';
 import { OrderItemLine } from './lists/orderList';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
+import { DateTime } from 'luxon';
 
 const getDateFromBrokenTimestamp = (date: { _seconds: number }): Date => {
     return new Date(date._seconds * 1000);
 };
 
 const isCurrentTimeInRange = () => {
-    const currentDate = new Date();
-    const currentDayOfWeek = currentDate.getDay();
-    const currentHour = currentDate.getHours();
-    const currentMinutes = currentDate.getMinutes();
+    const parisTimeZone = 'Europe/Paris';
+    const currentTimeParis = DateTime.now().setZone(parisTimeZone);
 
-    if (currentDayOfWeek >= 1 && currentDayOfWeek <= 5) {
-        if (currentHour < 11 || (currentHour === 11 && currentMinutes <= 30)) {
-            return true;
-        }
+    if (currentTimeParis.weekday === 6 /* saturday */) {
+        return false;
     }
 
-    return false;
+    const startOfOrderPeriod = currentTimeParis.set({hour: 22, minute: 0, second: 0, millisecond: 1});
+    const endOfOrderPeriod = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
+
+    if (
+        !((currentTimeParis.weekday + 1) % 8 <= 5 && currentTimeParis <= startOfOrderPeriod) &&
+        !((currentTimeParis.weekday <= 5 && currentTimeParis <= endOfOrderPeriod))
+    ) {
+        return false;
+    }
+
+    return true;
 };
 
 export const CustomerView: React.FC<{

@@ -630,6 +630,7 @@ export const useTodaysOrders = () => {
  */
 export const useUpdateOrderStatus = () => {
     const db = getFirestore();
+    const admin = useFirestoreUser();
 
     return async (transaction: TransactionOrder, state: TransactionState): Promise<{
         success: boolean,
@@ -641,8 +642,9 @@ export const useUpdateOrderStatus = () => {
             try {
                 await updateDoc(doc(db, `transactions/${transaction.id}`), {
                     state,
+                    admin,
                 });
-                return {success: true, message: 'Order cancelled'};
+                return {success: true, message: 'Order served'};
             } catch (error) {
                 return {success: false, message: 'Error'};
             }
@@ -650,6 +652,7 @@ export const useUpdateOrderStatus = () => {
             try {
                 await updateDoc(doc(db, `transactions/${transaction.id}`), {
                     state,
+                    admin,
                 });
                 return {success: true, message: 'Order ready'};
             } catch (error) {
@@ -675,6 +678,7 @@ export const useUpdateOrderStatus = () => {
                 // Update the transaction state.
                 batch.update(doc(db, `transactions/${transaction.id}`), {
                     state,
+                    admin,
                 });
 
                 try {

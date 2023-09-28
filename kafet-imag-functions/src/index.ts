@@ -306,15 +306,19 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     const parisTimeZone = 'Europe/Paris';
     const currentTimeParis = DateTime.now().setZone(parisTimeZone);
 
-    if (!requestingAccount.isAdmin && (currentTimeParis.weekday === 6 /* saturday */ || currentTimeParis.weekday === 7 /* sunday */)) {
-        throw new functions.https.HttpsError('permission-denied', 'You can only order on weekdays (Monday to Friday).');
+    if (!requestingAccount.isAdmin && (currentTimeParis.weekday === 6 /* saturday */)) {
+        throw new functions.https.HttpsError('permission-denied', 'You cannot order right now.');
     }
 
-    const startOfDayParis = currentTimeParis.set({hour: 0, minute: 0, second: 0, millisecond: 1});
-    const endOfDayParis = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
+    const startOfOrderPeriod = currentTimeParis.set({hour: 22, minute: 0, second: 0, millisecond: 1});
+    const endOfOrderPeriod = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
 
-    if (!requestingAccount.isAdmin && !startOfDayParis.until(endOfDayParis).contains(currentTimeParis)) {
-        throw new functions.https.HttpsError('permission-denied', 'You can only order between 0:00 AM and 11:30 AM Paris time.');
+    if (
+        !requestingAccount.isAdmin &&
+        !((currentTimeParis.weekday + 1) % 8 <= 5 && currentTimeParis <= startOfOrderPeriod) &&
+        !((currentTimeParis.weekday <= 5 && currentTimeParis <= endOfOrderPeriod))
+    ) {
+        throw new functions.https.HttpsError('permission-denied', 'You can only order between 10:00 PM and 11:30 AM Paris time.');
     }
 
     // Write the transaction.

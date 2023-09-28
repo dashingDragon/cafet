@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Account, MAX_MONEY_PER_ACCOUNT, School } from '../lib/accounts';
 import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useMakeStaff, useRechargeTransactionMaker, useTransactionHistory } from '../lib/firestoreHooks';
 import AccountEditDialog from './dialogs/accountEditDialog';
-import { TransactionOrder, TransactionRecharge, TransactionType } from '../lib/transactions';
+import { TransactionOrder, TransactionRecharge, TransactionState, TransactionType } from '../lib/transactions';
 import { useGuardIsAdmin } from '../lib/hooks';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
@@ -343,17 +343,17 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     <Typography variant="body1">
                                         Recharge
                                     </Typography>
-                                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                                        +{formatMoney((transaction as TransactionRecharge).amount)}
+                                    <Typography variant="body1" sx={{ fontWeight: 'bold', color: theme => (transaction as TransactionRecharge).amount > 0 ? theme.palette.success.main : theme.palette.error.main }}>
+                                        {`${(transaction as TransactionRecharge).amount > 0 ? '+' : ''}${formatMoney((transaction as TransactionRecharge).amount)}`}
                                     </Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={3}>
                                     <Typography variant="body1">
                                         {formatDate(transaction.createdAt.toDate())}
                                     </Typography>
-                                    {transaction.admin ? (
+                                    {transaction.admin?.firstName ? (
                                         <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                            Encaissée par {transaction.admin.firstName}
+                                            Rechargé par {transaction.admin.firstName}
                                         </Typography>
                                     ) : null
                                     }
@@ -367,20 +367,38 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                     <Typography variant="body1">
                                         Commande
                                     </Typography>
-                                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                                    <Typography variant="body1" sx={{
+                                        fontWeight: 'bold',
+                                        textDecorationLine: (transaction as TransactionOrder).state === TransactionState.Cancelled ? 'line-through' : 'none',
+                                        color: theme => theme.palette.error.main,
+                                    }}>
                                         -{formatMoney((transaction as TransactionOrder).price)}
                                     </Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={3}>
-                                    <Typography variant="body1">
-                                        {formatDate(transaction.createdAt.toDate())}
-                                    </Typography>
-                                    {transaction.admin ? (
-                                        <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
-                                            Encaissée par {transaction.admin.firstName}
-                                        </Typography>
-                                    ) : null
-                                    }
+                                    {(transaction as TransactionOrder).state === TransactionState.Cancelled ? (
+                                        <>
+                                            <Typography variant="body1">
+                                                {formatDate(transaction.createdAt.toDate())}
+                                            </Typography>
+                                            <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
+                                                Commande annulée
+                                            </Typography>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Typography variant="body1">
+                                                {formatDate(transaction.createdAt.toDate())}
+                                            </Typography>
+                                            {transaction.admin?.firstName ? (
+                                                <Typography variant="body1" sx={{ fontStyle: 'italic'}}>
+                                                    Encaissée par {transaction.admin.firstName}
+                                                </Typography>
+                                            ) : null
+                                            }
+                                        </>
+                                    )}
+                                    
                                 </Box>
                             </div>
                         );
