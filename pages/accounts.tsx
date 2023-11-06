@@ -1,10 +1,10 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import PageLayout from '../components/pageLayout';
+import PageLayout from '../components/layout/pageLayout';
 import AccountList from '../components/lists/accountList';
 import { useGuardIsAdmin } from '../lib/hooks';
 import LoadingScreen from '../components/loading';
-import FullHeightScrollableContainer from '../components/scrollableContainer';
+import FullHeightScrollableContainer from '../components/layout/scrollableContainer';
 
 const AccountPage: NextPage = () => {
     const admin = useGuardIsAdmin();

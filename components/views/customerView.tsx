@@ -1,18 +1,18 @@
 import { Alert, AlertTitle, Avatar, Box, Card, CardContent, Chip, Divider, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
 import { getAuth, signOut } from 'firebase/auth';
 import React, { useContext, useEffect, useState } from 'react';
-import { Account } from '../lib/accounts';
+import { Account } from '../../lib/accounts';
 import { CheckCircle, DarkMode, LightMode, Logout, Timelapse } from '@mui/icons-material';
-import ProductMenu from './productMenu';
-import { invertTheme, useAppTheme } from '../lib/theme';
-import { useOrderHistory, useQueuePosition } from '../lib/firebaseFunctionHooks';
-import { TransactionOrder, TransactionState } from '../lib/transactions';
-import { formatDate, formatMoney } from './accountDetails';
-import { OrderItemLine } from './lists/orderList';
+import ProductMenu from '../productMenu';
+import { invertTheme, useAppTheme } from '../../lib/theme';
+import { useOrderHistory, useQueuePosition } from '../../lib/firebaseFunctionHooks';
+import { TransactionOrder, TransactionState } from '../../lib/transactions';
+import { formatDate, formatMoney } from '../accountDetails';
+import { OrderItemLine } from '../lists/orderList';
 import Image from 'next/image';
-import { imageLoader } from '../pages/_app';
+import { imageLoader } from '../../pages/_app';
 import { DateTime } from 'luxon';
-import { SnackbarContext } from './scrollableContainer';
+import { SnackbarContext } from '../layout/scrollableContainer';
 
 const getDateFromBrokenTimestamp = (date: { _seconds: number }): Date => {
     return new Date(date._seconds * 1000);

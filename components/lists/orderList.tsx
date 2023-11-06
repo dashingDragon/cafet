@@ -6,7 +6,7 @@ import { cashInTransaction, useFirestoreUser, useUpdateOrderStatus } from '../..
 import { getIngredientPrice } from '../../lib/ingredients';
 import {Cancel, CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
-import { SnackbarContext } from '../scrollableContainer';
+import { SnackbarContext } from '../layout/scrollableContainer';
 import { useRouter } from 'next/router';
 
 export const OrderItemLine: React.FC<{

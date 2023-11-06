@@ -1,10 +1,10 @@
 import { AppBar, Avatar, BottomNavigation, BottomNavigationAction, Box, Container, IconButton, Toolbar, Typography } from '@mui/material';
 import { AdminPanelSettings, ArrowBack, Brightness6, DarkMode, FoodBank, FormatListBulleted, Groups, LightMode, Logout, QueryStats } from '@mui/icons-material';
 import { ReactElement } from 'react';
-import { invertTheme, useAppTheme } from '../lib/theme';
+import { invertTheme, useAppTheme } from '../../lib/theme';
 import { useRouter } from 'next/router';
 import { getAuth, signOut } from 'firebase/auth';
-import { useFirestoreUser } from '../lib/firestoreHooks';
+import { useFirestoreUser } from '../../lib/firestoreHooks';
 
 type PageLayoutProps = {
   children: ReactElement,

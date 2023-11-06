@@ -2,10 +2,10 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import LoadingScreen from '../../components/loading';
-import PageLayout from '../../components/pageLayout';
+import PageLayout from '../../components/layout/pageLayout';
 import { useOrder } from '../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../lib/hooks';
-import FullHeightScrollableContainer from '../../components/scrollableContainer';
+import FullHeightScrollableContainer from '../../components/layout/scrollableContainer';
 import ProductMenu from '../../components/productMenu';
 import { TransactionOrder } from '../../lib/transactions';
 

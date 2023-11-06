@@ -9,7 +9,7 @@ import { TransactionOrder, TransactionRecharge, TransactionState, TransactionTyp
 import { useGuardIsAdmin } from '../lib/hooks';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
-import { SnackbarContext } from './scrollableContainer';
+import { SnackbarContext } from './layout/scrollableContainer';
 
 const schoolToImage = (school: School) => {
     return `/schools/${School[school].toLowerCase()}.png`;

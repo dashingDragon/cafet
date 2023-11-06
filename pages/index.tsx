@@ -1,11 +1,11 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import PageLayout from '../components/pageLayout';
+import PageLayout from '../components/layout/pageLayout';
 import LoadingScreen from '../components/loading';
 import { useFirestoreUser } from '../lib/firestoreHooks';
-import { StaffView } from '../components/staffView';
-import { CustomerView } from '../components/customerView';
-import FullHeightScrollableContainer from '../components/scrollableContainer';
+import { StaffView } from '../components/views/staffView';
+import { CustomerView } from '../components/views/customerView';
+import FullHeightScrollableContainer from '../components/layout/scrollableContainer';
 
 const OrderPage: NextPage = () => {
     const firestoreUser = useFirestoreUser();

@@ -1,7 +1,7 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
-import PageLayout from '../components/pageLayout';
-import FullHeightScrollableContainer from '../components/scrollableContainer';
+import PageLayout from '../components/layout/pageLayout';
+import FullHeightScrollableContainer from '../components/layout/scrollableContainer';
 import Stats from '../components/stats';
 import { useGuardIsAdmin } from '../lib/hooks';
 import LoadingScreen from '../components/loading';

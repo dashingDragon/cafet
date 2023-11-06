@@ -1,13 +1,13 @@
 import { ArrowBack } from '@mui/icons-material';
 import { Box, Button, Card, CardMedia, Checkbox, Chip, FormControlLabel, IconButton, Menu, MenuItem, Modal, Stack, TextField, Typography } from '@mui/material';
 import { Fragment, useEffect, useState } from 'react';
-import { Product, ProductWithQty, sandwichSizeWithPrices } from '../lib/products';
-import { imageLoader } from '../pages/_app';
-import { useIngredients, useProducts } from '../lib/firestoreHooks';
-import { ingredientCarouselItems } from './lists/ingredientList';
+import { Product, ProductWithQty, sandwichSizeWithPrices } from '../../lib/products';
+import { imageLoader } from '../../pages/_app';
+import { useIngredients, useProducts } from '../../lib/firestoreHooks';
+import { ingredientCarouselItems } from '../lists/ingredientList';
 import Image from 'next/image';
-import { Ingredient, parseIngredients } from '../lib/ingredients';
-import { formatMoney } from './accountDetails';
+import { Ingredient, parseIngredients } from '../../lib/ingredients';
+import { formatMoney } from '../accountDetails';
 
 export const SandwichModal: React.FC<{
     size: string,

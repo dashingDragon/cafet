@@ -1,13 +1,13 @@
 import { Box, Button, Checkbox, CircularProgress, Fab, FormControlLabel, IconButton, Modal, ModalProps, Stack, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
-import { ProductWithQty } from '../lib/products';
-import MiniProductCard from './cards/miniProductCard';
-import { Account } from '../lib/accounts';
+import { ProductWithQty } from '../../lib/products';
+import MiniProductCard from '../cards/miniProductCard';
+import { Account } from '../../lib/accounts';
 import { useState } from 'react';
-import { OrderItemLine } from './lists/orderList';
-import { formatMoney } from './accountDetails';
-import { useFirestoreUser } from '../lib/firestoreHooks';
-import { TransactionOrder } from '../lib/transactions';
+import { OrderItemLine } from '../lists/orderList';
+import { formatMoney } from '../accountDetails';
+import { useFirestoreUser } from '../../lib/firestoreHooks';
+import { TransactionOrder } from '../../lib/transactions';
 
 const BasketModal: React.FC<{
     open: boolean,

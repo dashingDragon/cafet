@@ -4,13 +4,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
 import { ProductWithQty } from '../lib/products';
 import { formatMoney } from './accountDetails';
-import BasketModal from './basketModal';
+import BasketModal from './modals/basketModal';
 import { useOrderEditor } from '../lib/firestoreHooks';
 import { getIngredientPrice } from '../lib/ingredients';
 import { useRouter } from 'next/router';
 import { useMakeTransaction } from '../lib/firebaseFunctionHooks';
 import { ProductShortCardList } from './lists/productShortCardList';
-import { SnackbarContext } from './scrollableContainer';
+import { SnackbarContext } from './layout/scrollableContainer';
 import { TransactionOrder } from '../lib/transactions';
 import logger from '../lib/logger';
 

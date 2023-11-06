@@ -7,7 +7,7 @@ import { Carousel } from '../carousel';
 import { useSetFavorites } from '../../lib/firebaseFunctionHooks';
 import { Add } from '@mui/icons-material';
 import { formatMoney } from '../accountDetails';
-import { SandwichModal } from '../sandwichModal';
+import { SandwichModal } from '../modals/sandwichModal';
 import logger from '../../lib/logger';
 
 export const ProductShortCardList: React.FC<{

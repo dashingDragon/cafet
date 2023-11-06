@@ -3,10 +3,10 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import AccountDetails from '../../components/accountDetails';
 import LoadingScreen from '../../components/loading';
-import PageLayout from '../../components/pageLayout';
+import PageLayout from '../../components/layout/pageLayout';
 import { useAccount } from '../../lib/firestoreHooks';
 import { useGuardIsAdmin } from '../../lib/hooks';
-import FullHeightScrollableContainer from '../../components/scrollableContainer';
+import FullHeightScrollableContainer from '../../components/layout/scrollableContainer';
 
 const AccountDetailsPage: NextPage = () => {
     const admin = useGuardIsAdmin();

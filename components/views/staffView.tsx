@@ -1,14 +1,14 @@
 import { Box, Card, Stack, Typography, styled } from '@mui/material';
-import { countIngredients, ingredientsToCount } from '../lib/ingredients';
-import { imageLoader } from '../pages/_app';
-import { OrderList } from './lists/orderList';
+import { countIngredients, ingredientsToCount } from '../../lib/ingredients';
+import { imageLoader } from '../../pages/_app';
+import { OrderList } from '../lists/orderList';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
-import { Order, TransactionState } from '../lib/transactions';
-import { useTodaysOrders } from '../lib/firestoreHooks';
-import { Carousel } from './carousel';
-import { CarouselItem } from '../lib/products';
-import logger from '../lib/logger';
+import { Order, TransactionState } from '../../lib/transactions';
+import { useTodaysOrders } from '../../lib/firestoreHooks';
+import { Carousel } from '../carousel';
+import { CarouselItem } from '../../lib/products';
+import logger from '../../lib/logger';
 
 const orderStatusPanels = [
     {

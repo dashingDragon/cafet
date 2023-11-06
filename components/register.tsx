@@ -6,7 +6,7 @@ import { useContext, useState } from 'react';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
 import logger from '../lib/logger';
-import { SnackbarContext } from './scrollableContainer';
+import { SnackbarContext } from './layout/scrollableContainer';
 
 const Register: React.FC = () => {
     const router = useRouter();
