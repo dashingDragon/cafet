@@ -7,8 +7,8 @@ service cloud.firestore {
     }
 
     match /transactions/{document=**} {
-      allow read: if isStaff();
-      allow create, update, delete: if isAdmin();
+      allow read, update: if isStaff();
+      allow create, delete: if isAdmin();
     }
 
     match /products/{document=**} {

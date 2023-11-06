@@ -1,8 +1,8 @@
-import {  Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, IconButton, Menu, MenuItem, Slide, SlideProps, Snackbar, Stack, Typography } from '@mui/material';
+import {  Box, Button, Card, CardContent,  Chip,  Dialog, DialogActions, DialogTitle, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { Order, TransactionState } from '../../lib/transactions';
 import React, { useContext, useState } from 'react';
 import { formatMoney } from '../accountDetails';
-import { cashInTransaction, useFirestoreUser, useUpdateOrderStatus } from '../../lib/firestoreHooks';
+import { cashInTransaction, useUpdateOrderStatus } from '../../lib/firestoreHooks';
 import { getIngredientPrice } from '../../lib/ingredients';
 import {Cancel, CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
@@ -51,7 +51,6 @@ export const OrderItemLine: React.FC<{
 };
 
 const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) => {
-    const user = useFirestoreUser();
     const router = useRouter();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -61,11 +60,8 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
     const setSnackbarMessage = useContext(SnackbarContext);
     const setOrderStatus = useUpdateOrderStatus();
 
-
     const handleOpenMenu = (event: { currentTarget: React.SetStateAction<HTMLElement | null>; }) => {
-        if (user?.isAdmin) {
-            setAnchorEl(event.currentTarget);
-        }
+        setAnchorEl(event.currentTarget);
     };
 
     const handleCloseMenu = () => {
@@ -143,7 +139,7 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
                 </Box>
 
                 <Box display="flex" justifyContent="flex-end" flexDirection={'row'} alignItems={'center'}>
-                    {user?.isAdmin && order.transaction.state !== TransactionState.Served && (
+                    {order.transaction.state !== TransactionState.Served && (
                         <>
                             {/* Cancel button */}
                             <IconButton>
