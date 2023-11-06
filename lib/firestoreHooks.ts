@@ -527,25 +527,40 @@ export const useRechargeTransactionMaker = () => {
 
     if (!firestoreAdminUser) return () => alert('Please wait until we confirm that you are an admin.');
 
-    return async (account: Account, amount: number) => {
-        const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
+    return async (account: Account, amount: number): Promise<{
+        success: boolean,
+        message: string,
+    }> => {
+        try {
+            const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
+            const transactionRef = doc(collection(db, `transactions`)).withConverter(transactionConverter);
 
-        const transactionRef = doc(collection(db, `transactions`)).withConverter(transactionConverter);
+            const docSnapshot = await getDoc(accountRef);
+            if (!docSnapshot.exists()) {
+                return {success: false, message: 'Account not found'};
+            }
+            if (!transactionRef) {
+                return {success: false, message: 'Transactions collection not found'};
+            }
+            
+            const batch = writeBatch(db);
+            batch.set(transactionRef, {
+                id: '0',
+                type: TransactionType.Recharge,
+                amount: amount,
+                customer: account,
+                admin: firestoreAdminUser,
+                createdAt: Timestamp.fromDate(new Date()),
+            });
+            batch.update(accountRef, {
+                balance: account.balance + amount,
+            });
 
-        const batch = writeBatch(db);
-        batch.set(transactionRef, {
-            id: '0',
-            type: TransactionType.Recharge,
-            amount: amount,
-            customer: account,
-            admin: firestoreAdminUser,
-            createdAt: Timestamp.fromDate(new Date()),
-        });
-        batch.update(accountRef, {
-            balance: account.balance + amount,
-        });
-
-        await batch.commit();
+            await batch.commit();
+            return {success: true, message: 'Account successfully updated'};
+        } catch (e) {
+            return {success: false, message: String(e)};
+        }
     };
 };
 
@@ -590,10 +605,11 @@ export const useTodaysOrders = () => {
     const [transactions, setTransactions] = useState([] as Order[]);
 
     const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    startOfDay.setDate(startOfDay.getDate() - 1); // Go back one day
+    startOfDay.setHours(22, 0, 0, 0);
 
     const endOfDay = new Date();
-    endOfDay.setHours(23, 59, 59, 0);
+    endOfDay.setHours(21, 59, 59, 0);
 
     useEffect(() => {
         const transactionQuery = query(

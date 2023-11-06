@@ -60,7 +60,7 @@ export const useGetFirestoreUser = () => {
         try {
             return await fun();
         } catch (e) {
-            console.error('getFirestoreUser failed : '  + e);
+            console.error('getFirestoreUser failed : ' + e);
             return { data: { success: false, account: undefined } };
         }
     };
@@ -78,7 +78,7 @@ export const useOrderHistory = () => {
         try {
             return await fun();
         } catch (e) {
-            console.error('getOrderHistory failed : '  + e);
+            console.error('getOrderHistory failed : ' + e);
             return { data: { success: false, orders: undefined } };
         }
     };
@@ -96,8 +96,26 @@ export const useSetFavorites = () => {
         try {
             return await fun(payload);
         } catch (e) {
-            console.error('setFavorites failed : '  + e);
+            console.error('setFavorites failed : ' + e);
             return { data: { success: false } };
+        }
+    };
+};
+
+export const useQueuePosition = () => {
+    const functions = getFunctions();
+    if (LOCAL_FUNCTIONS) {
+        connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+    }
+    const fun = httpsCallable(functions, 'getQueuePosition') as (data?: unknown) => Promise<HttpsCallableResult<{ success: boolean, position: number }>>;
+
+    return async (): Promise<HttpsCallableResult<{ success: boolean, position: number }>> => {
+        logger.log('Called function getQueuePosition');
+        try {
+            return await fun();
+        } catch (e) {
+            console.error('getQueuePosition failed : ' + e);
+            return { data: { success: false, position: 0 } };
         }
     };
 };

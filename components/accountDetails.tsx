@@ -1,7 +1,7 @@
 import { AccountBalanceWallet, AccountCircle, AddModerator, Coffee, Cookie, DeleteForever, Edit, Error, Euro, LunchDining, PointOfSale } from '@mui/icons-material';
 import { Avatar, Box, Button, ButtonGroup, Card, CardContent, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Stack, TextField, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Account, MAX_MONEY_PER_ACCOUNT, School } from '../lib/accounts';
 import {  useAccountDeleter, useAccountEditor, useCurrentStatsForAccount, useMakeStaff, useRechargeTransactionMaker, useTransactionHistory } from '../lib/firestoreHooks';
 import AccountEditDialog from './dialogs/accountEditDialog';
@@ -9,6 +9,7 @@ import { TransactionOrder, TransactionRecharge, TransactionState, TransactionTyp
 import { useGuardIsAdmin } from '../lib/hooks';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
+import { SnackbarContext } from './scrollableContainer';
 
 const schoolToImage = (school: School) => {
     return `/schools/${School[school].toLowerCase()}.png`;
@@ -39,7 +40,7 @@ const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
                         {account.phone !== '' && (
                             <Typography variant="overline" sx={{ textTransform: 'none' }}>{account.phone}</Typography>
                         )}
-                        <Stack direction="row">
+                        <Stack direction="row" spacing={2}>
                             {account.isStaff && (
                                 <Chip
                                     variant="outlined"
@@ -62,6 +63,7 @@ const AccountHeader: React.FC<{ account: Account }> = ({ account }) => {
                                     className={'icon'}
                                 />
                             )}
+                            <Typography variant="overline" sx={{ textTransform: 'none' }}>{account.id}</Typography>
                         </Stack>
                     </Box>
                 </Box>
@@ -75,6 +77,7 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
     const recharge = useRechargeTransactionMaker();
     const [dialogOpen, setDialogOpen] = useState(false);
     const [rechargeAmount, setRechargeAmount] = useState(null as number | null);
+    const setSnackbarMessage = useContext(SnackbarContext);
 
     const maxRecharge = MAX_MONEY_PER_ACCOUNT - account.balance;
 
@@ -85,7 +88,14 @@ const AccountBalanceAndRecharge: React.FC<{ account: Account }> = ({ account }) 
 
     const handleRecharge = async () => {
         setDialogOpen(false);
-        await recharge(account, (rechargeAmount ?? 0) * 100);
+        const result = await recharge(account, (rechargeAmount ?? 0) * 100);
+        if (result) {
+            if (result.success) {
+                setSnackbarMessage(result.message, 'success');
+            } else {
+                setSnackbarMessage(result.message, 'error');
+            }
+        }
         setRechargeAmount(null);
     };
 
@@ -364,13 +374,15 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                         return (
                             <div key={i}>
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={1}>
-                                    <Typography variant="body1">
+                                    <Typography variant="body1" sx={{
+                                        color: (transaction as TransactionOrder).state === TransactionState.Cancelled ? 'gray' : '',
+                                    }}>
                                         Commande
                                     </Typography>
                                     <Typography variant="body1" sx={{
                                         fontWeight: 'bold',
                                         textDecorationLine: (transaction as TransactionOrder).state === TransactionState.Cancelled ? 'line-through' : 'none',
-                                        color: theme => theme.palette.error.main,
+                                        color: theme => (transaction as TransactionOrder).state === TransactionState.Cancelled ? 'gray' : theme.palette.error.main,
                                     }}>
                                         -{formatMoney((transaction as TransactionOrder).price)}
                                     </Typography>
@@ -378,10 +390,12 @@ const AccountHistory: React.FC<{ account: Account }> = ({ account }) => {
                                 <Box display="flex" justifyContent="space-between" flexDirection={'row'} mb={3}>
                                     {(transaction as TransactionOrder).state === TransactionState.Cancelled ? (
                                         <>
-                                            <Typography variant="body1">
+                                            <Typography variant="body1" sx={{
+                                                color: 'gray',
+                                            }}>
                                                 {formatDate(transaction.createdAt.toDate())}
                                             </Typography>
-                                            <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
+                                            <Typography variant="body1" sx={{ fontStyle: 'italic', color: 'gray' }}>
                                                 Commande annulée
                                             </Typography>
                                         </>

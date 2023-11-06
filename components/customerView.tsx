@@ -1,17 +1,18 @@
 import { Alert, AlertTitle, Avatar, Box, Card, CardContent, Chip, Divider, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography, useTheme } from '@mui/material';
 import { getAuth, signOut } from 'firebase/auth';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Account } from '../lib/accounts';
 import { CheckCircle, DarkMode, LightMode, Logout, Timelapse } from '@mui/icons-material';
 import ProductMenu from './productMenu';
 import { invertTheme, useAppTheme } from '../lib/theme';
-import { useOrderHistory } from '../lib/firebaseFunctionHooks';
+import { useOrderHistory, useQueuePosition } from '../lib/firebaseFunctionHooks';
 import { TransactionOrder, TransactionState } from '../lib/transactions';
 import { formatDate, formatMoney } from './accountDetails';
 import { OrderItemLine } from './lists/orderList';
 import Image from 'next/image';
 import { imageLoader } from '../pages/_app';
 import { DateTime } from 'luxon';
+import { SnackbarContext } from './scrollableContainer';
 
 const getDateFromBrokenTimestamp = (date: { _seconds: number }): Date => {
     return new Date(date._seconds * 1000);
@@ -20,22 +21,25 @@ const getDateFromBrokenTimestamp = (date: { _seconds: number }): Date => {
 const isCurrentTimeInRange = () => {
     const parisTimeZone = 'Europe/Paris';
     const currentTimeParis = DateTime.now().setZone(parisTimeZone);
-
-    if (currentTimeParis.weekday === 6 /* saturday */) {
-        return false;
-    }
-
     const startOfOrderPeriod = currentTimeParis.set({hour: 22, minute: 0, second: 0, millisecond: 1});
     const endOfOrderPeriod = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
 
-    if (
-        !((currentTimeParis.weekday + 1) % 8 <= 5 && currentTimeParis <= startOfOrderPeriod) &&
-        !((currentTimeParis.weekday <= 5 && currentTimeParis <= endOfOrderPeriod))
-    ) {
+    if (currentTimeParis.weekday === 6 /* saturday */) {
         return false;
+    } else if (currentTimeParis.weekday === 5 /* friday */) {
+        if (currentTimeParis <= endOfOrderPeriod) {
+            return true;
+        }    
+    } else if (currentTimeParis.weekday === 7 /* sunday */) {
+        if (currentTimeParis >= startOfOrderPeriod) {
+            return true;
+        }
+    } else {
+        if (currentTimeParis <= endOfOrderPeriod || currentTimeParis >= startOfOrderPeriod) {
+            return true;
+        }
     }
-
-    return true;
+    return false;   
 };
 
 export const CustomerView: React.FC<{
@@ -48,6 +52,9 @@ export const CustomerView: React.FC<{
     const [currentOrders, setCurrentOrders] = useState<TransactionOrder[]>([]);
     const [pastOrders, setPastOrders] = useState<TransactionOrder[]>([]);
     const isTimeToOrder = isCurrentTimeInRange();
+    const getQueuePosition = useQueuePosition();
+    const [queuePosition, setQueuePosition] = useState(0);
+    const setSnackbarMessage = useContext(SnackbarContext);
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -91,6 +98,16 @@ export const CustomerView: React.FC<{
         };
         updateOrderHistory();
 
+        const updateQueuePosition = async () => {
+            const result = await getQueuePosition();
+            if (result.data.success) {
+                setQueuePosition(result.data.position);
+            } else {
+                setSnackbarMessage('Error fetching queue position', 'error');
+            }
+
+        };
+        updateQueuePosition();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -232,6 +249,14 @@ export const CustomerView: React.FC<{
                     <Typography variant="body1" mb={2} mt={4}>
                         {'Aujourd\'hui'}
                     </Typography>
+                    {queuePosition > 0 && (
+                        <Typography variant="body2" mb={2} mt={4}>
+                            {'Position dans la file d\'attente : '}
+                            <strong>
+                                {queuePosition}
+                            </strong>
+                        </Typography>
+                    )}
                     <Stack direction='column' alignItems={'center'} gap={2} mb={4}>
                         {currentOrders.map((transaction, i) => (
                             <Card key={i} variant={transaction.state !== TransactionState.Preparing ? 'outlined' : 'elevation'} sx={{
@@ -293,7 +318,7 @@ export const CustomerView: React.FC<{
                     <Alert severity="error" variant="filled" sx={{ borderRadius: '20px', mb: 8 }}>
                         <AlertTitle sx={{ color: '#fff', fontWeight: 700 }}>Bientôt...</AlertTitle>
                         Ce n&apos;est pas encore l&apos;heure de commander.
-                        Vous pouvez commander entre <strong>minuit</strong> et <strong>11h30</strong> du <strong>lundi</strong> au <strong>vendredi</strong>.
+                        Vous pouvez commander de <strong>22h</strong> à <strong>11h30</strong> du <strong>dimanche</strong> au <strong>vendredi</strong>.
                     </Alert>
                     <Image
                         loader={imageLoader}

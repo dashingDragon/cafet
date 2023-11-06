@@ -125,7 +125,7 @@ export const getFirestoreUser = functions.https.onCall(async (data, context) => 
  */
 export const getOrderHistory = functions.https.onCall(async (data, context) => {
     if (!context.auth) {
-        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated have an order history.');
+        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated to have an order history.');
     }
 
     try {
@@ -149,6 +149,47 @@ export const getOrderHistory = functions.https.onCall(async (data, context) => {
 });
 
 /**
+ * Retrieve the client's current position in the waiting queue.
+ */
+export const getQueuePosition = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'You must be authenticated to be in a queue.');
+    }
+
+    try {
+        const startOfDay = new Date();
+        startOfDay.setDate(startOfDay.getDate() - 1); // Go back one day
+        startOfDay.setHours(22, 0, 0, 0);
+
+        const endOfDay = new Date();
+        endOfDay.setHours(21, 59, 59, 0);
+        const db = admin.firestore();
+        const googleUid = context.auth.uid;
+
+        const transactions = (await db.collection('transactions').withConverter(transactionConverter as unknown as FirestoreDataConverter<Transaction>)
+            .where('createdAt', '>=', startOfDay)
+            .where('createdAt', '<', endOfDay)
+            .where('type', '==', TransactionType.Order)
+            .where('state', '==', TransactionState.Preparing)
+            .get()
+        ).docs.map((doc) => doc.data());
+
+        transactions.sort((a, b) => +a.createdAt - +b.createdAt);
+
+        for (let i = 0; i < transactions.length; i++) {
+            if (transactions[i].customer.id === googleUid) {
+                return {success: true, position: i + 1};
+            }
+        }
+
+        return {success: true, position: 0};
+    } catch (error) {
+        console.error(error);
+        return {success: false, position: 0};
+    }
+});
+
+/**
  * Update the list of favorite foods of the customer.
  */
 export const setFavorites = functions.https.onCall(async (data, context) => {
@@ -159,11 +200,11 @@ export const setFavorites = functions.https.onCall(async (data, context) => {
     const googleUid = context.auth.uid;
 
     const {favorites} = (data as SetFavoritesPayload);
-    favorites.forEach((favorite) => {
-        if (!nameRegex.test(favorite)) {
-            throw new functions.https.HttpsError('invalid-argument', 'Invalid format for favorite id.');
-        }
-    });
+    // favorites.forEach((favorite) => {
+    //     if (!nameRegex.test(favorite)) {
+    //         throw new functions.https.HttpsError('invalid-argument', 'Invalid format for favorite id.');
+    //     }
+    // });
 
     try {
         const accountRef = db.doc(`accounts/${googleUid}`).withConverter(accountConverter as unknown as FirestoreDataConverter<Account>);
@@ -313,12 +354,22 @@ export const makeTransaction = functions.https.onCall(async (data, context) => {
     const startOfOrderPeriod = currentTimeParis.set({hour: 22, minute: 0, second: 0, millisecond: 1});
     const endOfOrderPeriod = currentTimeParis.set({hour: 11, minute: 30, second: 0, millisecond: 0});
 
-    if (
-        !requestingAccount.isAdmin &&
-        !((currentTimeParis.weekday + 1) % 8 <= 5 && currentTimeParis <= startOfOrderPeriod) &&
-        !((currentTimeParis.weekday <= 5 && currentTimeParis <= endOfOrderPeriod))
-    ) {
-        throw new functions.https.HttpsError('permission-denied', 'You can only order between 10:00 PM and 11:30 AM Paris time.');
+    if (!requestingAccount.isAdmin) {
+        if (currentTimeParis.weekday === 6 /* saturday */) {
+            throw new functions.https.HttpsError('permission-denied', 'You can only order between 10:00 PM and 11:30 AM Paris time.');
+        } else if (currentTimeParis.weekday === 5 /* friday */) {
+            if (currentTimeParis > endOfOrderPeriod) {
+                throw new functions.https.HttpsError('permission-denied', 'You can only order between 10:00 PM and 11:30 AM Paris time.');
+            }
+        } else if (currentTimeParis.weekday === 7 /* sunday */) {
+            if (currentTimeParis < startOfOrderPeriod) {
+                throw new functions.https.HttpsError('permission-denied', 'You can only order between 10:00 PM and 11:30 AM Paris time.');
+            }
+        } else {
+            if (currentTimeParis > endOfOrderPeriod && currentTimeParis < startOfOrderPeriod) {
+                throw new functions.https.HttpsError('permission-denied', 'You can only order between 10:00 PM and 11:30 AM Paris time.');
+            }
+        }
     }
 
     // Write the transaction.
