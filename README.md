@@ -12,14 +12,84 @@ A few scripts are available:
 * `npm run dev`: Start a development server
 * `npm run build`: Build the app for production
 * `npm start`: Start a production server (requires a production build to be available)
+* `npm deploy-web`: Deploy the application only (not the cloud functions)
 * `npm run fmt`: Reformat the whole project
 
+The scripts are defined in `package.json`.
+Note : the cafet and kafet-imag-functions projects are separate. You can build them independently using ``npm run build`` in their respective root directories.
+
+## Deployment
+
+To deploy the app to firebase, you should have the firebase CLI installed and be connected to a firebase account with privilege for this application.
+After building the app, you can deploy it : 
+```bash
+npm run build
+firebase deploy
+```
+Note : ``firebase deploy`` will build the kafet-imag-functions project under the hood.
+
+You can also decide to only deploy some functions to reduce overhead work from the server (by default functions are redeployed even if there is no change) : 
+```bash
+firebase deploy --only functions
+firebase deploy --only functions:makeTransaction,functions:getFirestoreUser
+```
+
+At any moment, you can check the status of the application on Firebase and the associated cloud functions on GCP.
+
+Note : the logging on GCP functions can be tricky. In case you need to debug the functions, I would recommend that you deploy them locally using 
+```bash
+firebase emulators:start --only functions
+```
+Then go to the ``firebaseFunctionHooks.ts`` file and set the boolean to ``LOCAL_FUNCTIONS`` to True. 
+**WARNING** : do not forget to set it back to False when building the production app !!!
+
+You can also emulate Firestore locally if you do not want to affect the production database.
+Lastly, if you plan on logging things in the production functions, you should try logging the most valuable information only, with the highest precisison possible about what happened.
+The GCP function logs are very messy and do not bear metadata (request origin, payload, etc)
+
+
 ## Structure
-* `pages`: Different pages of the app, following the Next.js scheme, they only take the arguments in the URL and pass it to a component in `components`
-* `components`: Contains the UI components
-* `lib`: Contains all of the data structures and logic (in custom hooks)
+* `pages`: Different pages of the app, following the Next.js scheme, they only take the arguments in the URL and pass it to a component in `components`.
+* `components`: Contains the UI components.
+* `lib`: Contains all of the data structures and logic (in custom hooks).
+* `public`: contains assets like images or logos.
+* `firestore.rules`: contains the firestore rules to control access to the database
+* `firestore.indexes.json`: defines special indexes to perform relational requests on the database (you can define them in the Firebase console and download them when it is suggested to you in the deploying phase).
+* `.firebaserc`: configuration file for the Firebase CLI.
+* `firebase.json`: defines scripts and arguments for Firebase commands (hosting and functions).
+* `kafet-imag-functions` : separate project containing the GCP functions used in the application. You only need to care about the ``src/index.ts`` file. It is very touchy with the Typescript syntax.
+* `styles`: folder with the css styles of the app. Not used here.
+
+If you are not familiar with Next applications, here is a summary of the other elements : 
+* `out` : built application.
+* `node_modules`: npm packages and modules you need in your app.
+* `package.json`: contains metadata about the application (name, version), scripts or aliases for commands in the local directory, the root dependencies for your application and the developer dependencies that will not be compiled in the production application.
+* `package-lock.json`: represents the exact state of your npm project, with all installed packages, their dependencies and their versions. Installing from package.json with npm install will look for the latest version of the package by default, however installing
+* `.eslintrc.json`: rules for ESLint, a linter for JS.
+* `tsconfig.json`: defines the TypeScript configuration. You can customize it.
+* `.next`: NextJS configuration files. Do not touch.
+* `.firebase`: Firebase configuration files. Do not touch.
+* `.gitignore`: defines the files that should be ignored by git.
+
+## Security
+
+**A quick note about appsec**
+
+This application, given the sensitive data is handles, ought to be secure.
+
+Firstly, the GCP API is the crucial point to defend. Each request should properly check if the requesting user has permission to call the function, and each parameter should be sanitized and verified. **Do not trust the user**. Always check quantities and balance with the server. I have used zod to perform runtime checks on request payloads. You should also be careful about input sanitization in the future, in order to avoid XSS attacks.
+
+Secondly, Firestore rules should be properly configured and give the least privilege to each role. It can be easier to create a GCP function for some action instead of creating a new role or adding permissions to a role.
+
+Finally, the client-side of the application should restrict a user to only what they are allowed to see. As of today, I don't think the access control on the client-side is properly implemented, meaning if a customer wants to access the admin page, it could be able to do it, but it should not be able to list orders or other customers because the API is correctly secured. 
+
+## Git
+
+I have been using the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) syntax, and you should do the same. All the progress in this app can be understood from the commit tree.
 
 ## TODO list
+
+It would be great to create User Stories (use cases) and automatic tests to check if the functionalities of the application are well implemented.
 
 Here is the TODO-list of the project, for the staff-side app :
 - [x] add list of customers
@@ -45,7 +115,7 @@ Here is the TODO-list of the project, for the staff-side app :
 - [x] check if ingredientPrice is taken into account everywhere
 - [x] use better images
 - [x] add cancel order button
-- [ ] make a backup script for the database
+- [x] make a backup script for the database
 - [ ] make a statistical graph for products
 
 For the customer-side app :
