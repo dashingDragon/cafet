@@ -393,6 +393,17 @@ export const useProductEditor = () => {
         logger.log(`Updating ${name}`);
         if (type === 'serving') {
             const {isVege, isVegan, allergen, description} = parseIngredients(ingredients);
+            logger.log(type,
+                name,
+                isAvailable,
+                image,
+                sizeWithPrices,
+                isVege,
+                isVegan,
+                allergen,
+                ingredients,
+                description
+            );
             return await updateDoc(doc(db, `products/${product.id}`).withConverter(productConverter), {
                 type,
                 name,
@@ -436,7 +447,7 @@ export const useProductDeleter = () => {
 export const useIngredientMaker = () => {
     const db = getFirestore();
 
-    return async ({ id, name, category, isVege, isVegan, price, allergen, image }: Ingredient) => {
+    return async ({ id, name, category, isVege, isVegan, price, allergen, image, acronym }: Ingredient) => {
         logger.log('Create ingredient');
         return await addDoc(collection(db, 'ingredients').withConverter(ingredientConverter), {
             id,
@@ -447,6 +458,7 @@ export const useIngredientMaker = () => {
             price,
             allergen,
             image,
+            acronym,
         });
     };
 };
@@ -487,6 +499,7 @@ export const useIngredientEditor = () => {
         price: number,
         allergen: string,
         image: string,
+        acronym: string,
     ) => {
         logger.log(`Updating ${name}`);
         await updateDoc(doc(db, `ingredients/${ingredient.id}`).withConverter(ingredientConverter), {
@@ -497,6 +510,7 @@ export const useIngredientEditor = () => {
             price,
             allergen,
             image,
+            acronym,
         });
     };
 };

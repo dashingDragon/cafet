@@ -3,7 +3,7 @@ import { Order, TransactionState } from '../../lib/transactions';
 import React, { useContext, useState } from 'react';
 import { formatMoney } from '../accountDetails';
 import { cashInTransaction, useUpdateOrderStatus } from '../../lib/firestoreHooks';
-import { getIngredientPrice } from '../../lib/ingredients';
+import { getIngredientPrice, ingredientCategoryOrder as ingredientCategoryOrder } from '../../lib/ingredients';
 import {Cancel, CheckCircle, EditOutlined, Timelapse} from '@mui/icons-material';
 import { ProductWithQty } from '../../lib/products';
 import { SnackbarContext } from '../layout/scrollableContainer';
@@ -13,9 +13,9 @@ export const OrderItemLine: React.FC<{
     productWithQty: ProductWithQty,
     quantity: number,
     size: string,
-    showIngredients?: boolean,
+    showIngredientsAcronyms?: boolean,
     short?: boolean
-}> = ({ productWithQty, quantity, size, showIngredients, short }) => {
+}> = ({ productWithQty, quantity, size, showIngredientsAcronyms, short }) => {
     const product = productWithQty.product;
     if (product.type === 'serving') {
         return (
@@ -28,7 +28,17 @@ export const OrderItemLine: React.FC<{
                         <Typography variant="body2">{formatMoney(quantity * (product.sizeWithPrices[size] + getIngredientPrice(product.ingredients)))}</Typography>
                     )}
                 </Stack>
-                {showIngredients && product.ingredients && product.ingredients.map((ingredient) =>
+                {showIngredientsAcronyms ? (
+                    <Stack direction="row" spacing={1}>
+                        {ingredientCategoryOrder.map(category => (
+                            product.ingredients && product.ingredients
+                                .filter(ingredient => ingredient.acronym && ingredient.category === category)
+                                .map(ingredient => (
+                                    <Typography key={ingredient.name} variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>{ingredient.acronym}</Typography>
+                                ))
+                        ))}
+                    </Stack>
+                ) : product.ingredients && product.ingredients.map((ingredient) =>
                     <Stack key={ingredient.name} direction="row" justifyContent={'space-between'}>
                         <Typography variant="body1" sx={{ color: theme => theme.palette.mode === 'light' ? 'hsla(145, 50%, 26%, 1)' : 'hsla(145, 28%, 63%, 1)' }}>· {ingredient.name}</Typography>
                         {ingredient.price > 0 && <Typography variant="body2">+{formatMoney(ingredient.price)}</Typography>}
@@ -131,7 +141,7 @@ const OrderItem: React.FC<{order: Order, short?: boolean}> = ({order, short}) =>
                                     productWithQty={productWithQty}
                                     quantity={quantity}
                                     size={size}
-                                    showIngredients={!short}
+                                    showIngredientsAcronyms={short}
                                     short={short}
                                 />
                             ))))

@@ -85,6 +85,7 @@ const IngredientItem: React.FC<{
                                 />
                             )}
                             {ingredient.name}
+                            {ingredient.acronym && (' ('+ingredient.acronym+')')}
                             {(ingredient.isVege || ingredient.isVegan) && (
                                 <Image
                                     loader={imageLoader}

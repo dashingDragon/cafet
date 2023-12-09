@@ -35,7 +35,9 @@ export const ProductDialog: React.FC<IProductDialog> = ({ open, setProductDialog
             if (product.sizeWithPrices) {
                 setPrices(product.sizeWithPrices);
             }
-            setImage(product.image);
+            if(product.image) {
+                setImage(product.image);
+            }
             if (product.ingredients) {
                 setSelectedIngredients(product.ingredients);
             }

@@ -11,8 +11,8 @@ export type Product = {
     type: productType;
     name: string;
     isAvailable: boolean;
-    image: string;
     sizeWithPrices: Record<string, number>;
+    image?: string;
     isVege?: boolean;
     isVegan?: boolean;
     allergen?: string;
@@ -26,8 +26,8 @@ const ProductSchema: ZodSchema<Product> = z.object({
     type: ProductTypeSchema,
     name: z.string(),
     isAvailable: z.boolean(),
-    image: z.string(),
     sizeWithPrices: z.record(z.number()),
+    image: z.string(),
     isVege: z.optional(z.boolean()),
     isVegan: z.optional(z.boolean()),
     allergen: z.optional(z.string()),
@@ -57,8 +57,8 @@ export const productConverter: FirestoreDataConverter<Product> = {
             type,
             name,
             isAvailable,
-            image,
             sizeWithPrices,
+            ...(image !== undefined && {image}),
             ...(isVege !== undefined && {isVege}),
             ...(isVegan !== undefined && {isVegan}),
             ...(allergen !== undefined && {allergen}),
@@ -73,8 +73,8 @@ export const productConverter: FirestoreDataConverter<Product> = {
             type,
             name,
             isAvailable,
-            image,
             sizeWithPrices,
+            ...(image !== undefined && {image}),
             ...(isVege !== undefined && {isVege}),
             ...(isVegan !== undefined && {isVegan}),
             ...(allergen !== undefined && {allergen}),

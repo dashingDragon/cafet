@@ -21,6 +21,7 @@ export type Ingredient = {
     price: number,
     allergen: string,
     image: string,
+    acronym: string,
 };
 
 export const IngredientSchema: ZodSchema<Ingredient> = z.object({
@@ -32,12 +33,13 @@ export const IngredientSchema: ZodSchema<Ingredient> = z.object({
     price: z.number(),
     allergen: z.string(),
     image: z.string(),
+    acronym: z.string(),
 });
 
 export const ingredientConverter: FirestoreDataConverter<Ingredient> = {
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        const { name, category, isVege, isVegan, price, allergen, image } = data;
+        const { name, category, isVege, isVegan, price, allergen, image, acronym } = data;
         return {
             id: snapshot.id,
             name,
@@ -47,11 +49,12 @@ export const ingredientConverter: FirestoreDataConverter<Ingredient> = {
             price,
             allergen,
             image,
+            acronym,
         };
     },
     toFirestore: (product) => {
-        const { name, category, isVege, isVegan, price, allergen, image } = product;
-        return { name, category, isVege, isVegan, price, allergen, image };
+        const { name, category, isVege, isVegan, price, allergen, image, acronym } = product;
+        return { name, category, isVege, isVegan, price, allergen, image, acronym };
     },
 };
 
@@ -145,3 +148,11 @@ export const getIngredientPrice = (ingredients: Ingredient[] | undefined): numbe
     }
     return price;
 };
+
+export const ingredientCategoryOrder = [
+    'veggie',
+    'sauce',
+    'spice',
+    'meat',
+    'cheese',
+];

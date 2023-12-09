@@ -19,6 +19,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
     const [price, setPrice] = useState(0);
     const [allergen, setAllergen] = useState('');
     const [image, setImage] = useState('');
+    const [acronym, setAcronym] = useState('');
 
     useEffect(() => {
         if (ingredient) {
@@ -31,6 +32,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
             if (ingredient.image) {
                 setImage(ingredient.image);
             }
+            setAcronym(ingredient.acronym);
         } else {
             setCategory('veggie');
             setName('');
@@ -39,12 +41,14 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
             setPrice(0);
             setAllergen('');
             setImage('');
+            setAcronym('');
         }
     }, [ingredient]);
 
     const makeIngredient = useIngredientMaker();
     const editIngredient = useIngredientEditor();
 
+    // TODO make a function to abstract these handling functions
     const handleChange = (event: SelectChangeEvent) => {
         setCategory(event.target.value as ingredientCategory);
     };
@@ -73,6 +77,10 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
         setImage(event.target.value);
     };
 
+    const handleChangeAcronym = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setAcronym(event.target.value);
+    };
+
     const handleCreateIngredient = async () => {
         const ingredient: Ingredient = {
             id: '0',
@@ -83,6 +91,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
             price: price,
             allergen: allergen,
             image: image,
+            acronym: acronym,
         };
         await makeIngredient(ingredient);
         setCategory('veggie');
@@ -92,6 +101,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
         setPrice(0);
         setAllergen('');
         setImage('');
+        setAcronym('');
 
         setIngredientDialogOpen(false);
     };
@@ -107,6 +117,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
                 price,
                 allergen,
                 image,
+                acronym,
             );
         }
         setCategory('veggie');
@@ -116,6 +127,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
         setPrice(0);
         setAllergen('');
         setImage('');
+        setAcronym('');
         
         setIngredientDialogOpen(false);
     };
@@ -145,11 +157,22 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
                         {/* Name */}
                         <FormControl sx={{ marginTop: 3, minWidth: 120 }}>
                             <OutlinedInput
-                                id="my-input"
+                                id="name-input"
                                 placeholder="Nom"
                                 aria-describedby="my-helper-text"
                                 value={name}
                                 onChange={handleChangeName}
+                            />
+                        </FormControl>
+
+                        {/* Acronym */}
+                        <FormControl sx={{ marginTop: 3, minWidth: 120 }}>
+                            <OutlinedInput
+                                id="acronym-input"
+                                placeholder="Acronym"
+                                aria-describedby="my-helper-text"
+                                value={acronym}
+                                onChange={handleChangeAcronym}
                             />
                         </FormControl>
 
@@ -178,7 +201,7 @@ export const IngredientDialog: React.FC<IIngredientDialog> = ({ open, setIngredi
                         {/* Allergen */}
                         <FormControl sx={{ marginTop: 3, minWidth: 120 }}>
                             <OutlinedInput
-                                id="my-input"
+                                id="allergen-input"
                                 placeholder="Allergène"
                                 aria-describedby="my-helper-text"
                                 value={allergen}
