@@ -605,10 +605,13 @@ export const useTodaysOrders = () => {
     const [transactions, setTransactions] = useState([] as Order[]);
 
     const startOfDay = new Date();
-    startOfDay.setDate(startOfDay.getDate() - 1); // Go back one day
-    startOfDay.setHours(22, 0, 0, 0);
-
     const endOfDay = new Date();
+    if (startOfDay.getHours() < 22) {
+        startOfDay.setDate(startOfDay.getDate() - 1); // Go back one day
+    } else {
+        endOfDay.setDate(endOfDay.getDate() + 1);
+    }
+    startOfDay.setHours(22, 0, 0, 0);
     endOfDay.setHours(21, 59, 59, 0);
 
     useEffect(() => {
@@ -654,8 +657,9 @@ export const useUpdateOrderStatus = () => {
     }> => {
         logger.log(`Updating transaction ${transaction.id} status`);
 
-        if (state === TransactionState.Served) {
+        if (state === TransactionState.Served) { /** Serve order */
             try {
+                /** Update the order document with the new Served state and the admin who served the order */
                 await updateDoc(doc(db, `transactions/${transaction.id}`), {
                     state,
                     admin,
@@ -664,8 +668,9 @@ export const useUpdateOrderStatus = () => {
             } catch (error) {
                 return {success: false, message: 'Error'};
             }
-        } else if (state === TransactionState.Ready) {
+        } else if (state === TransactionState.Ready) { /** Make order ready to be served */
             try {
+                /** Update the order document with the new Ready state and the admin who prepared the order */
                 await updateDoc(doc(db, `transactions/${transaction.id}`), {
                     state,
                     admin,
@@ -674,10 +679,9 @@ export const useUpdateOrderStatus = () => {
             } catch (error) {
                 return {success: false, message: 'Error'};
             }
-        } else if (state === TransactionState.Cancelled) {
+        } else if (state === TransactionState.Cancelled) { /** Cancel order */
             logger.log(transaction);
             try {
-                const db = getFirestore();
                 const batch = writeBatch(db);
 
                 // Update the products stocks.
@@ -726,12 +730,12 @@ export const cashInTransaction = async (transaction: TransactionOrder): Promise<
 }> => {
     try {
         const db = getFirestore();
-        const account = transaction.customer;
+        const oldTransactionAccount = transaction.customer;
 
         // Update the global stats
         const statsRef = doc(db, 'stats/0').withConverter(statConverter);
         const statsData = (await getDoc(statsRef)).data();
-        const accountRef = doc(db, `accounts/${account.id}`).withConverter(accountConverter);
+        const accountRef = doc(db, `accounts/${oldTransactionAccount.id}`).withConverter(accountConverter);
         const accountData = (await getDoc(accountRef)).data();
 
         if (!statsData) {
@@ -770,12 +774,12 @@ export const cashInTransaction = async (transaction: TransactionOrder): Promise<
 
         // Update balance.
         batch.update(accountRef, {
-            balance: account.balance - transaction.price,
+            balance: accountData.balance - transaction.price,
             stats: {
-                totalMoneySpent: account.stats.totalMoneySpent += transaction.price,
-                servingsOrdered: account.stats.servingsOrdered += quantityOrdered['serving'],
-                drinksOrdered: account.stats.drinksOrdered += quantityOrdered['drink'],
-                snacksOrdered: account.stats.snacksOrdered += quantityOrdered['snack'],
+                totalMoneySpent: accountData.stats.totalMoneySpent += transaction.price,
+                servingsOrdered: accountData.stats.servingsOrdered += quantityOrdered['serving'],
+                drinksOrdered: accountData.stats.drinksOrdered += quantityOrdered['drink'],
+                snacksOrdered: accountData.stats.snacksOrdered += quantityOrdered['snack'],
             },
         });
 
