@@ -158,11 +158,18 @@ export const getQueuePosition = functions.https.onCall(async (data, context) => 
 
     try {
         const startOfDay = new Date();
-        startOfDay.setDate(startOfDay.getDate() - 1); // Go back one day
-        startOfDay.setHours(22, 0, 0, 0);
-
         const endOfDay = new Date();
-        endOfDay.setHours(21, 59, 59, 0);
+
+        if (startOfDay.getHours() >= 22) {
+            startOfDay.setHours(22, 0, 0, 0);
+            endOfDay.setDate(endOfDay.getDate() + 1);
+            endOfDay.setHours(21, 59, 59, 0);
+        } else {
+            startOfDay.setDate(startOfDay.getDate() - 1); // Go back one day
+            startOfDay.setHours(22, 0, 0, 0);
+            endOfDay.setHours(21, 59, 59, 0);
+        }
+
         const db = admin.firestore();
         const googleUid = context.auth.uid;
 
